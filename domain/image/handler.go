@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5"
 	"github.com/kabarhaji-id/goumrah-api/api"
 	"github.com/kabarhaji-id/goumrah-api/database"
@@ -31,20 +30,9 @@ func CreateHandler(c *fiber.Ctx) error {
 		return api.ErrInternalServer(c, err)
 	}
 
-	// Build query
-	queryBuilder := sqlbuilder.PostgreSQL.NewInsertBuilder()
-	query, args := queryBuilder.
-		InsertInto("images").
-		Cols("src", "alt", "category", "title", "created_at", "updated_at").
-		Values(imageFileName, request.Alt, request.Category, request.Title, "NOW()", "NOW()").
-		Returning("id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at").
-		Build()
-
-	// Insert image into database and scan returning into response
-	response := Response{}
-	if err := tx.QueryRow(context.Background(), query, args...).Scan(
-		&response.Id, &response.Src, &response.Alt, &response.Category, &response.Title, &response.CreatedAt, &response.UpdatedAt, &response.DeletedAt,
-	); err != nil {
+	// Insert image into database
+	response, err := Dao.Insert(tx, imageFileName, request)
+	if err != nil {
 		tx.Rollback(context.Background())
 
 		return api.ErrInternalServer(c, err)
@@ -72,45 +60,30 @@ func GetAllHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	// Build query for select all images
-	queryBuilder := sqlbuilder.PostgreSQL.NewSelectBuilder()
-	query, args := queryBuilder.
-		Select("id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at").
-		From("images").
-		OrderBy("id ASC").
-		Limit(paginationQuery.PerPage).
-		Offset(paginationQuery.PerPage * (paginationQuery.Page - 1)).
-		Where(queryBuilder.IsNull("deleted_at")).
-		Build()
-
-	// Query images from database
-	rows, err := database.Pool.Query(context.Background(), query, args...)
+	// Start transaction
+	tx, err := database.Pool.Begin(context.Background())
 	if err != nil {
 		return api.ErrInternalServer(c, err)
 	}
 
-	// Collect rows into response
-	responses, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (response Response, err error) {
-		err = row.Scan(
-			&response.Id, &response.Src, &response.Alt, &response.Category, &response.Title, &response.CreatedAt, &response.UpdatedAt, &response.DeletedAt,
-		)
-		return
-	})
+	// Select all images from database
+	responses, err := Dao.SelectAll(tx, paginationQuery)
 	if err != nil {
+		tx.Rollback(context.Background())
+
 		return api.ErrInternalServer(c, err)
 	}
 
-	// Build query for count all images
-	queryBuilder = sqlbuilder.PostgreSQL.NewSelectBuilder()
-	query, args = queryBuilder.
-		Select("COUNT(*)").
-		From("images").
-		Where(queryBuilder.IsNull("deleted_at")).
-		Build()
+	// Select count all images from database
+	count, err := Dao.CountAll(tx)
+	if err != nil {
+		tx.Rollback(context.Background())
 
-	// Query count all images from database
-	var count int
-	if err := database.Pool.QueryRow(context.Background(), query, args...).Scan(&count); err != nil {
+		return api.ErrInternalServer(c, err)
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(context.Background()); err != nil {
 		return api.ErrInternalServer(c, err)
 	}
 
@@ -130,26 +103,26 @@ func GetOneHandler(c *fiber.Ctx) error {
 		return err
 	}
 
-	// Build query
-	queryBuilder := sqlbuilder.PostgreSQL.NewSelectBuilder()
-	query, args := queryBuilder.
-		Select("id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at").
-		From("images").
-		Where(
-			queryBuilder.Equal("id", id),
-			queryBuilder.IsNull("deleted_at"),
-		).
-		Build()
+	// Start transaction
+	tx, err := database.Pool.Begin(context.Background())
+	if err != nil {
+		return api.ErrInternalServer(c, err)
+	}
 
-	// Query image from database and scan into response
-	response := Response{}
-	if err := database.Pool.QueryRow(context.Background(), query, args...).Scan(
-		&response.Id, &response.Src, &response.Alt, &response.Category, &response.Title, &response.CreatedAt, &response.UpdatedAt, &response.DeletedAt,
-	); err != nil {
+	// Select image from database
+	response, err := Dao.SelectById(tx, id)
+	if err != nil {
+		tx.Rollback(context.Background())
+
 		if errors.Is(err, pgx.ErrNoRows) {
 			return api.ErrNotFound(c, err)
 		}
 
+		return api.ErrInternalServer(c, err)
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(context.Background()); err != nil {
 		return api.ErrInternalServer(c, err)
 	}
 
@@ -175,28 +148,9 @@ func UpdateHandler(c *fiber.Ctx) error {
 		return api.ErrInternalServer(c, err)
 	}
 
-	// Build query
-	queryBuilder := sqlbuilder.PostgreSQL.NewUpdateBuilder()
-	query, args := queryBuilder.
-		Update("images").
-		Set(
-			queryBuilder.Assign("alt", request.Alt),
-			queryBuilder.Assign("category", request.Category),
-			queryBuilder.Assign("title", request.Title),
-			queryBuilder.Assign("updated_at", "NOW()"),
-		).
-		Where(
-			queryBuilder.Equal("id", id),
-			queryBuilder.IsNull("deleted_at"),
-		).
-		SQL("RETURNING id, src, alt, category, title, created_at, updated_at, deleted_at").
-		Build()
-
-	// Update image in database and scan returning into response
-	response := Response{}
-	if err := tx.QueryRow(context.Background(), query, args...).Scan(
-		&response.Id, &response.Src, &response.Alt, &response.Category, &response.Title, &response.CreatedAt, &response.UpdatedAt, &response.DeletedAt,
-	); err != nil {
+	// Update image in database
+	response, err := Dao.Update(tx, id, request)
+	if err != nil {
 		tx.Rollback(context.Background())
 
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -234,23 +188,9 @@ func DeleteHandler(c *fiber.Ctx) error {
 		return api.ErrInternalServer(c, err)
 	}
 
-	// Build query
-	queryBuilder := sqlbuilder.PostgreSQL.NewUpdateBuilder()
-	query, args := queryBuilder.
-		Update("images").
-		Set(queryBuilder.Assign("deleted_at", "NOW()")).
-		Where(
-			queryBuilder.Equal("id", id),
-			queryBuilder.IsNull("deleted_at"),
-		).
-		SQL("RETURNING id, src, alt, category, title, created_at, updated_at, deleted_at").
-		Build()
-
-	// Delete image in database and scan returning into response
-	response := Response{}
-	if err := tx.QueryRow(context.Background(), query, args...).Scan(
-		&response.Id, &response.Src, &response.Alt, &response.Category, &response.Title, &response.CreatedAt, &response.UpdatedAt, &response.DeletedAt,
-	); err != nil {
+	// Delete image from database
+	response, err := Dao.Delete(tx, id)
+	if err != nil {
 		tx.Rollback(context.Background())
 
 		if errors.Is(err, pgx.ErrNoRows) {
