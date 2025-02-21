@@ -7,6 +7,7 @@ import (
 	"github.com/kabarhaji-id/goumrah-api/config"
 	"github.com/kabarhaji-id/goumrah-api/database"
 	"github.com/kabarhaji-id/goumrah-api/domain/airline"
+	"github.com/kabarhaji-id/goumrah-api/domain/embarkation"
 	"github.com/kabarhaji-id/goumrah-api/domain/image"
 )
 
@@ -23,6 +24,7 @@ func main() {
 	app := fiber.New()
 	app.Route("/images", image.Routing)
 	app.Route("/airlines", airline.Routing)
+	app.Route("/embarkations", embarkation.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)

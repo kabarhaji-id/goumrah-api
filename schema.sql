@@ -62,6 +62,36 @@ ALTER TABLE public.airlines ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: embarkations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.embarkations (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    latitude double precision NOT NULL,
+    longitude double precision NOT NULL,
+    slug character varying(105) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: embarkations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.embarkations ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.embarkations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: images; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -109,6 +139,14 @@ ALTER TABLE ONLY public.airlines
 
 
 --
+-- Name: embarkations embarkations_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.embarkations
+    ADD CONSTRAINT embarkations_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: images images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -129,6 +167,20 @@ ALTER TABLE ONLY public.migrations
 --
 
 CREATE UNIQUE INDEX airlines_name_unique ON public.airlines USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: embarkations_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX embarkations_name_unique ON public.embarkations USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: embarkations_slug_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX embarkations_slug_unique ON public.embarkations USING btree (upper((slug)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -157,4 +209,5 @@ ALTER TABLE ONLY public.airlines
 
 INSERT INTO public.migrations (version) VALUES
     ('20250221112243'),
-    ('20250221122740');
+    ('20250221122740'),
+    ('20250221131220');

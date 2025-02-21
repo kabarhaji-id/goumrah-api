@@ -1,16 +1,14 @@
-package airline
+package embarkation
 
 import (
 	"context"
 	"errors"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/guregu/null/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/kabarhaji-id/goumrah-api/api"
 	"github.com/kabarhaji-id/goumrah-api/database"
-	"github.com/kabarhaji-id/goumrah-api/domain/image"
 )
 
 func handleError(c *fiber.Ctx, err error) error {
@@ -20,10 +18,7 @@ func handleError(c *fiber.Ctx, err error) error {
 
 	pgError := new(pgconn.PgError)
 	if errors.As(err, &pgError) {
-		if pgError.Code == "23503" && pgError.ConstraintName == "airlines_logo_id_fkey" {
-			return api.ErrInvalidRequestField(c, "logo", "Not found")
-		}
-		if pgError.Code == "23505" && pgError.ConstraintName == "airlines_name_unique" {
+		if pgError.Code == "23505" && pgError.ConstraintName == "embarkations_name_unique" {
 			return api.ErrConflictField(c, "name")
 		}
 	}
@@ -44,24 +39,12 @@ func CreateHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Insert airline into database
+	// Insert embarkation into database
 	response, err := Dao.Insert(tx, request)
 	if err != nil {
 		tx.Rollback(context.Background())
 
 		return handleError(c, err)
-	}
-
-	// Select logo if not null from database
-	if response.LogoId.Valid {
-		logo, err := image.Dao.SelectById(tx, response.LogoId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
-
-			return handleError(c, err)
-		}
-
-		response.Logo = null.ValueFrom(logo)
 	}
 
 	// Commit the transaction
@@ -85,7 +68,7 @@ func GetAllHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select all airlines from database
+	// Select all embarkations from database
 	responses, err := Dao.SelectAll(tx, paginationQuery)
 	if err != nil {
 		tx.Rollback(context.Background())
@@ -93,21 +76,7 @@ func GetAllHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select logo if not null from database
-	for i, response := range responses {
-		if response.LogoId.Valid {
-			logo, err := image.Dao.SelectById(tx, response.LogoId.Int64)
-			if err != nil {
-				tx.Rollback(context.Background())
-
-				return handleError(c, err)
-			}
-
-			responses[i].Logo = null.ValueFrom(logo)
-		}
-	}
-
-	// Count all airlines from database
+	// Count all embarkations from database
 	count, err := Dao.CountAll(tx)
 	if err != nil {
 		tx.Rollback(context.Background())
@@ -150,18 +119,6 @@ func GetOneHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select logo if not null from database
-	if response.LogoId.Valid {
-		logo, err := image.Dao.SelectById(tx, response.LogoId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
-
-			return handleError(c, err)
-		}
-
-		response.Logo = null.ValueFrom(logo)
-	}
-
 	// Commit the transaction
 	if err := tx.Commit(context.Background()); err != nil {
 		return handleError(c, err)
@@ -197,18 +154,6 @@ func UpdateHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select logo if not null from database
-	if response.LogoId.Valid {
-		logo, err := image.Dao.SelectById(tx, response.LogoId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
-
-			return handleError(c, err)
-		}
-
-		response.Logo = null.ValueFrom(logo)
-	}
-
 	// Commit the transaction
 	if err := tx.Commit(context.Background()); err != nil {
 		return handleError(c, err)
@@ -236,18 +181,6 @@ func DeleteHandler(c *fiber.Ctx) error {
 		tx.Rollback(context.Background())
 
 		return handleError(c, err)
-	}
-
-	// Select logo if not null from database
-	if response.LogoId.Valid {
-		logo, err := image.Dao.SelectById(tx, response.LogoId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
-
-			return handleError(c, err)
-		}
-
-		response.Logo = null.ValueFrom(logo)
 	}
 
 	// Commit the transaction
