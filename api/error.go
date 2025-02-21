@@ -45,13 +45,13 @@ func ErrInvalidRequestQuery(c *fiber.Ctx, errs ...error) error {
 func ErrInternalServer(c *fiber.Ctx, errs ...error) error {
 	logErrs(errs...)
 
-	return c.Status(fiber.StatusInternalServerError).JSON(ResponseError("Internal Server Error"))
+	return c.Status(fiber.StatusInternalServerError).JSON(ResponseError("Internal server error"))
 }
 
 func ErrNotFound(c *fiber.Ctx, errs ...error) error {
 	logErrs(errs...)
 
-	return c.Status(fiber.StatusNotFound).JSON(ResponseError("Not Found"))
+	return c.Status(fiber.StatusNotFound).JSON(ResponseError("Not found"))
 }
 
 func ErrInvalidRequestField(c *fiber.Ctx, field, message string, errs ...error) error {
@@ -60,5 +60,14 @@ func ErrInvalidRequestField(c *fiber.Ctx, field, message string, errs ...error) 
 	return c.Status(fiber.StatusUnprocessableEntity).JSON(ResponseError(FieldError{
 		Field:   field,
 		Message: message,
+	}))
+}
+
+func ErrConflictField(c *fiber.Ctx, field string, errs ...error) error {
+	logErrs(errs...)
+
+	return c.Status(fiber.StatusConflict).JSON(ResponseError(FieldError{
+		Field:   field,
+		Message: "Conflict",
 	}))
 }
