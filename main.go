@@ -9,6 +9,7 @@ import (
 	"github.com/kabarhaji-id/goumrah-api/domain/airline"
 	"github.com/kabarhaji-id/goumrah-api/domain/embarkation"
 	"github.com/kabarhaji-id/goumrah-api/domain/image"
+	pkg "github.com/kabarhaji-id/goumrah-api/domain/package"
 )
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 	app.Route("/images", image.Routing)
 	app.Route("/airlines", airline.Routing)
 	app.Route("/embarkations", embarkation.Routing)
+	app.Route("/packages", pkg.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)
