@@ -47,15 +47,15 @@ func ValidatePaginationQuery(c *fiber.Ctx) (PaginationQuery, bool, error) {
 	return query, true, nil
 }
 
-func ValidateId(c *fiber.Ctx) (int64, bool, error) {
-	id := c.Params("id", "")
+func ValidateId(c *fiber.Ctx, name string) (int64, bool, error) {
+	id := c.Params(name, "")
 	if id == "" {
-		return 0, false, ErrInvalidRequestField(c, "id", "Must be filled")
+		return 0, false, ErrInvalidRequestField(c, name, "Must be filled")
 	}
 
 	idInt, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		return 0, false, ErrInvalidRequestField(c, "id", "Must be a number", err)
+		return 0, false, ErrInvalidRequestField(c, name, "Must be a number", err)
 	}
 
 	return idInt, true, nil

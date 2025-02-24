@@ -1,17 +1,17 @@
-package pkg
+package pkgsession
 
 import (
 	"context"
 	"errors"
-	"log"
+	"maps"
+	"slices"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/guregu/null/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/kabarhaji-id/goumrah-api/api"
 	"github.com/kabarhaji-id/goumrah-api/database"
-	"github.com/kabarhaji-id/goumrah-api/domain/image"
+	"github.com/kabarhaji-id/goumrah-api/domain/embarkation"
 )
 
 func handleError(c *fiber.Ctx, err error) error {
@@ -21,11 +21,16 @@ func handleError(c *fiber.Ctx, err error) error {
 
 	pgError := new(pgconn.PgError)
 	if errors.As(err, &pgError) {
-		if pgError.Code == "23503" && pgError.ConstraintName == "packages_thumbnail_id_fkey" {
-			return api.ErrInvalidRequestField(c, "thumbnail", "Not found")
-		}
-		if pgError.Code == "23505" && pgError.ConstraintName == "packages_name_unique" {
-			return api.ErrConflictField(c, "name")
+		if pgError.Code == "23503" {
+			field := ""
+			switch pgError.ConstraintName {
+			case "package_sessions_package_id_fkey":
+				field = "package_id"
+			case "package_sessions_embarkation_id_fkey":
+				field = "embarkation"
+			}
+
+			return api.ErrInvalidRequestField(c, field, "Not found")
 		}
 	}
 
@@ -39,6 +44,12 @@ func CreateHandler(c *fiber.Ctx) error {
 		return err
 	}
 
+	// Get package id param and validate
+	packageId, success, err := api.ValidateId(c, "package_id")
+	if !success {
+		return err
+	}
+
 	// Start transaction
 	tx, err := database.Pool.Begin(context.Background())
 	if err != nil {
@@ -46,23 +57,19 @@ func CreateHandler(c *fiber.Ctx) error {
 	}
 
 	// Insert package into database
-	response, err := Dao.Insert(tx, request)
+	response, err := Dao.Insert(tx, packageId, request)
 	if err != nil {
 		tx.Rollback(context.Background())
 
 		return handleError(c, err)
 	}
 
-	// Select thumbnail if not null from database
-	if response.ThumbnailId.Valid {
-		thumbnail, err := image.Dao.SelectById(tx, response.ThumbnailId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
+	// Select embarkation from database
+	response.Embarkation, err = embarkation.Dao.SelectById(tx, response.EmbarkationId)
+	if err != nil {
+		tx.Rollback(context.Background())
 
-			return handleError(c, err)
-		}
-
-		response.Thumbnail = null.ValueFrom(thumbnail)
+		return handleError(c, err)
 	}
 
 	// Commit the transaction
@@ -71,6 +78,77 @@ func CreateHandler(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(api.ResponseData(response))
+}
+
+func GetAllByPackageHandler(c *fiber.Ctx) error {
+	// Get request and validate query for pagination
+	paginationQuery, success, err := api.ValidatePaginationQuery(c)
+	if !success {
+		return err
+	}
+
+	// Get package id param and validate
+	packageId, success, err := api.ValidateId(c, "package_id")
+	if !success {
+		return err
+	}
+
+	// Start transaction
+	tx, err := database.Pool.Begin(context.Background())
+	if err != nil {
+		return handleError(c, err)
+	}
+
+	// Select all package sessions from database
+	responses, err := Dao.SelectByPackageId(tx, packageId, paginationQuery)
+	if err != nil {
+		tx.Rollback(context.Background())
+
+		return handleError(c, err)
+	}
+
+	// Check if package sessions is not empty
+	if len(responses) > 0 {
+		// Map all package session embarkation id to package session index
+		embarkationMaps := map[int64]int{}
+		for index, response := range responses {
+			embarkationMaps[response.EmbarkationId] = index
+		}
+
+		// Select embarkations from database
+		embarkations, err := embarkation.Dao.SelectByIds(tx, slices.Collect(maps.Keys(embarkationMaps)))
+		if err != nil {
+			tx.Rollback(context.Background())
+
+			return handleError(c, err)
+		}
+
+		// Iterate over embarkations and assign package session embarkation
+		for _, embarkation := range embarkations {
+			responses[embarkationMaps[embarkation.Id]].Embarkation = embarkation
+		}
+	}
+
+	// Count all packages from database
+	count, err := Dao.CountAll(tx)
+	if err != nil {
+		tx.Rollback(context.Background())
+
+		return handleError(c, err)
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(context.Background()); err != nil {
+		return handleError(c, err)
+	}
+
+	return c.JSON(api.ResponseData(responses, api.PaginationMeta{
+		Page:      paginationQuery.Page,
+		PerPage:   paginationQuery.PerPage,
+		FirstPage: 1,
+		LastPage:  (count + paginationQuery.PerPage - 1) / paginationQuery.PerPage,
+		Total:     count,
+	}))
 }
 
 func GetAllHandler(c *fiber.Ctx) error {
@@ -94,18 +172,25 @@ func GetAllHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select thumbnail if not null from database
-	for i, response := range responses {
-		if response.ThumbnailId.Valid {
-			log.Println(response.ThumbnailId.Int64)
-			thumbnail, err := image.Dao.SelectById(tx, response.ThumbnailId.Int64)
-			if err != nil {
-				tx.Rollback(context.Background())
+	// Check if package sessions is not empty
+	if len(responses) > 0 {
+		// Map all package session embarkation id to package session index
+		embarkationMaps := map[int64]int{}
+		for index, response := range responses {
+			embarkationMaps[response.EmbarkationId] = index
+		}
 
-				return handleError(c, err)
-			}
+		// Select embarkations from database
+		embarkations, err := embarkation.Dao.SelectByIds(tx, slices.Collect(maps.Keys(embarkationMaps)))
+		if err != nil {
+			tx.Rollback(context.Background())
 
-			responses[i].Thumbnail = null.ValueFrom(thumbnail)
+			return handleError(c, err)
+		}
+
+		// Iterate over embarkations and assign package session embarkation
+		for _, embarkation := range embarkations {
+			responses[embarkationMaps[embarkation.Id]].Embarkation = embarkation
 		}
 	}
 
@@ -152,16 +237,12 @@ func GetOneHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select thumbnail if not null from database
-	if response.ThumbnailId.Valid {
-		thumbnail, err := image.Dao.SelectById(tx, response.ThumbnailId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
+	// Select embarkation from database
+	response.Embarkation, err = embarkation.Dao.SelectById(tx, response.EmbarkationId)
+	if err != nil {
+		tx.Rollback(context.Background())
 
-			return handleError(c, err)
-		}
-
-		response.Thumbnail = null.ValueFrom(thumbnail)
+		return handleError(c, err)
 	}
 
 	// Commit the transaction
@@ -199,16 +280,12 @@ func UpdateHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select thumbnail if not null from database
-	if response.ThumbnailId.Valid {
-		thumbnail, err := image.Dao.SelectById(tx, response.ThumbnailId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
+	// Select embarkation from database
+	response.Embarkation, err = embarkation.Dao.SelectById(tx, response.EmbarkationId)
+	if err != nil {
+		tx.Rollback(context.Background())
 
-			return handleError(c, err)
-		}
-
-		response.Thumbnail = null.ValueFrom(thumbnail)
+		return handleError(c, err)
 	}
 
 	// Commit the transaction
@@ -240,16 +317,12 @@ func DeleteHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select thumbnail if not null from database
-	if response.ThumbnailId.Valid {
-		thumbnail, err := image.Dao.SelectById(tx, response.ThumbnailId.Int64)
-		if err != nil {
-			tx.Rollback(context.Background())
+	// Select embarkation from database
+	response.Embarkation, err = embarkation.Dao.SelectById(tx, response.EmbarkationId)
+	if err != nil {
+		tx.Rollback(context.Background())
 
-			return handleError(c, err)
-		}
-
-		response.Thumbnail = null.ValueFrom(thumbnail)
+		return handleError(c, err)
 	}
 
 	// Commit the transaction

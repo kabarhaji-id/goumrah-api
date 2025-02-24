@@ -1,11 +1,22 @@
 package constant
 
 const (
-	ErrMustBeFilled = "Must be filled"
-	ErrMax100Chars  = "Max 100 characters"
-	ErrMax500Chars  = "Max 500 characters"
+	// Error for character range
 
-	ErrMin1 = "Minimum 1"
+	ErrMustBeFilled = "Must be filled"
+	ErrMax100Chars  = "Must be 100 characters or less"
+	ErrMax500Chars  = "Must be 500 characters or less"
+
+	// Error for number range
+
+	ErrMin1 = "Must be 1 or more"
+
+	// Error for date range
+
+	ErrNotZeroDate  = "Must not be zero date"
+	ErrNotBeforeNow = "Must not be before now"
+
+	// Error for invalid domain type
 
 	ErrInvalidSkytraxType     = "Must be 'Full Service' or 'Low Cost'"
 	ErrInvalidRating          = "Must be between 1 and 5"

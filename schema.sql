@@ -60,6 +60,38 @@ CREATE TYPE public.skytrax_type AS ENUM (
 
 
 --
+-- Name: delete_package_session_on_embarkation_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_session_on_embarkation_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_sessions SET deleted_at = NOW() WHERE embarkation_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_package_session_on_package_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_session_on_package_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_sessions SET deleted_at = NOW() WHERE embarkation_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_airline_if_logo_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -109,6 +141,44 @@ BEGIN
         IF (SELECT deleted_at FROM images WHERE id = NEW.thumbnail_id) IS NOT NULL THEN
             RAISE EXCEPTION 'Cannot insert package with soft deleted thumbnail'
                 USING ERRCODE = '23503', CONSTRAINT = 'packages_thumbnail_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_package_session_if_embarkation_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_if_embarkation_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.embarkation_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM embarkations WHERE id = NEW.embarkation_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert package_session with soft deleted embarkation'
+                USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_embarkation_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_package_session_if_package_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_if_package_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.package_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM packages WHERE id = NEW.package_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert package_session with soft deleted package'
+                USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_package_id_fkey';
         END IF;
     END IF;
     RETURN NEW;
@@ -382,6 +452,35 @@ CREATE TABLE public.migrations (
 
 
 --
+-- Name: package_sessions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.package_sessions (
+    id bigint NOT NULL,
+    package_id bigint NOT NULL,
+    embarkation_id bigint NOT NULL,
+    departure_date date NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: package_sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.package_sessions ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.package_sessions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: packages; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -480,6 +579,14 @@ ALTER TABLE ONLY public.migrations
 
 
 --
+-- Name: package_sessions package_sessions_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_sessions
+    ADD CONSTRAINT package_sessions_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: packages packages_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -551,6 +658,13 @@ CREATE UNIQUE INDEX images_src_unique ON public.images USING btree (src) WHERE (
 
 
 --
+-- Name: package_sessions_package_id_embarkation_id_departure_date_uniqu; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX package_sessions_package_id_embarkation_id_departure_date_uniqu ON public.package_sessions USING btree (package_id, embarkation_id, departure_date) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: packages_name_unique; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -562,6 +676,20 @@ CREATE UNIQUE INDEX packages_name_unique ON public.packages USING btree (upper((
 --
 
 CREATE UNIQUE INDEX packages_slug_unique ON public.packages USING btree (upper((slug)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: embarkations delete_package_session_on_embarkation_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_session_on_embarkation_soft_deleted BEFORE UPDATE ON public.embarkations FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_on_embarkation_soft_deleted();
+
+
+--
+-- Name: packages delete_package_session_on_package_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_session_on_package_soft_deleted BEFORE UPDATE ON public.packages FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_on_package_soft_deleted();
 
 
 --
@@ -583,6 +711,20 @@ CREATE TRIGGER prevent_insert_guide_if_avatar_is_soft_deleted BEFORE INSERT OR U
 --
 
 CREATE TRIGGER prevent_insert_package_if_thumbnail_is_soft_deleted BEFORE INSERT OR UPDATE ON public.packages FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_if_thumbnail_is_soft_deleted();
+
+
+--
+-- Name: package_sessions prevent_insert_package_session_if_embarkation_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_if_embarkation_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_sessions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_if_embarkation_is_soft_deleted();
+
+
+--
+-- Name: package_sessions prevent_insert_package_session_if_package_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_if_package_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_sessions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_if_package_is_soft_deleted();
 
 
 --
@@ -623,6 +765,22 @@ ALTER TABLE ONLY public.guides
 
 
 --
+-- Name: package_sessions package_sessions_embarkation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_sessions
+    ADD CONSTRAINT package_sessions_embarkation_id_fkey FOREIGN KEY (embarkation_id) REFERENCES public.embarkations(id);
+
+
+--
+-- Name: package_sessions package_sessions_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_sessions
+    ADD CONSTRAINT package_sessions_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id);
+
+
+--
 -- Name: packages packages_thumbnail_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -648,4 +806,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250224082808'),
     ('20250224085253'),
     ('20250224092730'),
-    ('20250224114328');
+    ('20250224114328'),
+    ('20250224124038');

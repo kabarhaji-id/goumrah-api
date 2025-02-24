@@ -32,7 +32,7 @@ func handleError(c *fiber.Ctx, err error) error {
 }
 
 func CreateHandler(c *fiber.Ctx) error {
-	// Validate and get request
+	// Get request and validate
 	request, success, err := validateRequest(c)
 	if !success {
 		return err
@@ -73,7 +73,7 @@ func CreateHandler(c *fiber.Ctx) error {
 }
 
 func GetAllHandler(c *fiber.Ctx) error {
-	// Validate and get request query for pagination
+	// Get request and validate query for pagination
 	paginationQuery, success, err := api.ValidatePaginationQuery(c)
 	if !success {
 		return err
@@ -131,7 +131,7 @@ func GetAllHandler(c *fiber.Ctx) error {
 
 func GetOneHandler(c *fiber.Ctx) error {
 	// Validate and get id param
-	id, success, err := api.ValidateId(c)
+	id, success, err := api.ValidateId(c, "id")
 	if !success {
 		return err
 	}
@@ -172,12 +172,12 @@ func GetOneHandler(c *fiber.Ctx) error {
 
 func UpdateHandler(c *fiber.Ctx) error {
 	// Validate and get id param
-	id, success, err := api.ValidateId(c)
+	id, success, err := api.ValidateId(c, "id")
 	if !success {
 		return err
 	}
 
-	// Validate and get request
+	// Get request and validate
 	request, success, err := validateRequest(c)
 	if !success {
 		return err
@@ -219,7 +219,7 @@ func UpdateHandler(c *fiber.Ctx) error {
 
 func DeleteHandler(c *fiber.Ctx) error {
 	// Validate and get id param
-	id, success, err := api.ValidateId(c)
+	id, success, err := api.ValidateId(c, "id")
 	if !success {
 		return err
 	}

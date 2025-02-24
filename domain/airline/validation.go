@@ -52,7 +52,7 @@ func validateRequest(c *fiber.Ctx) (Request, bool, error) {
 	if req.Logo.Valid {
 		logo := req.Logo.Int64
 		if logo < 1 {
-			return Request{}, false, api.ErrInvalidRequestField(c, "logo", "Must be greater than 0")
+			return Request{}, false, api.ErrInvalidRequestField(c, "logo", constant.ErrMin1)
 		}
 	}
 

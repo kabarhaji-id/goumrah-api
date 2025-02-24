@@ -18,7 +18,7 @@ func validateRequest(c *fiber.Ctx) (Request, bool, error) {
 	if req.Thumbnail.Valid {
 		thumbnail := req.Thumbnail.Int64
 		if thumbnail < 1 {
-			return Request{}, false, api.ErrInvalidRequestField(c, "thumbnail", "Must be greater than 0")
+			return Request{}, false, api.ErrInvalidRequestField(c, "thumbnail", constant.ErrMin1)
 		}
 	}
 
