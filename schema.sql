@@ -10,6 +10,16 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: guide_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.guide_type AS ENUM (
+    'Perjalanan',
+    'Ibadah'
+);
+
+
+--
 -- Name: package_category; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -69,6 +79,25 @@ $$;
 
 
 --
+-- Name: prevent_insert_guide_if_avatar_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_guide_if_avatar_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.avatar_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM images WHERE id = NEW.avatar_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert guide with soft deleted avatar'
+                USING ERRCODE = '23503', CONSTRAINT = 'guides_avatar_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_if_thumbnail_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -97,6 +126,22 @@ CREATE FUNCTION public.set_airline_logo_id_null_on_image_soft_deleted() RETURNS 
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
         UPDATE airlines SET logo_id = NULL WHERE logo_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_guide_avatar_id_null_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_guide_avatar_id_null_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE guides SET avatar_id = NULL WHERE avatar_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -211,6 +256,36 @@ ALTER TABLE public.embarkations ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
+-- Name: guides; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.guides (
+    id bigint NOT NULL,
+    avatar_id bigint,
+    name character varying(100) NOT NULL,
+    type public.guide_type NOT NULL,
+    description character varying(500) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: guides_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.guides ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.guides_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: images; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -308,6 +383,14 @@ ALTER TABLE ONLY public.embarkations
 
 
 --
+-- Name: guides guides_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.guides
+    ADD CONSTRAINT guides_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: images images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -360,6 +443,13 @@ CREATE UNIQUE INDEX embarkations_slug_unique ON public.embarkations USING btree 
 
 
 --
+-- Name: guides_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX guides_name_unique ON public.guides USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: images_src_unique; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -388,6 +478,13 @@ CREATE TRIGGER prevent_insert_airline_if_logo_is_soft_deleted BEFORE INSERT OR U
 
 
 --
+-- Name: guides prevent_insert_guide_if_avatar_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_guide_if_avatar_is_soft_deleted BEFORE INSERT OR UPDATE ON public.guides FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_guide_if_avatar_is_soft_deleted();
+
+
+--
 -- Name: packages prevent_insert_package_if_thumbnail_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -399,6 +496,13 @@ CREATE TRIGGER prevent_insert_package_if_thumbnail_is_soft_deleted BEFORE INSERT
 --
 
 CREATE TRIGGER set_airline_logo_id_null_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_airline_logo_id_null_on_image_soft_deleted();
+
+
+--
+-- Name: images set_guide_avatar_id_null_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_guide_avatar_id_null_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_guide_avatar_id_null_on_image_soft_deleted();
 
 
 --
@@ -414,6 +518,14 @@ CREATE TRIGGER set_package_thumbnail_id_null_on_image_soft_deleted BEFORE UPDATE
 
 ALTER TABLE ONLY public.airlines
     ADD CONSTRAINT airlines_logo_id_fkey FOREIGN KEY (logo_id) REFERENCES public.images(id) ON DELETE SET NULL;
+
+
+--
+-- Name: guides guides_avatar_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.guides
+    ADD CONSTRAINT guides_avatar_id_fkey FOREIGN KEY (avatar_id) REFERENCES public.images(id);
 
 
 --
@@ -439,4 +551,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250221131220'),
     ('20250221141043'),
     ('20250221142328'),
-    ('20250224082808');
+    ('20250224082808'),
+    ('20250224085253');
