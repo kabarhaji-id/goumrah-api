@@ -18,8 +18,16 @@ func handleError(c *fiber.Ctx, err error) error {
 
 	pgError := new(pgconn.PgError)
 	if errors.As(err, &pgError) {
-		if pgError.Code == "23505" && pgError.ConstraintName == "airports_name_unique" {
-			return api.ErrConflictField(c, "name")
+		if pgError.Code == "23505" {
+			field := ""
+			switch pgError.ConstraintName {
+			case "airports_name_unique":
+				field = "name"
+			case "airports_code_unique":
+				field = "code"
+			}
+
+			return api.ErrConflictField(c, field)
 		}
 	}
 
