@@ -9,4 +9,5 @@ const (
 	ErrInvalidRating          = "Must be between 1 and 5"
 	ErrInvalidPackageCategory = "Must be 'Silver', 'Gold', 'Platinum', or 'Luxury'"
 	ErrInvalidPackageType     = "Must be 'Reguler' or 'Plus Wisata'"
+	ErrInvalidAirportCode     = "Must be 3 character"
 )
