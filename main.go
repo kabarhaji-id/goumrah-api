@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kabarhaji-id/goumrah-api/config"
 	"github.com/kabarhaji-id/goumrah-api/database"
+	"github.com/kabarhaji-id/goumrah-api/domain/addoncategory"
 	"github.com/kabarhaji-id/goumrah-api/domain/airline"
 	"github.com/kabarhaji-id/goumrah-api/domain/embarkation"
 	"github.com/kabarhaji-id/goumrah-api/domain/image"
@@ -27,6 +28,7 @@ func main() {
 	app.Route("/airlines", airline.Routing)
 	app.Route("/embarkations", embarkation.Routing)
 	app.Route("/packages", pkg.Routing)
+	app.Route("/addon-categories", addoncategory.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)

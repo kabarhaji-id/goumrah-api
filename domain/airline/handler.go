@@ -76,7 +76,7 @@ func GetAllHandler(c *fiber.Ctx) error {
 	// Validate and get request query for pagination
 	paginationQuery, success, err := api.ValidatePaginationQuery(c)
 	if !success {
-		return handleError(c, err)
+		return err
 	}
 
 	// Start transaction

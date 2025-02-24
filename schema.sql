@@ -124,6 +124,33 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: addon_categories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.addon_categories (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: addon_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.addon_categories ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.addon_categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: airlines; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -257,6 +284,14 @@ ALTER TABLE public.packages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: addon_categories addon_categories_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.addon_categories
+    ADD CONSTRAINT addon_categories_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: airlines airlines_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -294,6 +329,13 @@ ALTER TABLE ONLY public.migrations
 
 ALTER TABLE ONLY public.packages
     ADD CONSTRAINT packages_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: addon_categories_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX addon_categories_name_unique ON public.addon_categories USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -396,4 +438,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250221122740'),
     ('20250221131220'),
     ('20250221141043'),
-    ('20250221142328');
+    ('20250221142328'),
+    ('20250224082808');

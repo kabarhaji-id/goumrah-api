@@ -20,7 +20,7 @@ type paginationQueryOriginal struct {
 func ValidatePaginationQuery(c *fiber.Ctx) (PaginationQuery, bool, error) {
 	queryOriginal := paginationQueryOriginal{}
 	if err := c.QueryParser(&queryOriginal); err != nil {
-		return PaginationQuery{}, false, ErrInvalidRequestQuery(c)
+		return PaginationQuery{}, false, ErrInvalidRequestQuery(c, err)
 	}
 
 	query := PaginationQuery{
@@ -55,7 +55,7 @@ func ValidateId(c *fiber.Ctx) (int64, bool, error) {
 
 	idInt, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		return 0, false, ErrInvalidRequestField(c, "id", "Must be a number")
+		return 0, false, ErrInvalidRequestField(c, "id", "Must be a number", err)
 	}
 
 	return idInt, true, nil

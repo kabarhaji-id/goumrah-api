@@ -1,4 +1,4 @@
-package embarkation
+package addoncategory
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func handleError(c *fiber.Ctx, err error) error {
 
 	pgError := new(pgconn.PgError)
 	if errors.As(err, &pgError) {
-		if pgError.Code == "23505" && pgError.ConstraintName == "embarkations_name_unique" {
+		if pgError.Code == "23505" && pgError.ConstraintName == "addon_categories_name_unique" {
 			return api.ErrConflictField(c, "name")
 		}
 	}
@@ -39,7 +39,7 @@ func CreateHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Insert embarkation into database
+	// Insert addon category into database
 	response, err := Dao.Insert(tx, request)
 	if err != nil {
 		tx.Rollback(context.Background())
@@ -68,7 +68,7 @@ func GetAllHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Select all embarkations from database
+	// Select all addon categories from database
 	responses, err := Dao.SelectAll(tx, paginationQuery)
 	if err != nil {
 		tx.Rollback(context.Background())
@@ -76,7 +76,7 @@ func GetAllHandler(c *fiber.Ctx) error {
 		return handleError(c, err)
 	}
 
-	// Count all embarkations from database
+	// Count all addon categories from database
 	count, err := Dao.CountAll(tx)
 	if err != nil {
 		tx.Rollback(context.Background())
