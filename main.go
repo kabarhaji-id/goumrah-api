@@ -9,6 +9,7 @@ import (
 	"github.com/kabarhaji-id/goumrah-api/domain/addoncategory"
 	"github.com/kabarhaji-id/goumrah-api/domain/airline"
 	"github.com/kabarhaji-id/goumrah-api/domain/airport"
+	"github.com/kabarhaji-id/goumrah-api/domain/bus"
 	"github.com/kabarhaji-id/goumrah-api/domain/embarkation"
 	"github.com/kabarhaji-id/goumrah-api/domain/guide"
 	"github.com/kabarhaji-id/goumrah-api/domain/image"
@@ -33,6 +34,7 @@ func main() {
 	app.Route("/addon-categories", addoncategory.Routing)
 	app.Route("/guides", guide.Routing)
 	app.Route("/airports", airport.Routing)
+	app.Route("/buses", bus.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)

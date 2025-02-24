@@ -255,6 +255,34 @@ ALTER TABLE public.airports ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: buses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.buses (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    seat integer NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: buses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.buses ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.buses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: embarkations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -412,6 +440,14 @@ ALTER TABLE ONLY public.airports
 
 
 --
+-- Name: buses buses_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.buses
+    ADD CONSTRAINT buses_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: embarkations embarkations_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -477,6 +513,13 @@ CREATE UNIQUE INDEX airports_code_unique ON public.airports USING btree (upper((
 --
 
 CREATE UNIQUE INDEX airports_name_unique ON public.airports USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: buses_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX buses_name_unique ON public.buses USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -604,4 +647,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250221142328'),
     ('20250224082808'),
     ('20250224085253'),
-    ('20250224092730');
+    ('20250224092730'),
+    ('20250224114328');
