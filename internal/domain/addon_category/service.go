@@ -1,0 +1,171 @@
+package addon_category
+
+import (
+	"context"
+
+	"github.com/guregu/null/v5"
+	"github.com/kabarhaji-id/goumrah-api/internal/common/database"
+)
+
+type Service struct {
+	validator Validator
+	uow       *database.UnitOfWork
+}
+
+func NewService(validator Validator, uow *database.UnitOfWork) Service {
+	return Service{validator, uow}
+}
+
+func (s Service) Create(req CreateRequest) (Response, error) {
+	req, err := s.validator.ValidateCreateRequest(req)
+	if err != nil {
+		return Response{}, err
+	}
+
+	response := Response{}
+
+	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
+		repository := NewRepository(db)
+
+		entity, err := repository.Create(ctx, Entity{
+			Name: req.Name,
+		})
+		if err != nil {
+			return err
+		}
+
+		response = Response{
+			Id:        entity.Id,
+			Name:      entity.Name,
+			CreatedAt: entity.CreatedAt,
+			UpdatedAt: entity.UpdatedAt,
+			DeletedAt: entity.DeletedAt,
+		}
+
+		return nil
+	}); err != nil {
+		return Response{}, err
+	}
+
+	return response, nil
+}
+
+func (s Service) Get(params Params) (Response, error) {
+	response := Response{}
+
+	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
+		repository := NewRepository(db)
+
+		entity, err := repository.FindByID(ctx, params.ID)
+		if err != nil {
+			return err
+		}
+
+		response = Response{
+			Id:        entity.Id,
+			Name:      entity.Name,
+			CreatedAt: entity.CreatedAt,
+			UpdatedAt: entity.UpdatedAt,
+			DeletedAt: entity.DeletedAt,
+		}
+
+		return nil
+	}); err != nil {
+		return Response{}, err
+	}
+
+	return response, nil
+}
+
+func (s Service) List(query Query) ([]Response, error) {
+	responses := []Response{}
+
+	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
+		repository := NewRepository(db)
+
+		entities, err := repository.FindAll(ctx, RepositoryFindAllOption{
+			Limit:  query.PerPage,
+			Offset: null.NewInt((query.Page.Int64-1)*query.PerPage.Int64, query.Page.Valid),
+		})
+		if err != nil {
+			return err
+		}
+
+		for _, entity := range entities {
+			responses = append(responses, Response{
+				Id:        entity.Id,
+				Name:      entity.Name,
+				CreatedAt: entity.CreatedAt,
+				UpdatedAt: entity.UpdatedAt,
+				DeletedAt: entity.DeletedAt,
+			})
+		}
+
+		return nil
+	}); err != nil {
+		return []Response{}, err
+	}
+
+	return responses, nil
+}
+
+func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
+	req, err := s.validator.ValidateUpdateRequest(req)
+	if err != nil {
+		return Response{}, err
+	}
+
+	response := Response{}
+
+	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
+		repository := NewRepository(db)
+
+		entity, err := repository.Update(ctx, params.ID, Entity{
+			Name: req.Name,
+		})
+		if err != nil {
+			return err
+		}
+
+		response = Response{
+			Id:        entity.Id,
+			Name:      entity.Name,
+			CreatedAt: entity.CreatedAt,
+			UpdatedAt: entity.UpdatedAt,
+			DeletedAt: entity.DeletedAt,
+		}
+
+		return nil
+	}); err != nil {
+		return Response{}, err
+	}
+
+	return response, nil
+}
+
+func (s Service) Delete(params Params) (Response, error) {
+	response := Response{}
+
+	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
+		repository := NewRepository(db)
+
+		entity, err := repository.Delete(ctx, params.ID)
+		if err != nil {
+			return err
+		}
+
+		response = Response{
+			Id:        entity.Id,
+			Name:      entity.Name,
+			CreatedAt: entity.CreatedAt,
+			UpdatedAt: entity.UpdatedAt,
+			DeletedAt: entity.DeletedAt,
+		}
+
+		return nil
+	}); err != nil {
+		return Response{}, err
+	}
+
+	return response, nil
+}
