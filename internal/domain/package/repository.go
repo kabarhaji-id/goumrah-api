@@ -26,7 +26,7 @@ func (r Repository) Create(ctx context.Context, entity Entity) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`INSERT INTO "packages" ("thumbnail_id", "name", "description", "is_active", "category", "type", "slug", "is_recommended", "created_at", "updated_at")`).
 		S(`VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`, entity.ThumbnailId, entity.Name, entity.Description, entity.IsActive, entity.Category, entity.Type, sluger.Slug(entity.Slug), entity.IsRecommended).
-		S(`RETURNING "id", "thumbnail_id", "name", "description", "is_active", "category", "type", "slug", "is_recommended", "created_at", "updated_at`).
+		S(`RETURNING "id", "thumbnail_id", "name", "description", "is_active", "category", "type", "slug", "is_recommended", "created_at", "updated_at"`).
 		Build()
 
 	if err := r.db.QueryRow(ctx, query, args...).Scan(
