@@ -415,6 +415,34 @@ ALTER TABLE public.embarkations ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
+-- Name: facilities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.facilities (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    icon character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: facilities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.facilities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.facilities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: guides; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -635,6 +663,14 @@ ALTER TABLE ONLY public.embarkations
 
 
 --
+-- Name: facilities facilities_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.facilities
+    ADD CONSTRAINT facilities_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: guides guides_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -737,6 +773,13 @@ CREATE UNIQUE INDEX embarkations_name_unique ON public.embarkations USING btree 
 --
 
 CREATE UNIQUE INDEX embarkations_slug_unique ON public.embarkations USING btree (upper((slug)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: facilities_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX facilities_name_unique ON public.facilities USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -949,4 +992,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250224114328'),
     ('20250224124038'),
     ('20250226143224'),
-    ('20250227124450');
+    ('20250227124450'),
+    ('20250227133727');

@@ -12,6 +12,7 @@ import (
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/airport"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/bus"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/embarkation"
+	"github.com/kabarhaji-id/goumrah-api/internal/domain/facility"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/guide"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/hotel"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/image"
@@ -47,6 +48,7 @@ func main() {
 	busValidator := bus.NewValidator()
 	packageSessionValidator := package_session.NewValidator()
 	hotelValidator := hotel.NewValidator()
+	facilityValidator := facility.NewValidator()
 
 	imageService := image.NewService(imageValidator, uow)
 	airlineService := airline.NewService(airlineValidator, uow)
@@ -58,6 +60,7 @@ func main() {
 	busService := bus.NewService(busValidator, uow)
 	packagesSessionService := package_session.NewService(packageSessionValidator, uow)
 	hotelService := hotel.NewService(hotelValidator, uow)
+	facilityService := facility.NewService(facilityValidator, uow)
 
 	imageHandler := image.NewHandler(imageService)
 	airlineHandler := airline.NewHandler(airlineService)
@@ -69,6 +72,7 @@ func main() {
 	busHandler := bus.NewHandler(busService)
 	packageSessionHandler := package_session.NewHandler(packagesSessionService)
 	hotelHandler := hotel.NewHandler(hotelService)
+	facilityHandler := facility.NewHandler(facilityService)
 
 	app := fiber.New()
 	app.Route("/images", imageHandler.Routing)
@@ -81,6 +85,7 @@ func main() {
 	app.Route("/buses", busHandler.Routing)
 	app.Route("/package-sessions", packageSessionHandler.Routing)
 	app.Route("/hotels", hotelHandler.Routing)
+	app.Route("/facilities", facilityHandler.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)
