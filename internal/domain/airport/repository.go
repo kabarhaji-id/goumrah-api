@@ -76,7 +76,7 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`SELECT "id", "city", "name", "code", "created_at", "updated_at"`).
 		S(`FROM "airports"`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		Build()
 
 	entity := Entity{}
@@ -108,7 +108,7 @@ func (r Repository) Update(ctx context.Context, id int64, entity Entity) (Entity
 	query, args := sqlbuilder.New().
 		S(`UPDATE "airports"`).
 		S(`SET "city" = $1, "name" = $2, "code" = $3, "updated_at" = NOW()`, entity.City, entity.Name, entity.Code).
-		S(`WHERE "id" = $4`, id).
+		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "city", "name", "code", "created_at", "updated_at"`).
 		Build()
 
@@ -125,7 +125,7 @@ func (r Repository) Delete(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`UPDATE "airports"`).
 		S(`SET "deleted_at" = NOW()`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "city", "name", "code", "created_at", "updated_at"`).
 		Build()
 

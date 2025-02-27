@@ -76,7 +76,7 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`SELECT "id", "name", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "addon_categories"`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		Build()
 
 	entity := Entity{}
@@ -108,7 +108,7 @@ func (r Repository) Update(ctx context.Context, id int64, entity Entity) (Entity
 	query, args := sqlbuilder.New().
 		S(`UPDATE "addon_categories"`).
 		S(`SET "name" = $1, "updated_at" = NOW()`, entity.Name).
-		S(`WHERE "id" = $2`, id).
+		S(`WHERE "id" = $2 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "name", "created_at", "updated_at", "deleted_at"`).
 		Build()
 
@@ -125,7 +125,7 @@ func (r Repository) Delete(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`UPDATE "addon_categories"`).
 		S(`SET "deleted_at" = NOW()`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "name", "created_at", "updated_at", "deleted_at"`).
 		Build()
 

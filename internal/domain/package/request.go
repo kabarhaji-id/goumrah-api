@@ -13,6 +13,7 @@ type CreateRequest struct {
 	Category      string     `json:"category"`
 	Type          string     `json:"type"`
 	IsRecommended bool       `json:"is_recommended"`
+	Images        []int64    `json:"images"`
 }
 
 type UpdateRequest struct {
@@ -23,6 +24,7 @@ type UpdateRequest struct {
 	Category      string     `json:"category"`
 	Type          string     `json:"type"`
 	IsRecommended bool       `json:"is_recommended"`
+	Images        []int64    `json:"images"`
 }
 
 type Params struct {

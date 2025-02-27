@@ -77,7 +77,7 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`SELECT "id", "name", "latitude", "longitude", "slug", "created_at", "updated_at"`).
 		S(`FROM "embarkations"`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		Build()
 
 	entity := Entity{}
@@ -109,7 +109,7 @@ func (r Repository) Update(ctx context.Context, id int64, entity Entity) (Entity
 	query, args := sqlbuilder.New().
 		S(`UPDATE "embarkations"`).
 		S(`SET "name" = $1, "latitude" = $2, "longitude" = $3, "slug" = $4, "updated_at" = NOW()`, entity.Name, entity.Latitude, entity.Longitude, sluger.Slug(entity.Name)).
-		S(`WHERE "id" = $5`, id).
+		S(`WHERE "id" = $5 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "name", "latitude", "longitude", "slug", "created_at", "updated_at"`).
 		Build()
 
@@ -126,7 +126,7 @@ func (r Repository) Delete(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`UPDATE "embarkations"`).
 		S(`SET "deleted_at" = NOW()`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "name", "latitude", "longitude", "slug", "created_at", "updated_at"`).
 		Build()
 

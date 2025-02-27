@@ -47,6 +47,10 @@ func (s Service) Create(req CreateRequest) (Response, error) {
 			return err
 		}
 
+		if err = repository.CreateImages(ctx, entity.Id, req.Images); err != nil {
+			return err
+		}
+
 		response = Response{
 			Id:            entity.Id,
 			Thumbnail:     null.NewValue(image.Response{}, false),
@@ -57,6 +61,7 @@ func (s Service) Create(req CreateRequest) (Response, error) {
 			Type:          entity.Type,
 			Slug:          entity.Slug,
 			IsRecommended: entity.IsRecommended,
+			Images:        make([]image.Response, len(req.Images)),
 			CreatedAt:     entity.CreatedAt,
 			UpdatedAt:     entity.UpdatedAt,
 			DeletedAt:     entity.DeletedAt,
@@ -78,6 +83,24 @@ func (s Service) Create(req CreateRequest) (Response, error) {
 				UpdatedAt: imageEntity.UpdatedAt,
 				DeletedAt: imageEntity.DeletedAt,
 			}, true)
+		}
+
+		imageEntities, err := imageRepository.FindByIds(ctx, req.Images)
+		if err != nil {
+			return err
+		}
+
+		for i, imageEntity := range imageEntities {
+			response.Images[i] = image.Response{
+				Id:        imageEntity.Id,
+				Src:       imageEntity.Src,
+				Alt:       imageEntity.Alt,
+				Category:  imageEntity.Category,
+				Title:     imageEntity.Title,
+				CreatedAt: imageEntity.CreatedAt,
+				UpdatedAt: imageEntity.UpdatedAt,
+				DeletedAt: imageEntity.DeletedAt,
+			}
 		}
 
 		return nil
@@ -110,6 +133,7 @@ func (s Service) Get(params Params) (Response, error) {
 			Type:          entity.Type,
 			Slug:          entity.Slug,
 			IsRecommended: entity.IsRecommended,
+			Images:        []image.Response{},
 			CreatedAt:     entity.CreatedAt,
 			UpdatedAt:     entity.UpdatedAt,
 			DeletedAt:     entity.DeletedAt,
@@ -133,6 +157,24 @@ func (s Service) Get(params Params) (Response, error) {
 			}, true)
 		}
 
+		imageEntities, err := repository.FindImages(ctx, entity.Id)
+		if err != nil {
+			return err
+		}
+
+		for _, imageEntity := range imageEntities {
+			response.Images = append(response.Images, image.Response{
+				Id:        imageEntity.Id,
+				Src:       imageEntity.Src,
+				Alt:       imageEntity.Alt,
+				Category:  imageEntity.Category,
+				Title:     imageEntity.Title,
+				CreatedAt: imageEntity.CreatedAt,
+				UpdatedAt: imageEntity.UpdatedAt,
+				DeletedAt: imageEntity.DeletedAt,
+			})
+		}
+
 		return nil
 	}); err != nil {
 		return Response{}, err
@@ -141,8 +183,8 @@ func (s Service) Get(params Params) (Response, error) {
 	return response, nil
 }
 
-func (s Service) List(query Query) ([]Response, ListMeta, error) {
-	responses := []Response{}
+func (s Service) List(query Query) ([]ListResponse, ListMeta, error) {
+	responses := []ListResponse{}
 	meta := ListMeta{}
 
 	page := int(query.Page.Int64)
@@ -173,7 +215,7 @@ func (s Service) List(query Query) ([]Response, ListMeta, error) {
 		}
 
 		for _, entity := range entities {
-			response := Response{
+			response := ListResponse{
 				Id:            entity.Id,
 				Thumbnail:     null.NewValue(image.Response{}, false),
 				Name:          entity.Name,
@@ -183,6 +225,7 @@ func (s Service) List(query Query) ([]Response, ListMeta, error) {
 				Type:          entity.Type,
 				Slug:          entity.Slug,
 				IsRecommended: entity.IsRecommended,
+				Images:        []int64{},
 				CreatedAt:     entity.CreatedAt,
 				UpdatedAt:     entity.UpdatedAt,
 				DeletedAt:     entity.DeletedAt,
@@ -204,6 +247,11 @@ func (s Service) List(query Query) ([]Response, ListMeta, error) {
 					UpdatedAt: imageEntity.UpdatedAt,
 					DeletedAt: imageEntity.DeletedAt,
 				}, true)
+			}
+
+			response.Images, err = repository.FindImageIds(ctx, entity.Id)
+			if err != nil {
+				return err
 			}
 
 			responses = append(responses, response)
@@ -250,6 +298,14 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 			return err
 		}
 
+		if err = repository.DeleteImages(ctx, entity.Id); err != nil {
+			return err
+		}
+
+		if err = repository.CreateImages(ctx, entity.Id, req.Images); err != nil {
+			return err
+		}
+
 		response = Response{
 			Id:            entity.Id,
 			Thumbnail:     null.NewValue(image.Response{}, false),
@@ -260,6 +316,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 			Type:          entity.Type,
 			Slug:          entity.Slug,
 			IsRecommended: entity.IsRecommended,
+			Images:        make([]image.Response, len(req.Images)),
 			CreatedAt:     entity.CreatedAt,
 			UpdatedAt:     entity.UpdatedAt,
 			DeletedAt:     entity.DeletedAt,
@@ -281,6 +338,24 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 				UpdatedAt: imageEntity.UpdatedAt,
 				DeletedAt: imageEntity.DeletedAt,
 			}, true)
+		}
+
+		imageEntities, err := imageRepository.FindByIds(ctx, req.Images)
+		if err != nil {
+			return err
+		}
+
+		for i, imageEntity := range imageEntities {
+			response.Images[i] = image.Response{
+				Id:        imageEntity.Id,
+				Src:       imageEntity.Src,
+				Alt:       imageEntity.Alt,
+				Category:  imageEntity.Category,
+				Title:     imageEntity.Title,
+				CreatedAt: imageEntity.CreatedAt,
+				UpdatedAt: imageEntity.UpdatedAt,
+				DeletedAt: imageEntity.DeletedAt,
+			}
 		}
 
 		return nil
@@ -313,6 +388,7 @@ func (s Service) Delete(params Params) (Response, error) {
 			Type:          entity.Type,
 			Slug:          entity.Slug,
 			IsRecommended: entity.IsRecommended,
+			Images:        []image.Response{},
 			CreatedAt:     entity.CreatedAt,
 			UpdatedAt:     entity.UpdatedAt,
 			DeletedAt:     entity.DeletedAt,
@@ -334,6 +410,24 @@ func (s Service) Delete(params Params) (Response, error) {
 				UpdatedAt: imageEntity.UpdatedAt,
 				DeletedAt: imageEntity.DeletedAt,
 			}, true)
+		}
+
+		imageEntities, err := repository.FindImages(ctx, entity.Id)
+		if err != nil {
+			return err
+		}
+
+		for _, imageEntity := range imageEntities {
+			response.Images = append(response.Images, image.Response{
+				Id:        imageEntity.Id,
+				Src:       imageEntity.Src,
+				Alt:       imageEntity.Alt,
+				Category:  imageEntity.Category,
+				Title:     imageEntity.Title,
+				CreatedAt: imageEntity.CreatedAt,
+				UpdatedAt: imageEntity.UpdatedAt,
+				DeletedAt: imageEntity.DeletedAt,
+			})
 		}
 
 		return nil

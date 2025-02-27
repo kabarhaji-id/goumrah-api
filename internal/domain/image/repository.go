@@ -76,7 +76,7 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`SELECT "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "images"`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		Build()
 
 	entity := Entity{}
@@ -87,6 +87,46 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	}
 
 	return entity, nil
+}
+
+func (r Repository) FindByIds(ctx context.Context, ids []int64) ([]Entity, error) {
+	if len(ids) == 0 {
+		return []Entity{}, nil
+	}
+
+	builder := sqlbuilder.New().
+		S(`SELECT "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at"`).
+		S(`FROM "images"`).
+		S(`WHERE "deleted_at" IS NULL`)
+	for i, id := range ids {
+		if i == 0 {
+			builder.S(`AND ("id" = $1`, id)
+		} else {
+			builder.SA(`OR "id" = ?`, id)
+		}
+	}
+	builder.S(`)`)
+
+	query, args := builder.Build()
+
+	rows, err := r.db.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	var entities []Entity
+	for rows.Next() {
+		entity := Entity{}
+		if err := rows.Scan(
+			&entity.Id, &entity.Src, &entity.Alt, &entity.Category, &entity.Title, &entity.CreatedAt, &entity.UpdatedAt, &entity.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		entities = append(entities, entity)
+	}
+
+	return entities, nil
 }
 
 func (r Repository) Count(ctx context.Context) (int, error) {
@@ -108,7 +148,7 @@ func (r Repository) Update(ctx context.Context, id int64, entity Entity) (Entity
 	query, args := sqlbuilder.New().
 		S(`UPDATE "images"`).
 		S(`SET "alt" = $1, "category" = $2, "title" = $3, "updated_at" = NOW()`, entity.Alt, entity.Category, entity.Title).
-		S(`WHERE "id" = $4`, id).
+		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at"`).
 		Build()
 
@@ -125,7 +165,7 @@ func (r Repository) Delete(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`UPDATE "images"`).
 		S(`SET "deleted_at" = NOW()`).
-		S(`WHERE "id" = $1`, id).
+		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
 		S(`RETURNING "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at"`).
 		Build()
 
