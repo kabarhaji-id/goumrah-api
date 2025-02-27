@@ -72,7 +72,7 @@ func (r Repository) FindAll(ctx context.Context, opt RepositoryFindAllOption) ([
 	return entities, nil
 }
 
-func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
+func (r Repository) FindById(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`SELECT "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "images"`).

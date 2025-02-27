@@ -81,7 +81,7 @@ func (r Repository) FindAll(ctx context.Context, opt RepositoryFindAllOption) ([
 	return entities, nil
 }
 
-func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
+func (r Repository) FindById(ctx context.Context, id int64) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`SELECT "id", "package_id", "embarkation_id", "departure_date", "created_at", "updated_at"`).
 		S(`FROM "package_sessions"`).

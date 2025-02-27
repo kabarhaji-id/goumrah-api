@@ -11,7 +11,7 @@ type UpdateRequest struct {
 }
 
 type Params struct {
-	ID int64 `params:"id"`
+	Id int64 `params:"id"`
 }
 
 type Query struct {

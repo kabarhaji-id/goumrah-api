@@ -58,7 +58,7 @@ func (s Service) Get(params Params) (Response, error) {
 	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
 		repository := NewRepository(db)
 
-		entity, err := repository.FindByID(ctx, params.ID)
+		entity, err := repository.FindById(ctx, params.Id)
 		if err != nil {
 			return err
 		}
@@ -148,7 +148,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
 		repository := NewRepository(db)
 
-		entity, err := repository.Update(ctx, params.ID, Entity{
+		entity, err := repository.Update(ctx, params.Id, Entity{
 			Name: req.Name,
 			Seat: req.Seat,
 		})
@@ -179,7 +179,7 @@ func (s Service) Delete(params Params) (Response, error) {
 	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
 		repository := NewRepository(db)
 
-		entity, err := repository.Delete(ctx, params.ID)
+		entity, err := repository.Delete(ctx, params.Id)
 		if err != nil {
 			return err
 		}

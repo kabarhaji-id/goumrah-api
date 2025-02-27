@@ -68,7 +68,7 @@ func (s Service) Create(req CreateRequest) (Response, error) {
 		}
 
 		if entity.ThumbnailId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.ThumbnailId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.ThumbnailId.Int64)
 			if err != nil {
 				return err
 			}
@@ -118,7 +118,7 @@ func (s Service) Get(params Params) (Response, error) {
 		repository := NewRepository(db)
 		imageRepository := image.NewRepository(db)
 
-		entity, err := repository.FindByID(ctx, params.ID)
+		entity, err := repository.FindById(ctx, params.Id)
 		if err != nil {
 			return err
 		}
@@ -140,7 +140,7 @@ func (s Service) Get(params Params) (Response, error) {
 		}
 
 		if entity.ThumbnailId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.ThumbnailId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.ThumbnailId.Int64)
 			if err != nil {
 				return err
 			}
@@ -232,7 +232,7 @@ func (s Service) List(query Query) ([]ListResponse, ListMeta, error) {
 			}
 
 			if entity.ThumbnailId.Valid {
-				imageEntity, err := imageRepository.FindByID(ctx, entity.ThumbnailId.Int64)
+				imageEntity, err := imageRepository.FindById(ctx, entity.ThumbnailId.Int64)
 				if err != nil {
 					return err
 				}
@@ -285,7 +285,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 		repository := NewRepository(db)
 		imageRepository := image.NewRepository(db)
 
-		entity, err := repository.Update(ctx, params.ID, Entity{
+		entity, err := repository.Update(ctx, params.Id, Entity{
 			ThumbnailId:   req.Thumbnail,
 			Name:          req.Name,
 			Description:   req.Description,
@@ -323,7 +323,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 		}
 
 		if entity.ThumbnailId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.ThumbnailId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.ThumbnailId.Int64)
 			if err != nil {
 				return err
 			}
@@ -373,7 +373,7 @@ func (s Service) Delete(params Params) (Response, error) {
 		repository := NewRepository(db)
 		imageRepository := image.NewRepository(db)
 
-		entity, err := repository.Delete(ctx, params.ID)
+		entity, err := repository.Delete(ctx, params.Id)
 		if err != nil {
 			return err
 		}
@@ -395,7 +395,7 @@ func (s Service) Delete(params Params) (Response, error) {
 		}
 
 		if entity.ThumbnailId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.ThumbnailId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.ThumbnailId.Int64)
 			if err != nil {
 				return err
 			}
@@ -456,7 +456,7 @@ func (s Service) CreateSession(params Params, req package_session.CreateRequest)
 		}
 
 		entity, err := repository.Create(ctx, package_session.Entity{
-			PackageId:     params.ID,
+			PackageId:     params.Id,
 			EmbarkationId: req.Embarkation,
 			DepartureDate: departureDate,
 		})
@@ -474,7 +474,7 @@ func (s Service) CreateSession(params Params, req package_session.CreateRequest)
 			DeletedAt:     entity.DeletedAt,
 		}
 
-		embarkationEntity, err := embarkationRepository.FindByID(ctx, entity.EmbarkationId)
+		embarkationEntity, err := embarkationRepository.FindById(ctx, entity.EmbarkationId)
 		if err != nil {
 			return err
 		}
@@ -516,14 +516,14 @@ func (s Service) ListSession(params Params, query package_session.Query) ([]pack
 		embarkationRepository := embarkation.NewRepository(db)
 
 		count, err := repository.Count(ctx, package_session.RepositoryCountOption{
-			PackageId: null.IntFrom(params.ID),
+			PackageId: null.IntFrom(params.Id),
 		})
 		if err != nil {
 			return err
 		}
 
 		entities, err := repository.FindAll(ctx, package_session.RepositoryFindAllOption{
-			PackageId: null.IntFrom(params.ID),
+			PackageId: null.IntFrom(params.Id),
 			Limit:     query.PerPage,
 			Offset:    null.NewInt((query.Page.Int64-1)*query.PerPage.Int64, query.Page.Valid),
 		})
@@ -542,7 +542,7 @@ func (s Service) ListSession(params Params, query package_session.Query) ([]pack
 				DeletedAt:     entity.DeletedAt,
 			}
 
-			embarkationEntity, err := embarkationRepository.FindByID(ctx, entity.EmbarkationId)
+			embarkationEntity, err := embarkationRepository.FindById(ctx, entity.EmbarkationId)
 			if err != nil {
 				return err
 			}

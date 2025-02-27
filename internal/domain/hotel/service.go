@@ -1,4 +1,4 @@
-package airport
+package hotel
 
 import (
 	"context"
@@ -28,22 +28,33 @@ func (s Service) Create(req CreateRequest) (Response, error) {
 		repository := NewRepository(db)
 
 		entity, err := repository.Create(ctx, Entity{
-			City: req.City,
-			Name: req.Name,
-			Code: req.Code,
+			Name:        req.Name,
+			Rating:      req.Rating,
+			Map:         req.Map,
+			Address:     req.Address,
+			Distance:    req.Distance,
+			Review:      req.Review,
+			Description: req.Description,
+			Location:    req.Location,
 		})
 		if err != nil {
 			return err
 		}
 
 		response = Response{
-			Id:        entity.Id,
-			City:      entity.City,
-			Name:      entity.Name,
-			Code:      entity.Code,
-			CreatedAt: entity.CreatedAt,
-			UpdatedAt: entity.UpdatedAt,
-			DeletedAt: entity.DeletedAt,
+			Id:          entity.Id,
+			Name:        entity.Name,
+			Rating:      entity.Rating,
+			Map:         entity.Map,
+			Address:     entity.Address,
+			Distance:    entity.Distance,
+			Review:      entity.Review,
+			Description: entity.Description,
+			Location:    entity.Location,
+			Slug:        entity.Slug,
+			CreatedAt:   entity.CreatedAt,
+			UpdatedAt:   entity.UpdatedAt,
+			DeletedAt:   entity.DeletedAt,
 		}
 
 		return nil
@@ -66,13 +77,19 @@ func (s Service) Get(params Params) (Response, error) {
 		}
 
 		response = Response{
-			Id:        entity.Id,
-			City:      entity.City,
-			Name:      entity.Name,
-			Code:      entity.Code,
-			CreatedAt: entity.CreatedAt,
-			UpdatedAt: entity.UpdatedAt,
-			DeletedAt: entity.DeletedAt,
+			Id:          entity.Id,
+			Name:        entity.Name,
+			Rating:      entity.Rating,
+			Map:         entity.Map,
+			Address:     entity.Address,
+			Distance:    entity.Distance,
+			Review:      entity.Review,
+			Description: entity.Description,
+			Location:    entity.Location,
+			Slug:        entity.Slug,
+			CreatedAt:   entity.CreatedAt,
+			UpdatedAt:   entity.UpdatedAt,
+			DeletedAt:   entity.DeletedAt,
 		}
 
 		return nil
@@ -115,13 +132,19 @@ func (s Service) List(query Query) ([]Response, ListMeta, error) {
 
 		for _, entity := range entities {
 			responses = append(responses, Response{
-				Id:        entity.Id,
-				City:      entity.City,
-				Name:      entity.Name,
-				Code:      entity.Code,
-				CreatedAt: entity.CreatedAt,
-				UpdatedAt: entity.UpdatedAt,
-				DeletedAt: entity.DeletedAt,
+				Id:          entity.Id,
+				Name:        entity.Name,
+				Rating:      entity.Rating,
+				Map:         entity.Map,
+				Address:     entity.Address,
+				Distance:    entity.Distance,
+				Review:      entity.Review,
+				Description: entity.Description,
+				Location:    entity.Location,
+				Slug:        entity.Slug,
+				CreatedAt:   entity.CreatedAt,
+				UpdatedAt:   entity.UpdatedAt,
+				DeletedAt:   entity.DeletedAt,
 			})
 		}
 
@@ -153,22 +176,33 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 		repository := NewRepository(db)
 
 		entity, err := repository.Update(ctx, params.Id, Entity{
-			City: req.City,
-			Name: req.Name,
-			Code: req.Code,
+			Name:        req.Name,
+			Rating:      req.Rating,
+			Map:         req.Map,
+			Address:     req.Address,
+			Distance:    req.Distance,
+			Review:      req.Review,
+			Description: req.Description,
+			Location:    req.Location,
 		})
 		if err != nil {
 			return err
 		}
 
 		response = Response{
-			Id:        entity.Id,
-			City:      entity.City,
-			Name:      entity.Name,
-			Code:      entity.Code,
-			CreatedAt: entity.CreatedAt,
-			UpdatedAt: entity.UpdatedAt,
-			DeletedAt: entity.DeletedAt,
+			Id:          entity.Id,
+			Name:        entity.Name,
+			Rating:      entity.Rating,
+			Map:         entity.Map,
+			Address:     entity.Address,
+			Distance:    entity.Distance,
+			Review:      entity.Review,
+			Description: entity.Description,
+			Location:    entity.Location,
+			Slug:        entity.Slug,
+			CreatedAt:   entity.CreatedAt,
+			UpdatedAt:   entity.UpdatedAt,
+			DeletedAt:   entity.DeletedAt,
 		}
 
 		return nil
@@ -191,13 +225,19 @@ func (s Service) Delete(params Params) (Response, error) {
 		}
 
 		response = Response{
-			Id:        entity.Id,
-			City:      entity.City,
-			Name:      entity.Name,
-			Code:      entity.Code,
-			CreatedAt: entity.CreatedAt,
-			UpdatedAt: entity.UpdatedAt,
-			DeletedAt: entity.DeletedAt,
+			Id:          entity.Id,
+			Name:        entity.Name,
+			Rating:      entity.Rating,
+			Map:         entity.Map,
+			Address:     entity.Address,
+			Distance:    entity.Distance,
+			Review:      entity.Review,
+			Description: entity.Description,
+			Location:    entity.Location,
+			Slug:        entity.Slug,
+			CreatedAt:   entity.CreatedAt,
+			UpdatedAt:   entity.UpdatedAt,
+			DeletedAt:   entity.DeletedAt,
 		}
 
 		return nil

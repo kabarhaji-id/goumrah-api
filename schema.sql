@@ -445,6 +445,41 @@ ALTER TABLE public.guides ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: hotels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.hotels (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    rating public.rating NOT NULL,
+    map text NOT NULL,
+    address character varying(500) NOT NULL,
+    distance numeric(6,2) NOT NULL,
+    review text NOT NULL,
+    description character varying(500) NOT NULL,
+    location character varying(100) NOT NULL,
+    slug character varying(105) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: hotels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.hotels ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.hotels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: images; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -608,6 +643,14 @@ ALTER TABLE ONLY public.guides
 
 
 --
+-- Name: hotels hotels_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotels
+    ADD CONSTRAINT hotels_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: images images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -701,6 +744,20 @@ CREATE UNIQUE INDEX embarkations_slug_unique ON public.embarkations USING btree 
 --
 
 CREATE UNIQUE INDEX guides_name_unique ON public.guides USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: hotels_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX hotels_name_unique ON public.hotels USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: hotels_slug_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX hotels_slug_unique ON public.hotels USING btree (upper((slug)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -891,4 +948,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250224092730'),
     ('20250224114328'),
     ('20250224124038'),
-    ('20250226143224');
+    ('20250226143224'),
+    ('20250227124450');

@@ -51,7 +51,7 @@ func (s Service) Create(req CreateRequest) (Response, error) {
 		}
 
 		if entity.LogoId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.LogoId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.LogoId.Int64)
 			if err != nil {
 				return err
 			}
@@ -83,7 +83,7 @@ func (s Service) Get(params Params) (Response, error) {
 		repository := NewRepository(db)
 		imageRepository := image.NewRepository(db)
 
-		entity, err := repository.FindByID(ctx, params.ID)
+		entity, err := repository.FindById(ctx, params.Id)
 		if err != nil {
 			return err
 		}
@@ -100,7 +100,7 @@ func (s Service) Get(params Params) (Response, error) {
 		}
 
 		if entity.LogoId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.LogoId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.LogoId.Int64)
 			if err != nil {
 				return err
 			}
@@ -169,7 +169,7 @@ func (s Service) List(query Query) ([]Response, ListMeta, error) {
 			}
 
 			if entity.LogoId.Valid {
-				imageEntity, err := imageRepository.FindByID(ctx, entity.LogoId.Int64)
+				imageEntity, err := imageRepository.FindById(ctx, entity.LogoId.Int64)
 				if err != nil {
 					return err
 				}
@@ -217,7 +217,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 		repository := NewRepository(db)
 		imageRepository := image.NewRepository(db)
 
-		entity, err := repository.Update(ctx, params.ID, Entity{
+		entity, err := repository.Update(ctx, params.Id, Entity{
 			Name:          req.Name,
 			SkytraxType:   SkytraxType(req.SkytraxType),
 			SkytraxRating: req.SkytraxRating,
@@ -239,7 +239,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 		}
 
 		if entity.LogoId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.LogoId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.LogoId.Int64)
 			if err != nil {
 				return err
 			}
@@ -271,7 +271,7 @@ func (s Service) Delete(params Params) (Response, error) {
 		repository := NewRepository(db)
 		imageRepository := image.NewRepository(db)
 
-		entity, err := repository.Delete(ctx, params.ID)
+		entity, err := repository.Delete(ctx, params.Id)
 		if err != nil {
 			return err
 		}
@@ -288,7 +288,7 @@ func (s Service) Delete(params Params) (Response, error) {
 		}
 
 		if entity.LogoId.Valid {
-			imageEntity, err := imageRepository.FindByID(ctx, entity.LogoId.Int64)
+			imageEntity, err := imageRepository.FindById(ctx, entity.LogoId.Int64)
 			if err != nil {
 				return err
 			}

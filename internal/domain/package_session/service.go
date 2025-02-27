@@ -25,7 +25,7 @@ func (s Service) Get(params Params) (Response, error) {
 		repository := NewRepository(db)
 		embarkationRepository := embarkation.NewRepository(db)
 
-		entity, err := repository.FindByID(ctx, params.ID)
+		entity, err := repository.FindById(ctx, params.Id)
 		if err != nil {
 			return err
 		}
@@ -40,7 +40,7 @@ func (s Service) Get(params Params) (Response, error) {
 			DeletedAt:     entity.DeletedAt,
 		}
 
-		embarkationEntity, err := embarkationRepository.FindByID(ctx, entity.EmbarkationId)
+		embarkationEntity, err := embarkationRepository.FindById(ctx, entity.EmbarkationId)
 		if err != nil {
 			return err
 		}
@@ -105,7 +105,7 @@ func (s Service) List(query Query) ([]Response, ListMeta, error) {
 				DeletedAt:     entity.DeletedAt,
 			}
 
-			embarkationEntity, err := embarkationRepository.FindByID(ctx, entity.EmbarkationId)
+			embarkationEntity, err := embarkationRepository.FindById(ctx, entity.EmbarkationId)
 			if err != nil {
 				return err
 			}
@@ -156,7 +156,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 			return err
 		}
 
-		entity, err := repository.Update(ctx, params.ID, Entity{
+		entity, err := repository.Update(ctx, params.Id, Entity{
 			EmbarkationId: req.Embarkation,
 			DepartureDate: departureDate,
 		})
@@ -174,7 +174,7 @@ func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
 			DeletedAt:     entity.DeletedAt,
 		}
 
-		embarkationEntity, err := embarkationRepository.FindByID(ctx, entity.EmbarkationId)
+		embarkationEntity, err := embarkationRepository.FindById(ctx, entity.EmbarkationId)
 		if err != nil {
 			return err
 		}
@@ -204,7 +204,7 @@ func (s Service) Delete(params Params) (Response, error) {
 		repository := NewRepository(db)
 		embarkationRepository := embarkation.NewRepository(db)
 
-		entity, err := repository.Delete(ctx, params.ID)
+		entity, err := repository.Delete(ctx, params.Id)
 		if err != nil {
 			return err
 		}
@@ -219,7 +219,7 @@ func (s Service) Delete(params Params) (Response, error) {
 			DeletedAt:     entity.DeletedAt,
 		}
 
-		embarkationEntity, err := embarkationRepository.FindByID(ctx, entity.EmbarkationId)
+		embarkationEntity, err := embarkationRepository.FindById(ctx, entity.EmbarkationId)
 		if err != nil {
 			return err
 		}
