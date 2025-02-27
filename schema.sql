@@ -60,6 +60,22 @@ CREATE TYPE public.skytrax_type AS ENUM (
 
 
 --
+-- Name: delete_addon_on_category_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_addon_on_category_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE addons SET deleted_at = NOW() WHERE category_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -289,6 +305,35 @@ CREATE TABLE public.addon_categories (
 
 ALTER TABLE public.addon_categories ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.addon_categories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: addons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.addons (
+    id bigint NOT NULL,
+    category_id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    price numeric(13,2) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: addons_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.addons ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.addons_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -631,6 +676,14 @@ ALTER TABLE ONLY public.addon_categories
 
 
 --
+-- Name: addons addons_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.addons
+    ADD CONSTRAINT addons_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: airlines airlines_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -734,6 +787,13 @@ CREATE UNIQUE INDEX addon_categories_name_unique ON public.addon_categories USIN
 
 
 --
+-- Name: addons_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX addons_name_unique ON public.addons USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: airlines_name_unique; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -832,6 +892,13 @@ CREATE UNIQUE INDEX packages_slug_unique ON public.packages USING btree (upper((
 
 
 --
+-- Name: addon_categories delete_addon_on_category_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_addon_on_category_soft_deleted BEFORE UPDATE ON public.addon_categories FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_addon_on_category_soft_deleted();
+
+
+--
 -- Name: images delete_package_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -916,6 +983,14 @@ CREATE TRIGGER set_package_thumbnail_id_null_on_image_soft_deleted BEFORE UPDATE
 
 
 --
+-- Name: addons addons_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.addons
+    ADD CONSTRAINT addons_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.addon_categories(id);
+
+
+--
 -- Name: airlines airlines_logo_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -993,4 +1068,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250224124038'),
     ('20250226143224'),
     ('20250227124450'),
-    ('20250227133727');
+    ('20250227133727'),
+    ('20250227135554');

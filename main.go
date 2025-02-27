@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kabarhaji-id/goumrah-api/config"
 	"github.com/kabarhaji-id/goumrah-api/internal/common/database"
+	"github.com/kabarhaji-id/goumrah-api/internal/domain/addon"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/addon_category"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/airline"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/airport"
@@ -49,6 +50,7 @@ func main() {
 	packageSessionValidator := package_session.NewValidator()
 	hotelValidator := hotel.NewValidator()
 	facilityValidator := facility.NewValidator()
+	addonValidator := addon.NewValidator()
 
 	imageService := image.NewService(imageValidator, uow)
 	airlineService := airline.NewService(airlineValidator, uow)
@@ -61,6 +63,7 @@ func main() {
 	packagesSessionService := package_session.NewService(packageSessionValidator, uow)
 	hotelService := hotel.NewService(hotelValidator, uow)
 	facilityService := facility.NewService(facilityValidator, uow)
+	addonService := addon.NewService(addonValidator, uow)
 
 	imageHandler := image.NewHandler(imageService)
 	airlineHandler := airline.NewHandler(airlineService)
@@ -73,6 +76,7 @@ func main() {
 	packageSessionHandler := package_session.NewHandler(packagesSessionService)
 	hotelHandler := hotel.NewHandler(hotelService)
 	facilityHandler := facility.NewHandler(facilityService)
+	addonHandler := addon.NewHandler(addonService)
 
 	app := fiber.New()
 	app.Route("/images", imageHandler.Routing)
@@ -86,6 +90,7 @@ func main() {
 	app.Route("/package-sessions", packageSessionHandler.Routing)
 	app.Route("/hotels", hotelHandler.Routing)
 	app.Route("/facilities", facilityHandler.Routing)
+	app.Route("/addons", addonHandler.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)
