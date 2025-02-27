@@ -12,6 +12,7 @@ import (
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/airline"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/airport"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/bus"
+	"github.com/kabarhaji-id/goumrah-api/internal/domain/city_tour"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/embarkation"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/facility"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/guide"
@@ -51,6 +52,7 @@ func main() {
 	hotelValidator := hotel.NewValidator()
 	facilityValidator := facility.NewValidator()
 	addonValidator := addon.NewValidator()
+	cityTourValidator := city_tour.NewValidator()
 
 	imageService := image.NewService(imageValidator, uow)
 	airlineService := airline.NewService(airlineValidator, uow)
@@ -64,6 +66,7 @@ func main() {
 	hotelService := hotel.NewService(hotelValidator, uow)
 	facilityService := facility.NewService(facilityValidator, uow)
 	addonService := addon.NewService(addonValidator, uow)
+	cityTourService := city_tour.NewService(cityTourValidator, uow)
 
 	imageHandler := image.NewHandler(imageService)
 	airlineHandler := airline.NewHandler(airlineService)
@@ -77,6 +80,7 @@ func main() {
 	hotelHandler := hotel.NewHandler(hotelService)
 	facilityHandler := facility.NewHandler(facilityService)
 	addonHandler := addon.NewHandler(addonService)
+	cityTourHandler := city_tour.NewHandler(cityTourService)
 
 	app := fiber.New()
 	app.Route("/images", imageHandler.Routing)
@@ -91,6 +95,7 @@ func main() {
 	app.Route("/hotels", hotelHandler.Routing)
 	app.Route("/facilities", facilityHandler.Routing)
 	app.Route("/addons", addonHandler.Routing)
+	app.Route("/city-tours", cityTourHandler.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)
