@@ -60,6 +60,54 @@ CREATE TYPE public.skytrax_type AS ENUM (
 
 
 --
+-- Name: delete_addon_on_category_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_addon_on_category_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE addons SET deleted_at = NOW() WHERE category_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_package_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_image_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_images SET deleted_at = NOW() WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_package_image_on_package_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_image_on_package_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_images SET deleted_at = NOW() WHERE package_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_session_on_embarkation_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -266,6 +314,35 @@ ALTER TABLE public.addon_categories ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 
 --
+-- Name: addons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.addons (
+    id bigint NOT NULL,
+    category_id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    price numeric(13,2) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: addons_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.addons ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.addons_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: airlines; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -353,6 +430,35 @@ ALTER TABLE public.buses ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: city_tours; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.city_tours (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    city character varying(100) NOT NULL,
+    description character varying(500) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: city_tours_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.city_tours ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.city_tours_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: embarkations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -383,6 +489,34 @@ ALTER TABLE public.embarkations ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY
 
 
 --
+-- Name: facilities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.facilities (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    icon character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: facilities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.facilities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.facilities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: guides; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -404,6 +538,41 @@ CREATE TABLE public.guides (
 
 ALTER TABLE public.guides ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.guides_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: hotels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.hotels (
+    id bigint NOT NULL,
+    name character varying(100) NOT NULL,
+    rating public.rating NOT NULL,
+    map text NOT NULL,
+    address character varying(500) NOT NULL,
+    distance numeric(6,2) NOT NULL,
+    review text NOT NULL,
+    description character varying(500) NOT NULL,
+    location character varying(100) NOT NULL,
+    slug character varying(105) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: hotels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.hotels ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.hotels_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -448,6 +617,19 @@ ALTER TABLE public.images ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public.migrations (
     version character varying(128) NOT NULL
+);
+
+
+--
+-- Name: package_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.package_images (
+    package_id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
 );
 
 
@@ -523,6 +705,14 @@ ALTER TABLE ONLY public.addon_categories
 
 
 --
+-- Name: addons addons_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.addons
+    ADD CONSTRAINT addons_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: airlines airlines_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -547,6 +737,14 @@ ALTER TABLE ONLY public.buses
 
 
 --
+-- Name: city_tours city_tours_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.city_tours
+    ADD CONSTRAINT city_tours_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: embarkations embarkations_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -555,11 +753,27 @@ ALTER TABLE ONLY public.embarkations
 
 
 --
+-- Name: facilities facilities_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.facilities
+    ADD CONSTRAINT facilities_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: guides guides_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.guides
     ADD CONSTRAINT guides_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: hotels hotels_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotels
+    ADD CONSTRAINT hotels_id_pkey PRIMARY KEY (id);
 
 
 --
@@ -576,6 +790,14 @@ ALTER TABLE ONLY public.images
 
 ALTER TABLE ONLY public.migrations
     ADD CONSTRAINT migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: package_images package_images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_images
+    ADD CONSTRAINT package_images_id_pkey PRIMARY KEY (package_id, image_id);
 
 
 --
@@ -599,6 +821,13 @@ ALTER TABLE ONLY public.packages
 --
 
 CREATE UNIQUE INDEX addon_categories_name_unique ON public.addon_categories USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: addons_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX addons_name_unique ON public.addons USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -630,6 +859,13 @@ CREATE UNIQUE INDEX buses_name_unique ON public.buses USING btree (upper((name):
 
 
 --
+-- Name: city_tours_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX city_tours_name_unique ON public.city_tours USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: embarkations_name_unique; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -644,10 +880,31 @@ CREATE UNIQUE INDEX embarkations_slug_unique ON public.embarkations USING btree 
 
 
 --
+-- Name: facilities_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX facilities_name_unique ON public.facilities USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: guides_name_unique; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX guides_name_unique ON public.guides USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: hotels_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX hotels_name_unique ON public.hotels USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: hotels_slug_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX hotels_slug_unique ON public.hotels USING btree (upper((slug)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -676,6 +933,27 @@ CREATE UNIQUE INDEX packages_name_unique ON public.packages USING btree (upper((
 --
 
 CREATE UNIQUE INDEX packages_slug_unique ON public.packages USING btree (upper((slug)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: addon_categories delete_addon_on_category_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_addon_on_category_soft_deleted BEFORE UPDATE ON public.addon_categories FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_addon_on_category_soft_deleted();
+
+
+--
+-- Name: images delete_package_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_image_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_image_on_image_soft_deleted();
+
+
+--
+-- Name: packages delete_package_image_on_package_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_image_on_package_soft_deleted BEFORE UPDATE ON public.packages FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_image_on_package_soft_deleted();
 
 
 --
@@ -749,11 +1027,19 @@ CREATE TRIGGER set_package_thumbnail_id_null_on_image_soft_deleted BEFORE UPDATE
 
 
 --
+-- Name: addons addons_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.addons
+    ADD CONSTRAINT addons_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.addon_categories(id);
+
+
+--
 -- Name: airlines airlines_logo_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.airlines
-    ADD CONSTRAINT airlines_logo_id_fkey FOREIGN KEY (logo_id) REFERENCES public.images(id) ON DELETE SET NULL;
+    ADD CONSTRAINT airlines_logo_id_fkey FOREIGN KEY (logo_id) REFERENCES public.images(id);
 
 
 --
@@ -762,6 +1048,22 @@ ALTER TABLE ONLY public.airlines
 
 ALTER TABLE ONLY public.guides
     ADD CONSTRAINT guides_avatar_id_fkey FOREIGN KEY (avatar_id) REFERENCES public.images(id);
+
+
+--
+-- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_images
+    ADD CONSTRAINT package_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: package_images package_images_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_images
+    ADD CONSTRAINT package_images_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id);
 
 
 --
@@ -807,4 +1109,9 @@ INSERT INTO public.migrations (version) VALUES
     ('20250224085253'),
     ('20250224092730'),
     ('20250224114328'),
-    ('20250224124038');
+    ('20250224124038'),
+    ('20250226143224'),
+    ('20250227124450'),
+    ('20250227133727'),
+    ('20250227135554'),
+    ('20250227142557');
