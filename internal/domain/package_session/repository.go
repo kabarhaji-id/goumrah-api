@@ -48,10 +48,10 @@ func (r Repository) FindAll(ctx context.Context, opt RepositoryFindAllOption) ([
 		builder.S(`AND "package_id" = ?`, opt.PackageID.Int64)
 	}
 	if opt.Limit.Valid {
-		builder.S(`LIMIT ?`, opt.Limit.Int64)
+		builder.SA(`LIMIT ?`, opt.Limit.Int64)
 	}
 	if opt.Offset.Valid {
-		builder.S(`OFFSET ?`, opt.Offset.Int64)
+		builder.SA(`OFFSET ?`, opt.Offset.Int64)
 	}
 	builder.S(`ORDER BY "id" ASC`)
 

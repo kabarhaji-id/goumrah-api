@@ -1,6 +1,9 @@
 package sqlbuilder
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 type SQLBuilder struct {
 	sb   *strings.Builder
@@ -18,6 +21,27 @@ func New() *SQLBuilder {
 func (sb *SQLBuilder) S(query string, args ...any) *SQLBuilder {
 	sb.sb.WriteString(" ")
 	sb.sb.WriteString(query)
+	sb.args = append(sb.args, args...)
+
+	return sb
+}
+
+func (sb *SQLBuilder) SA(query string, args ...any) *SQLBuilder {
+	argsLen := len(sb.args)
+
+	queryResult := ""
+	i := 1
+	for _, c := range query {
+		if c == '?' {
+			queryResult += "$" + strconv.Itoa(argsLen+i)
+			i++
+		} else {
+			queryResult += string(c)
+		}
+	}
+
+	sb.sb.WriteString(" ")
+	sb.sb.WriteString(queryResult)
 	sb.args = append(sb.args, args...)
 
 	return sb

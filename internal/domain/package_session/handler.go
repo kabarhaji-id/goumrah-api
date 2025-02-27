@@ -15,7 +15,7 @@ func NewHandler(service Service) Handler {
 
 func (h Handler) Get(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 
@@ -43,7 +43,7 @@ func (h Handler) GetAll(c *fiber.Ctx) error {
 
 func (h Handler) Update(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 
@@ -62,7 +62,7 @@ func (h Handler) Update(c *fiber.Ctx) error {
 
 func (h Handler) Delete(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 

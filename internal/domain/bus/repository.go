@@ -44,10 +44,10 @@ func (r Repository) FindAll(ctx context.Context, opt RepositoryFindAllOption) ([
 		S(`WHERE "deleted_at" IS NULL`).
 		S(`ORDER BY "id" ASC`)
 	if opt.Limit.Valid {
-		builder.S(`LIMIT ?`, opt.Limit.Int64)
+		builder.SA(`LIMIT ?`, opt.Limit.Int64)
 	}
 	if opt.Offset.Valid {
-		builder.S(`OFFSET ?`, opt.Offset.Int64)
+		builder.SA(`OFFSET ?`, opt.Offset.Int64)
 	}
 
 	query, args := builder.Build()

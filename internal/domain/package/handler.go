@@ -30,7 +30,7 @@ func (h Handler) Create(c *fiber.Ctx) error {
 
 func (h Handler) Get(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 
@@ -58,7 +58,7 @@ func (h Handler) GetAll(c *fiber.Ctx) error {
 
 func (h Handler) Update(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 
@@ -77,7 +77,7 @@ func (h Handler) Update(c *fiber.Ctx) error {
 
 func (h Handler) Delete(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (h Handler) Delete(c *fiber.Ctx) error {
 
 func (h Handler) CreateSession(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 
@@ -110,7 +110,7 @@ func (h Handler) CreateSession(c *fiber.Ctx) error {
 
 func (h Handler) GetAllSession(c *fiber.Ctx) error {
 	params := Params{}
-	if err := c.QueryParser(&params); err != nil {
+	if err := c.ParamsParser(&params); err != nil {
 		return err
 	}
 

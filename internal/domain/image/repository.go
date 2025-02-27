@@ -2,6 +2,7 @@ package image
 
 import (
 	"context"
+	"log"
 
 	"github.com/guregu/null/v5"
 	"github.com/kabarhaji-id/goumrah-api/internal/common/database"
@@ -44,13 +45,15 @@ func (r Repository) FindAll(ctx context.Context, opt RepositoryFindAllOption) ([
 		S(`WHERE "deleted_at" IS NULL`).
 		S(`ORDER BY "id" ASC`)
 	if opt.Limit.Valid {
-		builder.S(`LIMIT ?`, opt.Limit.Int64)
+		builder.SA(`LIMIT ?`, opt.Limit.Int64)
 	}
 	if opt.Offset.Valid {
-		builder.S(`OFFSET ?`, opt.Offset.Int64)
+		builder.SA(`OFFSET ?`, opt.Offset.Int64)
 	}
 
 	query, args := builder.Build()
+
+	log.Println(query)
 
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
@@ -80,7 +83,9 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 		Build()
 
 	entity := Entity{}
-	if err := r.db.QueryRow(ctx, query, args...).Scan(); err != nil {
+	if err := r.db.QueryRow(ctx, query, args...).Scan(
+		&entity.Id, &entity.Src, &entity.Alt, &entity.Category, &entity.Title, &entity.CreatedAt, &entity.UpdatedAt, &entity.DeletedAt,
+	); err != nil {
 		return Entity{}, err
 	}
 
