@@ -47,12 +47,12 @@ func (h Handler) GetAll(c *fiber.Ctx) error {
 		return err
 	}
 
-	response, err := h.service.List(query)
+	response, meta, err := h.service.List(query)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(api.ResponseData(response))
+	return c.JSON(api.ResponseData(response, meta))
 }
 
 func (h Handler) Update(c *fiber.Ctx) error {

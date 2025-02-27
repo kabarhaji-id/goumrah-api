@@ -75,7 +75,7 @@ func main() {
 	app.Route("/guides", guideHandler.Routing)
 	app.Route("/airports", airportHandler.Routing)
 	app.Route("/buses", busHandler.Routing)
-	app.Route("/packages-sessions", packageSessionHandler.Routing)
+	app.Route("/package-sessions", packageSessionHandler.Routing)
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {
 		panic(err)

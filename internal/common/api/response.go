@@ -35,11 +35,3 @@ func ResponseError(err any, meta ...any) Response {
 		Meta:  realMeta,
 	}
 }
-
-type PaginationMeta struct {
-	Page      int `json:"page"`
-	PerPage   int `json:"per_page"`
-	FirstPage int `json:"first_page"`
-	LastPage  int `json:"last_page"`
-	Total     int `json:"total"`
-}

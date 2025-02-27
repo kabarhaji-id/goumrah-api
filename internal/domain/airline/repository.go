@@ -89,6 +89,21 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	return entity, nil
 }
 
+func (r Repository) Count(ctx context.Context) (int, error) {
+	query, args := sqlbuilder.New().
+		S(`SELECT COUNT(*)`).
+		S(`FROM "airlines"`).
+		S(`WHERE "deleted_at" IS NULL`).
+		Build()
+
+	var count int
+	if err := r.db.QueryRow(ctx, query, args...).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (r Repository) Update(ctx context.Context, id int64, entity Entity) (Entity, error) {
 	query, args := sqlbuilder.New().
 		S(`UPDATE "airlines"`).

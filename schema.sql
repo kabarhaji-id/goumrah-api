@@ -60,6 +60,38 @@ CREATE TYPE public.skytrax_type AS ENUM (
 
 
 --
+-- Name: delete_package_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_image_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_images SET deleted_at = NOW() WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_package_image_on_package_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_image_on_package_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_images SET deleted_at = NOW() WHERE package_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_session_on_embarkation_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -452,6 +484,19 @@ CREATE TABLE public.migrations (
 
 
 --
+-- Name: package_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.package_images (
+    package_id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: package_sessions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -579,6 +624,14 @@ ALTER TABLE ONLY public.migrations
 
 
 --
+-- Name: package_images package_images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_images
+    ADD CONSTRAINT package_images_id_pkey PRIMARY KEY (package_id, image_id);
+
+
+--
 -- Name: package_sessions package_sessions_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -679,6 +732,20 @@ CREATE UNIQUE INDEX packages_slug_unique ON public.packages USING btree (upper((
 
 
 --
+-- Name: images delete_package_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_image_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_image_on_image_soft_deleted();
+
+
+--
+-- Name: packages delete_package_image_on_package_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_image_on_package_soft_deleted BEFORE UPDATE ON public.packages FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_image_on_package_soft_deleted();
+
+
+--
 -- Name: embarkations delete_package_session_on_embarkation_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -753,7 +820,7 @@ CREATE TRIGGER set_package_thumbnail_id_null_on_image_soft_deleted BEFORE UPDATE
 --
 
 ALTER TABLE ONLY public.airlines
-    ADD CONSTRAINT airlines_logo_id_fkey FOREIGN KEY (logo_id) REFERENCES public.images(id) ON DELETE SET NULL;
+    ADD CONSTRAINT airlines_logo_id_fkey FOREIGN KEY (logo_id) REFERENCES public.images(id);
 
 
 --
@@ -762,6 +829,22 @@ ALTER TABLE ONLY public.airlines
 
 ALTER TABLE ONLY public.guides
     ADD CONSTRAINT guides_avatar_id_fkey FOREIGN KEY (avatar_id) REFERENCES public.images(id);
+
+
+--
+-- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_images
+    ADD CONSTRAINT package_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: package_images package_images_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_images
+    ADD CONSTRAINT package_images_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id);
 
 
 --
@@ -807,4 +890,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250224085253'),
     ('20250224092730'),
     ('20250224114328'),
-    ('20250224124038');
+    ('20250224124038'),
+    ('20250226143224');

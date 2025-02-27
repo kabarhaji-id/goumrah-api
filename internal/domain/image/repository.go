@@ -2,7 +2,6 @@ package image
 
 import (
 	"context"
-	"log"
 
 	"github.com/guregu/null/v5"
 	"github.com/kabarhaji-id/goumrah-api/internal/common/database"
@@ -53,8 +52,6 @@ func (r Repository) FindAll(ctx context.Context, opt RepositoryFindAllOption) ([
 
 	query, args := builder.Build()
 
-	log.Println(query)
-
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
@@ -90,6 +87,21 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	}
 
 	return entity, nil
+}
+
+func (r Repository) Count(ctx context.Context) (int, error) {
+	query, args := sqlbuilder.New().
+		S(`SELECT COUNT(*)`).
+		S(`FROM "images"`).
+		S(`WHERE "deleted_at" IS NULL`).
+		Build()
+
+	var count int
+	if err := r.db.QueryRow(ctx, query, args...).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r Repository) Update(ctx context.Context, id int64, entity Entity) (Entity, error) {

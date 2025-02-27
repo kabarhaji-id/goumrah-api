@@ -141,12 +141,28 @@ func (s Service) Get(params Params) (Response, error) {
 	return response, nil
 }
 
-func (s Service) List(query Query) ([]Response, error) {
+func (s Service) List(query Query) ([]Response, ListMeta, error) {
 	responses := []Response{}
+	meta := ListMeta{}
+
+	page := int(query.Page.Int64)
+	if !query.Page.Valid {
+		page = 1
+	}
+
+	perPage := int(query.PerPage.Int64)
+	if !query.PerPage.Valid {
+		perPage = 10
+	}
 
 	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
 		repository := NewRepository(db)
 		imageRepository := image.NewRepository(db)
+
+		count, err := repository.Count(ctx)
+		if err != nil {
+			return err
+		}
 
 		entities, err := repository.FindAll(ctx, RepositoryFindAllOption{
 			Limit:  query.PerPage,
@@ -193,12 +209,20 @@ func (s Service) List(query Query) ([]Response, error) {
 			responses = append(responses, response)
 		}
 
+		meta = ListMeta{
+			Page:      page,
+			PerPage:   perPage,
+			FirstPage: 1,
+			LastPage:  count/perPage + 1,
+			Total:     count,
+		}
+
 		return nil
 	}); err != nil {
-		return []Response{}, err
+		return nil, ListMeta{}, err
 	}
 
-	return responses, nil
+	return responses, meta, nil
 }
 
 func (s Service) Update(params Params, req UpdateRequest) (Response, error) {
@@ -379,15 +403,33 @@ func (s Service) CreateSession(params Params, req package_session.CreateRequest)
 	return response, nil
 }
 
-func (s Service) ListSession(params Params, query package_session.Query) ([]package_session.Response, error) {
+func (s Service) ListSession(params Params, query package_session.Query) ([]package_session.Response, ListMeta, error) {
 	responses := []package_session.Response{}
+	meta := ListMeta{}
+
+	page := int(query.Page.Int64)
+	if !query.Page.Valid {
+		page = 1
+	}
+
+	perPage := int(query.PerPage.Int64)
+	if !query.PerPage.Valid {
+		perPage = 10
+	}
 
 	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
 		repository := package_session.NewRepository(db)
 		embarkationRepository := embarkation.NewRepository(db)
 
+		count, err := repository.Count(ctx, package_session.RepositoryCountOption{
+			PackageId: null.IntFrom(params.ID),
+		})
+		if err != nil {
+			return err
+		}
+
 		entities, err := repository.FindAll(ctx, package_session.RepositoryFindAllOption{
-			PackageID: null.IntFrom(params.ID),
+			PackageId: null.IntFrom(params.ID),
 			Limit:     query.PerPage,
 			Offset:    null.NewInt((query.Page.Int64-1)*query.PerPage.Int64, query.Page.Valid),
 		})
@@ -425,10 +467,18 @@ func (s Service) ListSession(params Params, query package_session.Query) ([]pack
 			responses = append(responses, response)
 		}
 
+		meta = ListMeta{
+			Page:      page,
+			PerPage:   perPage,
+			FirstPage: 1,
+			LastPage:  count/perPage + 1,
+			Total:     count,
+		}
+
 		return nil
 	}); err != nil {
-		return []package_session.Response{}, err
+		return nil, ListMeta{}, err
 	}
 
-	return responses, nil
+	return responses, meta, nil
 }

@@ -77,11 +77,27 @@ func (s Service) Get(params Params) (Response, error) {
 	return response, nil
 }
 
-func (s Service) List(query Query) ([]Response, error) {
+func (s Service) List(query Query) ([]Response, ListMeta, error) {
 	responses := []Response{}
+	meta := ListMeta{}
+
+	page := int(query.Page.Int64)
+	if !query.Page.Valid {
+		page = 1
+	}
+
+	perPage := int(query.PerPage.Int64)
+	if !query.PerPage.Valid {
+		perPage = 10
+	}
 
 	if err := s.uow.Do(context.Background(), func(ctx context.Context, db database.DB) error {
 		repository := NewRepository(db)
+
+		count, err := repository.Count(ctx)
+		if err != nil {
+			return err
+		}
 
 		entities, err := repository.FindAll(ctx, RepositoryFindAllOption{
 			Limit:  query.PerPage,
@@ -101,12 +117,20 @@ func (s Service) List(query Query) ([]Response, error) {
 			})
 		}
 
+		meta = ListMeta{
+			Page:      page,
+			PerPage:   perPage,
+			FirstPage: 1,
+			LastPage:  count/perPage + 1,
+			Total:     count,
+		}
+
 		return nil
 	}); err != nil {
-		return []Response{}, err
+		return nil, ListMeta{}, err
 	}
 
-	return responses, nil
+	return responses, meta, nil
 }
 
 func (s Service) Update(params Params, req UpdateRequest) (Response, error) {

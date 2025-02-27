@@ -12,7 +12,11 @@ type RepositoryFindAllOption struct {
 	Limit  null.Int
 	Offset null.Int
 
-	PackageID null.Int
+	PackageId null.Int
+}
+
+type RepositoryCountOption struct {
+	PackageId null.Int
 }
 
 type Repository struct {
@@ -44,16 +48,16 @@ func (r Repository) FindAll(ctx context.Context, opt RepositoryFindAllOption) ([
 		S(`SELECT "id", "package_id", "embarkation_id", "departure_date", "created_at", "updated_at"`).
 		S(`FROM "package_sessions"`).
 		S(`WHERE "deleted_at" IS NULL`)
-	if opt.PackageID.Valid {
-		builder.S(`AND "package_id" = ?`, opt.PackageID.Int64)
+	if opt.PackageId.Valid {
+		builder.SA(`AND "package_id" = ?`, opt.PackageId.Int64)
 	}
+	builder.S(`ORDER BY "id" ASC`)
 	if opt.Limit.Valid {
 		builder.SA(`LIMIT ?`, opt.Limit.Int64)
 	}
 	if opt.Offset.Valid {
 		builder.SA(`OFFSET ?`, opt.Offset.Int64)
 	}
-	builder.S(`ORDER BY "id" ASC`)
 
 	query, args := builder.Build()
 
@@ -92,6 +96,25 @@ func (r Repository) FindByID(ctx context.Context, id int64) (Entity, error) {
 	}
 
 	return entity, nil
+}
+
+func (r Repository) Count(ctx context.Context, opt RepositoryCountOption) (int, error) {
+	builder := sqlbuilder.New().
+		S(`SELECT COUNT(*)`).
+		S(`FROM "package_sessions"`).
+		S(`WHERE "deleted_at" IS NULL`)
+	if opt.PackageId.Valid {
+		builder.S(`AND "package_id" = $1`, opt.PackageId.Int64)
+	}
+
+	query, args := builder.Build()
+
+	var count int
+	if err := r.db.QueryRow(ctx, query, args...).Scan(&count); err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r Repository) Update(ctx context.Context, id int64, entity Entity) (Entity, error) {
