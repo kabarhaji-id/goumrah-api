@@ -8,4 +8,4 @@ migration:
 	dbmate --env POSTGRES_DSN --env-file .env --migrations-dir migrations --migrations-table migrations --schema-file schema.sql new $(NAME)
 
 run:
-	go run main.go
+	go run cmd/api/main.go
