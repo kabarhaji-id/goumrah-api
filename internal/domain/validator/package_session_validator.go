@@ -49,6 +49,12 @@ func (v PackageSessionValidator) ValidateId(ctx context.Context, id int64) error
 }
 
 func (v PackageSessionValidator) ValidateGetAllRequest(ctx context.Context, request dto.GetAllPackageSessionRequest) error {
+	if request.Package.Valid {
+		if request.Package.Int64 < 1 {
+			return newError("Package", mustBeGte(1))
+		}
+	}
+
 	if request.Page < 1 {
 		return newError("Page", mustBeGte(1))
 	}

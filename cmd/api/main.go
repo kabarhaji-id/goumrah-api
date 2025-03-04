@@ -39,6 +39,7 @@ func main() {
 	facilityRepository := postgresqlrepository.NewFacilityRepository(db)
 	addonRepository := postgresqlrepository.NewAddonRepository(db)
 	cityTourRepository := postgresqlrepository.NewCityTourRepository(db)
+	flightRepository := postgresqlrepository.NewFlightRepository(db)
 
 	imageValidator := validator.NewImageValidator()
 	airlineValidator := validator.NewAirlineValidator()
@@ -53,6 +54,7 @@ func main() {
 	facilityValidator := validator.NewFacilityValidator()
 	addonValidator := validator.NewAddonValidator()
 	cityTourValidator := validator.NewCityTourValidator()
+	flightValidator := validator.NewFlightValidator()
 
 	imageMapper := mapper.NewImageMapper()
 	airlineMapper := mapper.NewAirlineMapper(imageMapper)
@@ -67,6 +69,7 @@ func main() {
 	facilityMapper := mapper.NewFacilityMapper()
 	addonMapper := mapper.NewAddonMapper(addonCategoryMapper)
 	cityTourMapper := mapper.NewCityTourMapper()
+	flightMapper := mapper.NewFlightMapper(airlineMapper, airportMapper)
 
 	imageService := service.NewImageService(imageRepository, imageValidator, imageMapper, unitOfWork)
 	airlineService := service.NewAirlineService(airlineRepository, airlineValidator, airlineMapper, imageRepository)
@@ -81,6 +84,7 @@ func main() {
 	facilityService := service.NewFacilityService(facilityRepository, facilityValidator, facilityMapper)
 	addonService := service.NewAddonService(addonRepository, addonValidator, addonMapper, addonCategoryRepository)
 	cityTourService := service.NewCityTourService(cityTourRepository, cityTourValidator, cityTourMapper)
+	flightService := service.NewFlightService(flightRepository, flightValidator, flightMapper, imageRepository, airlineRepository, airportRepository)
 
 	imageController := httpcontroller.NewImageController(imageService)
 	airlineController := httpcontroller.NewAirlineController(airlineService)
@@ -95,6 +99,7 @@ func main() {
 	facilityController := httpcontroller.NewFacilityController(facilityService)
 	addonController := httpcontroller.NewAddonController(addonService)
 	cityTourController := httpcontroller.NewCityTourController(cityTourService)
+	flightController := httpcontroller.NewFlightController(flightService)
 
 	app := fiber.New()
 	app.Route("/images", func(router fiber.Router) {
@@ -188,6 +193,13 @@ func main() {
 		router.Get("/:id", cityTourController.GetCityTourById)
 		router.Put("/:id", cityTourController.UpdateCityTour)
 		router.Delete("/:id", cityTourController.DeleteCityTour)
+	})
+	app.Route("/flights", func(router fiber.Router) {
+		router.Post("", flightController.CreateFlight)
+		router.Get("", flightController.GetAllFlight)
+		router.Get("/:id", flightController.GetFlightById)
+		router.Put("/:id", flightController.UpdateFlight)
+		router.Delete("/:id", flightController.DeleteFlight)
 	})
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {

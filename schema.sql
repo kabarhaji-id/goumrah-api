@@ -10,6 +10,17 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: flight_class; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.flight_class AS ENUM (
+    'Economy',
+    'Business',
+    'First'
+);
+
+
+--
 -- Name: guide_type; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -632,6 +643,75 @@ ALTER TABLE public.facilities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: flight_routes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.flight_routes (
+    id bigint NOT NULL,
+    flight_id bigint NOT NULL,
+    next_flight_id bigint,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: flight_routes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.flight_routes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.flight_routes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: flights; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.flights (
+    id bigint NOT NULL,
+    airline_id bigint NOT NULL,
+    aircraft character varying(100) NOT NULL,
+    baggage numeric(8,2) NOT NULL,
+    cabin_baggage numeric(8,2) NOT NULL,
+    departure_airport_id bigint NOT NULL,
+    departure_terminal character varying(100),
+    departure_at time without time zone NOT NULL,
+    arrival_airport_id bigint NOT NULL,
+    arrival_terminal character varying(100),
+    arrival_at time without time zone NOT NULL,
+    code character varying(10) NOT NULL,
+    seat_layout character varying(10) NOT NULL,
+    class public.flight_class NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone,
+    departure_flight_route_id bigint,
+    return_flight_route_id bigint
+);
+
+
+--
+-- Name: flights_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.flights ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.flights_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: guides; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -886,6 +966,22 @@ ALTER TABLE ONLY public.embarkations
 
 ALTER TABLE ONLY public.facilities
     ADD CONSTRAINT facilities_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: flight_routes flight_routes_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flight_routes
+    ADD CONSTRAINT flight_routes_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: flights flights_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flights
+    ADD CONSTRAINT flights_id_pkey PRIMARY KEY (id);
 
 
 --
@@ -1228,6 +1324,62 @@ ALTER TABLE ONLY public.airlines
 
 
 --
+-- Name: flight_routes flight_routes_flight_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flight_routes
+    ADD CONSTRAINT flight_routes_flight_id_fkey FOREIGN KEY (flight_id) REFERENCES public.flights(id);
+
+
+--
+-- Name: flight_routes flight_routes_next_flight_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flight_routes
+    ADD CONSTRAINT flight_routes_next_flight_id_fkey FOREIGN KEY (next_flight_id) REFERENCES public.flights(id);
+
+
+--
+-- Name: flights flights_airline_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flights
+    ADD CONSTRAINT flights_airline_id_fkey FOREIGN KEY (airline_id) REFERENCES public.airlines(id);
+
+
+--
+-- Name: flights flights_arrival_airport_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flights
+    ADD CONSTRAINT flights_arrival_airport_id_fkey FOREIGN KEY (arrival_airport_id) REFERENCES public.airports(id);
+
+
+--
+-- Name: flights flights_departure_airport_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flights
+    ADD CONSTRAINT flights_departure_airport_id_fkey FOREIGN KEY (departure_airport_id) REFERENCES public.airports(id);
+
+
+--
+-- Name: flights flights_departure_flight_route_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flights
+    ADD CONSTRAINT flights_departure_flight_route_id_fkey FOREIGN KEY (departure_flight_route_id) REFERENCES public.flight_routes(id);
+
+
+--
+-- Name: flights flights_return_flight_route_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flights
+    ADD CONSTRAINT flights_return_flight_route_id_fkey FOREIGN KEY (return_flight_route_id) REFERENCES public.flight_routes(id);
+
+
+--
 -- Name: guides guides_avatar_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1316,4 +1468,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250227133727'),
     ('20250227135554'),
     ('20250227142557'),
-    ('20250303092458');
+    ('20250303092458'),
+    ('20250304061836');

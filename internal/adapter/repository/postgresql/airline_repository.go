@@ -19,7 +19,7 @@ func NewAirlineRepository(db DB) repository.AirlineRepository {
 func (r airlineRepositoryPostgresql) Create(ctx context.Context, airline entity.Airline) (entity.Airline, error) {
 	builder := sqlbuilder.New().
 		S(`INSERT INTO "airlines" ("name", "skytrax_type", "skytrax_rating", "logo_id", "created_at", "updated_at", "deleted_at")`).
-		S(`VALUES ($1, $2, $3, $4, NOW(), NOW(), NULL)`, airline.Name, airline.SkytraxType, airline.SkytraxType, airline.LogoId).
+		S(`VALUES ($1, $2, $3, $4, NOW(), NOW(), NULL)`, airline.Name, airline.SkytraxType, airline.SkytraxRating, airline.LogoId).
 		S(`RETURNING "id", "name", "skytrax_type", "skytrax_rating", "logo_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
