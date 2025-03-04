@@ -50,8 +50,11 @@ func (r packageSessionRepositoryPostgresql) FindAll(ctx context.Context, opt rep
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "package_id", "embarkation_id", "departure_date", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "package_sessions" WHERE "deleted_at" IS NULL`).
-		S(`ORDER BY "id" ASC`)
+		S(`FROM "package_sessions" WHERE "deleted_at" IS NULL`)
+	if packageId, ok := opt.Where["package_id"].(int64); ok {
+		builder.SA(`AND "package_id" = ?`, packageId)
+	}
+	builder.S(`ORDER BY "id" ASC`)
 	if opt.Limit.Valid {
 		builder.SA(`LIMIT ?`, opt.Limit)
 	}
@@ -87,7 +90,7 @@ func (r packageSessionRepositoryPostgresql) Update(ctx context.Context, id int64
 			packageSession.PackageId, packageSession.EmbarkationId, packageSession.DepartureDate,
 		).
 		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate,
@@ -103,7 +106,7 @@ func (r packageSessionRepositoryPostgresql) Delete(ctx context.Context, id int64
 	builder := sqlbuilder.New().
 		S(`UPDATE "package_sessions" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate,
@@ -111,4 +114,112 @@ func (r packageSessionRepositoryPostgresql) Delete(ctx context.Context, id int64
 	)
 
 	return packageSession, err
+}
+
+func (r packageSessionRepositoryPostgresql) CreateGuides(ctx context.Context, id int64, guideIds []int64) ([]int64, error) {
+	if len(guideIds) == 0 {
+		return []int64{}, nil
+	}
+
+	builder := sqlbuilder.New().
+		S(`INSERT INTO "package_session_guides" ("package_session_id", "guide_id", "created_at", "updated_at", "deleted_at") VALUES`)
+
+	guideIdsLen := len(guideIds)
+	for index, guideId := range guideIds {
+		builder.SA(`(?, ?, NOW(), NOW(), NULL)`, id, guideId)
+		if index+1 < guideIdsLen {
+			builder.S(",")
+		}
+	}
+
+	_, err := r.db.Exec(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+
+	return guideIds, nil
+}
+
+func (r packageSessionRepositoryPostgresql) FindGuides(ctx context.Context, id int64) ([]entity.Guide, error) {
+	guides := []entity.Guide{}
+
+	builder := sqlbuilder.New().
+		S(`SELECT "guides"."id", "guides"."avatar_id", "guides"."name", "guides"."type", "guides"."description", "guides"."created_at", "guides"."updated_at", "guides"."deleted_at"`).
+		S(`FROM "package_session_guides"`).
+		S(`INNER JOIN "package_sessions" ON "package_sessions"."id" = "package_session_guides"."package_session_id"`).
+		S(`INNER JOIN "guides" ON "guides"."id" = "package_session_guides"."guide_id"`).
+		S(`WHERE "package_session_guides"."package_session_id" = $1 AND "package_session_guides"."deleted_at" IS NULL AND "package_sessions"."deleted_at" IS NULL AND "guides"."deleted_at" IS NULL`, id)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return guides, err
+	}
+
+	for rows.Next() {
+		guide := entity.Guide{}
+		err = rows.Scan(
+			&guide.Id, &guide.AvatarId, &guide.Name, &guide.Type, &guide.Description,
+			&guide.CreatedAt, &guide.UpdatedAt, &guide.DeletedAt,
+		)
+		if err != nil {
+			return guides, err
+		}
+
+		guides = append(guides, guide)
+	}
+
+	return guides, nil
+}
+
+func (r packageSessionRepositoryPostgresql) FindGuideIds(ctx context.Context, id int64) ([]int64, error) {
+	guideIds := []int64{}
+
+	builder := sqlbuilder.New().
+		S(`SELECT "guides"."id"`).
+		S(`FROM "package_session_guides"`).
+		S(`INNER JOIN "package_sessions" ON "package_sessions"."id" = "package_session_guides"."package_session_id"`).
+		S(`INNER JOIN "guides" ON "guides"."id" = "package_session_guides"."guide_id"`).
+		S(`WHERE "package_session_guides"."package_session_id" = $1 AND "package_session_guides"."deleted_at" IS NULL AND "package_sessions"."deleted_at" IS NULL AND "guides"."deleted_at" IS NULL`, id)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return guideIds, err
+	}
+
+	for rows.Next() {
+		var guideId int64
+		err = rows.Scan(&guideId)
+		if err != nil {
+			return guideIds, err
+		}
+
+		guideIds = append(guideIds, guideId)
+	}
+
+	return guideIds, nil
+}
+
+func (r packageSessionRepositoryPostgresql) DeleteGuides(ctx context.Context, id int64) ([]int64, error) {
+	builder := sqlbuilder.New().
+		S(`DELETE FROM "package_session_guides"`).
+		S(`WHERE "package_session_id" = $1`, id).
+		S(`RETURNING "guide_id"`)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	guideIds := []int64{}
+	for rows.Next() {
+		var guideId int64
+		if err = rows.Scan(&guideId); err != nil {
+			return nil, err
+		}
+
+		guideIds = append(guideIds, guideId)
+	}
+
+	return guideIds, nil
 }

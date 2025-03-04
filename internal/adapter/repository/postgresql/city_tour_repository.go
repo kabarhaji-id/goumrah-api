@@ -87,7 +87,7 @@ func (r cityTourRepositoryPostgresql) Update(ctx context.Context, id int64, city
 			cityTour.Name, cityTour.City, cityTour.Description,
 		).
 		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "city", "description", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "city", "description", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&cityTour.Id, &cityTour.Name, &cityTour.City, &cityTour.Description,
@@ -103,7 +103,7 @@ func (r cityTourRepositoryPostgresql) Delete(ctx context.Context, id int64) (ent
 	builder := sqlbuilder.New().
 		S(`UPDATE "city_tours" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "city", "description", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "city", "description", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&cityTour.Id, &cityTour.Name, &cityTour.City, &cityTour.Description,

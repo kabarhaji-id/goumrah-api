@@ -87,7 +87,7 @@ func (r packageRepositoryPostgresql) Update(ctx context.Context, id int64, pkg e
 			pkg.ThumbnailId, pkg.Name, pkg.Description, pkg.IsActive, pkg.Category, pkg.Type, pkg.Slug, pkg.IsRecommended,
 		).
 		S(`WHERE "id" = $9 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "thumbnail_id", "name", "description", "is_active", "category", "type", "slug", "is_recommended", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "thumbnail_id", "name", "description", "is_active", "category", "type", "slug", "is_recommended", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Description, &pkg.IsActive, &pkg.Category, &pkg.Type, &pkg.Slug, &pkg.IsRecommended,
@@ -103,7 +103,7 @@ func (r packageRepositoryPostgresql) Delete(ctx context.Context, id int64) (enti
 	builder := sqlbuilder.New().
 		S(`UPDATE "packages" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "thumbnail_id", "name", "description", "is_active", "category", "type", "slug", "is_recommended", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "thumbnail_id", "name", "description", "is_active", "category", "type", "slug", "is_recommended", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Description, &pkg.IsActive, &pkg.Category, &pkg.Type, &pkg.Slug, &pkg.IsRecommended,
@@ -114,12 +114,16 @@ func (r packageRepositoryPostgresql) Delete(ctx context.Context, id int64) (enti
 }
 
 func (r packageRepositoryPostgresql) CreateImages(ctx context.Context, id int64, imageIds []int64) ([]int64, error) {
+	if len(imageIds) == 0 {
+		return []int64{}, nil
+	}
+
 	builder := sqlbuilder.New().
 		S(`INSERT INTO "package_images" ("package_id", "image_id", "created_at", "updated_at", "deleted_at") VALUES`)
 
 	imageIdsLen := len(imageIds)
 	for index, imageId := range imageIds {
-		builder.S(`(?, ?, NOW(), NOW(), NULL)`, id, imageId)
+		builder.SA(`(?, ?, NOW(), NOW(), NULL)`, id, imageId)
 		if index+1 < imageIdsLen {
 			builder.S(",")
 		}
@@ -141,7 +145,7 @@ func (r packageRepositoryPostgresql) FindImages(ctx context.Context, id int64) (
 		S(`FROM "package_images"`).
 		S(`INNER JOIN "packages" ON "packages"."id" = "package_images"."package_id"`).
 		S(`INNER JOIN "images" ON "images"."id" = "package_images"."image_id"`).
-		S(`WHERE "package_images"."package_id" = $1 AND "package_images"."deleted_at" IS NULL AND "packages"."deleted_at" IS NULL AND "images"."deleted_at" IS NULL`)
+		S(`WHERE "package_images"."package_id" = $1 AND "package_images"."deleted_at" IS NULL AND "packages"."deleted_at" IS NULL AND "images"."deleted_at" IS NULL`, id)
 
 	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
 	if err != nil {
@@ -172,7 +176,7 @@ func (r packageRepositoryPostgresql) FindImageIds(ctx context.Context, id int64)
 		S(`FROM "package_images"`).
 		S(`INNER JOIN "packages" ON "packages"."id" = "package_images"."package_id"`).
 		S(`INNER JOIN "images" ON "images"."id" = "package_images"."image_id"`).
-		S(`WHERE "package_images"."package_id" = $1 AND "package_images"."deleted_at" IS NULL AND "packages"."deleted_at" IS NULL AND "images"."deleted_at" IS NULL`)
+		S(`WHERE "package_images"."package_id" = $1 AND "package_images"."deleted_at" IS NULL AND "packages"."deleted_at" IS NULL AND "images"."deleted_at" IS NULL`, id)
 
 	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
 	if err != nil {

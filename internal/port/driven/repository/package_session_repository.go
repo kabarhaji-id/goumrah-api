@@ -12,4 +12,9 @@ type PackageSessionRepository interface {
 	FindAll(ctx context.Context, opt FindAllOptions) ([]entity.PackageSession, error)
 	Update(ctx context.Context, id int64, image entity.PackageSession) (entity.PackageSession, error)
 	Delete(ctx context.Context, id int64) (entity.PackageSession, error)
+
+	CreateGuides(ctx context.Context, id int64, guideIds []int64) ([]int64, error)
+	FindGuides(ctx context.Context, id int64) ([]entity.Guide, error)
+	FindGuideIds(ctx context.Context, id int64) ([]int64, error)
+	DeleteGuides(ctx context.Context, id int64) ([]int64, error)
 }

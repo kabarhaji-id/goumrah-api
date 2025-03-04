@@ -15,17 +15,21 @@ type guideServiceImpl struct {
 	guideRepository repository.GuideRepository
 	guideValidator  validator.GuideValidator
 	guideMapper     mapper.GuideMapper
+
+	imageRepository repository.ImageRepository
 }
 
 func NewGuideService(
 	guideRepository repository.GuideRepository,
 	guideValidator validator.GuideValidator,
 	guideMapper mapper.GuideMapper,
+	imageRepository repository.ImageRepository,
 ) serviceport.GuideService {
 	return guideServiceImpl{
 		guideRepository,
 		guideValidator,
 		guideMapper,
+		imageRepository,
 	}
 }
 
@@ -45,7 +49,7 @@ func (s guideServiceImpl) CreateGuide(ctx context.Context, request dto.GuideRequ
 	}
 
 	// Map entity into response
-	response, err := s.guideMapper.MapEntityToResponse(ctx, guideEntity)
+	response, err := s.guideMapper.MapEntityToResponse(ctx, s.imageRepository, guideEntity)
 	if err != nil {
 		return dto.GuideResponse{}, err
 	}
@@ -66,7 +70,7 @@ func (s guideServiceImpl) GetGuideById(ctx context.Context, id int64) (dto.Guide
 	}
 
 	// Map entity into response
-	response, err := s.guideMapper.MapEntityToResponse(ctx, guideEntity)
+	response, err := s.guideMapper.MapEntityToResponse(ctx, s.imageRepository, guideEntity)
 	if err != nil {
 		return dto.GuideResponse{}, err
 	}
@@ -90,7 +94,7 @@ func (s guideServiceImpl) GetAllGuide(ctx context.Context, request dto.GetAllGui
 	}
 
 	// Map entities into responses
-	responses, err := s.guideMapper.MapEntitiesToResponses(ctx, guideEntities)
+	responses, err := s.guideMapper.MapEntitiesToResponses(ctx, s.imageRepository, guideEntities)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +123,7 @@ func (s guideServiceImpl) UpdateGuide(ctx context.Context, id int64, request dto
 	}
 
 	// Map entity into response
-	response, err := s.guideMapper.MapEntityToResponse(ctx, guideEntity)
+	response, err := s.guideMapper.MapEntityToResponse(ctx, s.imageRepository, guideEntity)
 	if err != nil {
 		return dto.GuideResponse{}, err
 	}
@@ -140,7 +144,7 @@ func (s guideServiceImpl) DeleteGuide(ctx context.Context, id int64) (dto.GuideR
 	}
 
 	// Map entity into response
-	response, err := s.guideMapper.MapEntityToResponse(ctx, guideEntity)
+	response, err := s.guideMapper.MapEntityToResponse(ctx, s.imageRepository, guideEntity)
 	if err != nil {
 		return dto.GuideResponse{}, err
 	}

@@ -10,13 +10,11 @@ import (
 )
 
 type GuideMapper struct {
-	imageRepository repository.ImageRepository
-	imageMapper     ImageMapper
+	imageMapper ImageMapper
 }
 
-func NewGuideMapper(imageRepository repository.ImageRepository, imageMapper ImageMapper) GuideMapper {
+func NewGuideMapper(imageMapper ImageMapper) GuideMapper {
 	return GuideMapper{
-		imageRepository,
 		imageMapper,
 	}
 }
@@ -30,10 +28,10 @@ func (GuideMapper) MapRequestToEntity(ctx context.Context, request dto.GuideRequ
 	}
 }
 
-func (m GuideMapper) MapEntityToResponse(ctx context.Context, guideEntity entity.Guide) (dto.GuideResponse, error) {
+func (m GuideMapper) MapEntityToResponse(ctx context.Context, imageRepository repository.ImageRepository, guideEntity entity.Guide) (dto.GuideResponse, error) {
 	avatarResponse := null.NewValue(dto.ImageResponse{}, false)
 	if guideEntity.AvatarId.Valid {
-		avatarEntity, err := m.imageRepository.FindById(ctx, guideEntity.AvatarId.Int64)
+		avatarEntity, err := imageRepository.FindById(ctx, guideEntity.AvatarId.Int64)
 		if err != nil {
 			return dto.GuideResponse{}, err
 		}
@@ -53,12 +51,12 @@ func (m GuideMapper) MapEntityToResponse(ctx context.Context, guideEntity entity
 	}, nil
 }
 
-func (m GuideMapper) MapEntitiesToResponses(ctx context.Context, guideEntities []entity.Guide) ([]dto.GuideResponse, error) {
+func (m GuideMapper) MapEntitiesToResponses(ctx context.Context, imageRepository repository.ImageRepository, guideEntities []entity.Guide) ([]dto.GuideResponse, error) {
 	guideResponses := make([]dto.GuideResponse, len(guideEntities))
 	var err error
 
 	for i, guideEntity := range guideEntities {
-		guideResponses[i], err = m.MapEntityToResponse(ctx, guideEntity)
+		guideResponses[i], err = m.MapEntityToResponse(ctx, imageRepository, guideEntity)
 		if err != nil {
 			return nil, err
 		}

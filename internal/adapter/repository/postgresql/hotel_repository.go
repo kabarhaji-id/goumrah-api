@@ -87,7 +87,7 @@ func (r hotelRepositoryPostgresql) Update(ctx context.Context, id int64, hotel e
 			hotel.Name, hotel.Rating, hotel.Map, hotel.Address, hotel.Distance, hotel.Review, hotel.Description, hotel.Location, hotel.Slug,
 		).
 		S(`WHERE "id" = $10 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "rating", "map", "address", "distance", "review", "description", "location", "slug", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "rating", "map", "address", "distance", "review", "description", "location", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&hotel.Id, &hotel.Name, &hotel.Rating, &hotel.Map, &hotel.Address, &hotel.Distance, &hotel.Review, &hotel.Description, &hotel.Location, &hotel.Slug,
@@ -103,7 +103,7 @@ func (r hotelRepositoryPostgresql) Delete(ctx context.Context, id int64) (entity
 	builder := sqlbuilder.New().
 		S(`UPDATE "hotels" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "rating", "map", "address", "distance", "review", "description", "location", "slug", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "rating", "map", "address", "distance", "review", "description", "location", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&hotel.Id, &hotel.Name, &hotel.Rating, &hotel.Map, &hotel.Address, &hotel.Distance, &hotel.Review, &hotel.Description, &hotel.Location, &hotel.Slug,

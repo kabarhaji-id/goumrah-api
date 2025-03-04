@@ -87,7 +87,7 @@ func (r addonRepositoryPostgresql) Update(ctx context.Context, id int64, addon e
 			addon.CategoryId, addon.Name, addon.Price,
 		).
 		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "category_id", "name", "price", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "category_id", "name", "price", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&addon.Id, &addon.CategoryId, &addon.Name, &addon.Price,
@@ -103,7 +103,7 @@ func (r addonRepositoryPostgresql) Delete(ctx context.Context, id int64) (entity
 	builder := sqlbuilder.New().
 		S(`UPDATE "addons" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "category_id", "name", "price", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "category_id", "name", "price", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&addon.Id, &addon.CategoryId, &addon.Name, &addon.Price,

@@ -15,17 +15,21 @@ type addonServiceImpl struct {
 	addonRepository repository.AddonRepository
 	addonValidator  validator.AddonValidator
 	addonMapper     mapper.AddonMapper
+
+	addonCategoryRepository repository.AddonCategoryRepository
 }
 
 func NewAddonService(
 	addonRepository repository.AddonRepository,
 	addonValidator validator.AddonValidator,
 	addonMapper mapper.AddonMapper,
+	addonCategoryRepository repository.AddonCategoryRepository,
 ) serviceport.AddonService {
 	return addonServiceImpl{
 		addonRepository,
 		addonValidator,
 		addonMapper,
+		addonCategoryRepository,
 	}
 }
 
@@ -45,7 +49,7 @@ func (s addonServiceImpl) CreateAddon(ctx context.Context, request dto.AddonRequ
 	}
 
 	// Map entity into response
-	response, err := s.addonMapper.MapEntityToResponse(ctx, addonEntity)
+	response, err := s.addonMapper.MapEntityToResponse(ctx, s.addonCategoryRepository, addonEntity)
 	if err != nil {
 		return dto.AddonResponse{}, err
 	}
@@ -66,7 +70,7 @@ func (s addonServiceImpl) GetAddonById(ctx context.Context, id int64) (dto.Addon
 	}
 
 	// Map entity into response
-	response, err := s.addonMapper.MapEntityToResponse(ctx, addonEntity)
+	response, err := s.addonMapper.MapEntityToResponse(ctx, s.addonCategoryRepository, addonEntity)
 	if err != nil {
 		return dto.AddonResponse{}, err
 	}
@@ -90,7 +94,7 @@ func (s addonServiceImpl) GetAllAddon(ctx context.Context, request dto.GetAllAdd
 	}
 
 	// Map entities into responses
-	responses, err := s.addonMapper.MapEntitiesToResponses(ctx, addonEntities)
+	responses, err := s.addonMapper.MapEntitiesToResponses(ctx, s.addonCategoryRepository, addonEntities)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +123,7 @@ func (s addonServiceImpl) UpdateAddon(ctx context.Context, id int64, request dto
 	}
 
 	// Map entity into response
-	response, err := s.addonMapper.MapEntityToResponse(ctx, addonEntity)
+	response, err := s.addonMapper.MapEntityToResponse(ctx, s.addonCategoryRepository, addonEntity)
 	if err != nil {
 		return dto.AddonResponse{}, err
 	}
@@ -140,7 +144,7 @@ func (s addonServiceImpl) DeleteAddon(ctx context.Context, id int64) (dto.AddonR
 	}
 
 	// Map entity into response
-	response, err := s.addonMapper.MapEntityToResponse(ctx, addonEntity)
+	response, err := s.addonMapper.MapEntityToResponse(ctx, s.addonCategoryRepository, addonEntity)
 	if err != nil {
 		return dto.AddonResponse{}, err
 	}

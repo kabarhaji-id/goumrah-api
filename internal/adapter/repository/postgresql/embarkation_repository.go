@@ -87,7 +87,7 @@ func (r embarkationRepositoryPostgresql) Update(ctx context.Context, id int64, e
 			embarkation.Name, embarkation.Latitude, embarkation.Longitude, embarkation.Slug,
 		).
 		S(`WHERE "id" = $5 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "latitude", "longitude", "slug", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "latitude", "longitude", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&embarkation.Id, &embarkation.Name, &embarkation.Latitude, &embarkation.Longitude, &embarkation.Slug,
@@ -103,7 +103,7 @@ func (r embarkationRepositoryPostgresql) Delete(ctx context.Context, id int64) (
 	builder := sqlbuilder.New().
 		S(`UPDATE "embarkations" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "latitude", "longitude", "slug", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "latitude", "longitude", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&embarkation.Id, &embarkation.Name, &embarkation.Latitude, &embarkation.Longitude, &embarkation.Slug,

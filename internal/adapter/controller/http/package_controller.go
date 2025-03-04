@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/guregu/null/v5"
 	"github.com/kabarhaji-id/goumrah-api/internal/adapter/controller/http/schema"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/dto"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/service"
@@ -201,6 +202,7 @@ func (c PackageController) GetAllPackageSession(ctx *fiber.Ctx) error {
 
 	// Create dto get all request
 	dtoGetAllRequest := dto.GetAllPackageSessionRequest{
+		Package: null.IntFrom(params.Id),
 		Page:    page,
 		PerPage: perPage,
 	}
@@ -212,7 +214,7 @@ func (c PackageController) GetAllPackageSession(ctx *fiber.Ctx) error {
 	}
 
 	// Create schema responses from dto response
-	schemaResponses := schema.NewPackageSessionResponses(dtoResponses)
+	schemaResponses := schema.NewPackageSessionListResponses(dtoResponses)
 
 	return ctx.Status(fiber.StatusCreated).JSON(schema.NewSuccessResponse(schemaResponses))
 }

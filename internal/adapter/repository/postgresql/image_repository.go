@@ -87,7 +87,7 @@ func (r imageRepositoryPostgresql) Update(ctx context.Context, id int64, image e
 			image.Alt, image.Category, image.Title,
 		).
 		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&image.Id, &image.Src, &image.Alt, &image.Category, &image.Title,
@@ -103,7 +103,7 @@ func (r imageRepositoryPostgresql) Delete(ctx context.Context, id int64) (entity
 	builder := sqlbuilder.New().
 		S(`UPDATE "images" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "src", "alt", "category", "title", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&image.Id, &image.Src, &image.Alt, &image.Category, &image.Title,

@@ -87,7 +87,7 @@ func (r busRepositoryPostgresql) Update(ctx context.Context, id int64, bus entit
 			bus.Name, bus.Seat,
 		).
 		S(`WHERE "id" = $3 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "seat", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "seat", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&bus.Id, &bus.Name, &bus.Seat,
@@ -103,7 +103,7 @@ func (r busRepositoryPostgresql) Delete(ctx context.Context, id int64) (entity.B
 	builder := sqlbuilder.New().
 		S(`UPDATE "buses" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "seat", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "seat", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&bus.Id, &bus.Name, &bus.Seat,

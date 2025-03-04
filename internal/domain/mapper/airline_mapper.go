@@ -10,13 +10,11 @@ import (
 )
 
 type AirlineMapper struct {
-	imageRepository repository.ImageRepository
-	imageMapper     ImageMapper
+	imageMapper ImageMapper
 }
 
-func NewAirlineMapper(imageRepository repository.ImageRepository, imageMapper ImageMapper) AirlineMapper {
+func NewAirlineMapper(imageMapper ImageMapper) AirlineMapper {
 	return AirlineMapper{
-		imageRepository,
 		imageMapper,
 	}
 }
@@ -30,10 +28,10 @@ func (AirlineMapper) MapRequestToEntity(ctx context.Context, request dto.Airline
 	}
 }
 
-func (m AirlineMapper) MapEntityToResponse(ctx context.Context, airlineEntity entity.Airline) (dto.AirlineResponse, error) {
+func (m AirlineMapper) MapEntityToResponse(ctx context.Context, imageRepository repository.ImageRepository, airlineEntity entity.Airline) (dto.AirlineResponse, error) {
 	logoResponse := null.NewValue(dto.ImageResponse{}, false)
 	if airlineEntity.LogoId.Valid {
-		logoEntity, err := m.imageRepository.FindById(ctx, airlineEntity.LogoId.Int64)
+		logoEntity, err := imageRepository.FindById(ctx, airlineEntity.LogoId.Int64)
 		if err != nil {
 			return dto.AirlineResponse{}, err
 		}
@@ -53,12 +51,12 @@ func (m AirlineMapper) MapEntityToResponse(ctx context.Context, airlineEntity en
 	}, nil
 }
 
-func (m AirlineMapper) MapEntitiesToResponses(ctx context.Context, airlineEntities []entity.Airline) ([]dto.AirlineResponse, error) {
+func (m AirlineMapper) MapEntitiesToResponses(ctx context.Context, imageRepository repository.ImageRepository, airlineEntities []entity.Airline) ([]dto.AirlineResponse, error) {
 	airlineResponses := make([]dto.AirlineResponse, len(airlineEntities))
 	var err error
 
 	for i, airlineEntity := range airlineEntities {
-		airlineResponses[i], err = m.MapEntityToResponse(ctx, airlineEntity)
+		airlineResponses[i], err = m.MapEntityToResponse(ctx, imageRepository, airlineEntity)
 		if err != nil {
 			return nil, err
 		}

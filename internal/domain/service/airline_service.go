@@ -15,17 +15,21 @@ type airlineServiceImpl struct {
 	airlineRepository repository.AirlineRepository
 	airlineValidator  validator.AirlineValidator
 	airlineMapper     mapper.AirlineMapper
+
+	imageRepository repository.ImageRepository
 }
 
 func NewAirlineService(
 	airlineRepository repository.AirlineRepository,
 	airlineValidator validator.AirlineValidator,
 	airlineMapper mapper.AirlineMapper,
+	imageRepository repository.ImageRepository,
 ) serviceport.AirlineService {
 	return airlineServiceImpl{
 		airlineRepository,
 		airlineValidator,
 		airlineMapper,
+		imageRepository,
 	}
 }
 
@@ -45,7 +49,7 @@ func (s airlineServiceImpl) CreateAirline(ctx context.Context, request dto.Airli
 	}
 
 	// Map entity into response
-	response, err := s.airlineMapper.MapEntityToResponse(ctx, airlineEntity)
+	response, err := s.airlineMapper.MapEntityToResponse(ctx, s.imageRepository, airlineEntity)
 	if err != nil {
 		return dto.AirlineResponse{}, err
 	}
@@ -66,7 +70,7 @@ func (s airlineServiceImpl) GetAirlineById(ctx context.Context, id int64) (dto.A
 	}
 
 	// Map entity into response
-	response, err := s.airlineMapper.MapEntityToResponse(ctx, airlineEntity)
+	response, err := s.airlineMapper.MapEntityToResponse(ctx, s.imageRepository, airlineEntity)
 	if err != nil {
 		return dto.AirlineResponse{}, err
 	}
@@ -90,7 +94,7 @@ func (s airlineServiceImpl) GetAllAirline(ctx context.Context, request dto.GetAl
 	}
 
 	// Map entities into responses
-	responses, err := s.airlineMapper.MapEntitiesToResponses(ctx, airlineEntities)
+	responses, err := s.airlineMapper.MapEntitiesToResponses(ctx, s.imageRepository, airlineEntities)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +123,7 @@ func (s airlineServiceImpl) UpdateAirline(ctx context.Context, id int64, request
 	}
 
 	// Map entity into response
-	response, err := s.airlineMapper.MapEntityToResponse(ctx, airlineEntity)
+	response, err := s.airlineMapper.MapEntityToResponse(ctx, s.imageRepository, airlineEntity)
 	if err != nil {
 		return dto.AirlineResponse{}, err
 	}
@@ -140,7 +144,7 @@ func (s airlineServiceImpl) DeleteAirline(ctx context.Context, id int64) (dto.Ai
 	}
 
 	// Map entity into response
-	response, err := s.airlineMapper.MapEntityToResponse(ctx, airlineEntity)
+	response, err := s.airlineMapper.MapEntityToResponse(ctx, s.imageRepository, airlineEntity)
 	if err != nil {
 		return dto.AirlineResponse{}, err
 	}

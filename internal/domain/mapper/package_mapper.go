@@ -11,20 +11,14 @@ import (
 )
 
 type PackageMapper struct {
-	imageRepository repository.ImageRepository
-	imageMapper     ImageMapper
-
-	packageRepository repository.PackageRepository
+	imageMapper ImageMapper
 }
 
 func NewPackageMapper(
-	imageRepository repository.ImageRepository,
 	imageMapper ImageMapper,
-	packageRepository repository.PackageRepository,
 ) PackageMapper {
 	return PackageMapper{
-		imageRepository, imageMapper,
-		packageRepository,
+		imageMapper,
 	}
 }
 
@@ -41,10 +35,15 @@ func (PackageMapper) MapRequestToEntity(ctx context.Context, request dto.Package
 	}
 }
 
-func (m PackageMapper) MapEntityToResponse(ctx context.Context, packageEntity entity.Package) (dto.PackageResponse, error) {
+func (m PackageMapper) MapEntityToResponse(
+	ctx context.Context,
+	imageRepository repository.ImageRepository,
+	packageRepository repository.PackageRepository,
+	packageEntity entity.Package,
+) (dto.PackageResponse, error) {
 	thumbnailResponse := null.NewValue(dto.ImageResponse{}, false)
 	if packageEntity.ThumbnailId.Valid {
-		thumbnailEntity, err := m.imageRepository.FindById(ctx, packageEntity.ThumbnailId.Int64)
+		thumbnailEntity, err := imageRepository.FindById(ctx, packageEntity.ThumbnailId.Int64)
 		if err != nil {
 			return dto.PackageResponse{}, err
 		}
@@ -52,7 +51,7 @@ func (m PackageMapper) MapEntityToResponse(ctx context.Context, packageEntity en
 		thumbnailResponse = null.ValueFrom(m.imageMapper.MapEntityToResponse(ctx, thumbnailEntity))
 	}
 
-	imageEntities, err := m.packageRepository.FindImages(ctx, packageEntity.Id)
+	imageEntities, err := packageRepository.FindImages(ctx, packageEntity.Id)
 	if err != nil {
 		return dto.PackageResponse{}, err
 	}
@@ -75,10 +74,15 @@ func (m PackageMapper) MapEntityToResponse(ctx context.Context, packageEntity en
 	}, nil
 }
 
-func (m PackageMapper) MapEntityToListResponse(ctx context.Context, packageEntity entity.Package) (dto.PackageListResponse, error) {
+func (m PackageMapper) MapEntityToListResponse(
+	ctx context.Context,
+	imageRepository repository.ImageRepository,
+	packageRepository repository.PackageRepository,
+	packageEntity entity.Package,
+) (dto.PackageListResponse, error) {
 	thumbnailResponse := null.NewValue(dto.ImageResponse{}, false)
 	if packageEntity.ThumbnailId.Valid {
-		thumbnailEntity, err := m.imageRepository.FindById(ctx, packageEntity.ThumbnailId.Int64)
+		thumbnailEntity, err := imageRepository.FindById(ctx, packageEntity.ThumbnailId.Int64)
 		if err != nil {
 			return dto.PackageListResponse{}, err
 		}
@@ -86,7 +90,7 @@ func (m PackageMapper) MapEntityToListResponse(ctx context.Context, packageEntit
 		thumbnailResponse = null.ValueFrom(m.imageMapper.MapEntityToResponse(ctx, thumbnailEntity))
 	}
 
-	imageIds, err := m.packageRepository.FindImageIds(ctx, packageEntity.Id)
+	imageIds, err := packageRepository.FindImageIds(ctx, packageEntity.Id)
 	if err != nil {
 		return dto.PackageListResponse{}, err
 	}
@@ -108,12 +112,17 @@ func (m PackageMapper) MapEntityToListResponse(ctx context.Context, packageEntit
 	}, nil
 }
 
-func (m PackageMapper) MapEntitiesToResponses(ctx context.Context, packageEntities []entity.Package) ([]dto.PackageResponse, error) {
+func (m PackageMapper) MapEntitiesToResponses(
+	ctx context.Context,
+	imageRepository repository.ImageRepository,
+	packageRepository repository.PackageRepository,
+	packageEntities []entity.Package,
+) ([]dto.PackageResponse, error) {
 	packageResponses := make([]dto.PackageResponse, len(packageEntities))
 	var err error
 
 	for i, packageEntity := range packageEntities {
-		packageResponses[i], err = m.MapEntityToResponse(ctx, packageEntity)
+		packageResponses[i], err = m.MapEntityToResponse(ctx, imageRepository, packageRepository, packageEntity)
 		if err != nil {
 			return nil, err
 		}
@@ -122,12 +131,17 @@ func (m PackageMapper) MapEntitiesToResponses(ctx context.Context, packageEntiti
 	return packageResponses, nil
 }
 
-func (m PackageMapper) MapEntitiesToListResponses(ctx context.Context, packageEntities []entity.Package) ([]dto.PackageListResponse, error) {
+func (m PackageMapper) MapEntitiesToListResponses(
+	ctx context.Context,
+	imageRepository repository.ImageRepository,
+	packageRepository repository.PackageRepository,
+	packageEntities []entity.Package,
+) ([]dto.PackageListResponse, error) {
 	packageListResponses := make([]dto.PackageListResponse, len(packageEntities))
 	var err error
 
 	for i, packageEntity := range packageEntities {
-		packageListResponses[i], err = m.MapEntityToListResponse(ctx, packageEntity)
+		packageListResponses[i], err = m.MapEntityToListResponse(ctx, imageRepository, packageRepository, packageEntity)
 		if err != nil {
 			return nil, err
 		}

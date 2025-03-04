@@ -108,6 +108,38 @@ $$;
 
 
 --
+-- Name: delete_package_session_guide_on_guide_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_session_guide_on_guide_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_session_guides SET deleted_at = NOW() WHERE guide_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_package_session_guide_on_package_session_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_session_guide_on_package_session_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_session_guides SET deleted_at = NOW() WHERE package_session_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_session_on_embarkation_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -634,6 +666,19 @@ CREATE TABLE public.package_images (
 
 
 --
+-- Name: package_session_guides; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.package_session_guides (
+    package_session_id bigint NOT NULL,
+    guide_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: package_sessions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -790,6 +835,14 @@ ALTER TABLE ONLY public.images
 
 ALTER TABLE ONLY public.migrations
     ADD CONSTRAINT migrations_pkey PRIMARY KEY (version);
+
+
+--
+-- Name: package_session_guides package_guides_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_guides
+    ADD CONSTRAINT package_guides_id_pkey PRIMARY KEY (package_session_id, guide_id);
 
 
 --
@@ -957,6 +1010,20 @@ CREATE TRIGGER delete_package_image_on_package_soft_deleted BEFORE UPDATE ON pub
 
 
 --
+-- Name: guides delete_package_session_guide_on_guide_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_session_guide_on_guide_soft_deleted BEFORE UPDATE ON public.guides FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_guide_on_guide_soft_deleted();
+
+
+--
+-- Name: package_sessions delete_package_session_guide_on_package_session_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_session_guide_on_package_session_soft_deleted BEFORE UPDATE ON public.package_sessions FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_guide_on_package_session_soft_deleted();
+
+
+--
 -- Name: embarkations delete_package_session_on_embarkation_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1051,6 +1118,22 @@ ALTER TABLE ONLY public.guides
 
 
 --
+-- Name: package_session_guides package_guides_guide_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_guides
+    ADD CONSTRAINT package_guides_guide_id_fkey FOREIGN KEY (guide_id) REFERENCES public.guides(id);
+
+
+--
+-- Name: package_session_guides package_guides_package_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_guides
+    ADD CONSTRAINT package_guides_package_session_id_fkey FOREIGN KEY (package_session_id) REFERENCES public.package_sessions(id);
+
+
+--
 -- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1114,4 +1197,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250227124450'),
     ('20250227133727'),
     ('20250227135554'),
-    ('20250227142557');
+    ('20250227142557'),
+    ('20250303092458');

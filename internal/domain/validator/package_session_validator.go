@@ -2,6 +2,7 @@ package validator
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/dto"
@@ -28,6 +29,12 @@ func (v PackageSessionValidator) ValidateRequest(ctx context.Context, request dt
 	}
 	if _, err := time.Parse("02/01/2006", request.DepartureDate); err != nil {
 		return newError("DepartureDate", invalidDate("DD/MM/YYYY"))
+	}
+
+	for i, guide := range request.Guides {
+		if guide < 1 {
+			return newError(fmt.Sprintf("Guides.%d", i), mustBeGte(1))
+		}
 	}
 
 	return nil

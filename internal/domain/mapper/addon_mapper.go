@@ -9,16 +9,12 @@ import (
 )
 
 type AddonMapper struct {
-	addonCategoryRepository repository.AddonCategoryRepository
-	addonCategoryMapper     AddonCategoryMapper
+	addonCategoryMapper AddonCategoryMapper
 }
 
-func NewAddonMapper(
-	addonCategoryRepository repository.AddonCategoryRepository,
-	addonCategoryMapper AddonCategoryMapper,
-) AddonMapper {
+func NewAddonMapper(addonCategoryMapper AddonCategoryMapper) AddonMapper {
 	return AddonMapper{
-		addonCategoryRepository, addonCategoryMapper,
+		addonCategoryMapper,
 	}
 }
 
@@ -30,8 +26,8 @@ func (AddonMapper) MapRequestToEntity(ctx context.Context, request dto.AddonRequ
 	}
 }
 
-func (m AddonMapper) MapEntityToResponse(ctx context.Context, addonEntity entity.Addon) (dto.AddonResponse, error) {
-	categoryEntity, err := m.addonCategoryRepository.FindById(ctx, addonEntity.CategoryId)
+func (m AddonMapper) MapEntityToResponse(ctx context.Context, addonCategoryRepository repository.AddonCategoryRepository, addonEntity entity.Addon) (dto.AddonResponse, error) {
+	categoryEntity, err := addonCategoryRepository.FindById(ctx, addonEntity.CategoryId)
 	if err != nil {
 		return dto.AddonResponse{}, err
 	}
@@ -49,12 +45,12 @@ func (m AddonMapper) MapEntityToResponse(ctx context.Context, addonEntity entity
 	}, nil
 }
 
-func (m AddonMapper) MapEntitiesToResponses(ctx context.Context, addonEntities []entity.Addon) ([]dto.AddonResponse, error) {
+func (m AddonMapper) MapEntitiesToResponses(ctx context.Context, addonCategoryRepository repository.AddonCategoryRepository, addonEntities []entity.Addon) ([]dto.AddonResponse, error) {
 	addonResponses := make([]dto.AddonResponse, len(addonEntities))
 	var err error
 
 	for i, addonEntity := range addonEntities {
-		addonResponses[i], err = m.MapEntityToResponse(ctx, addonEntity)
+		addonResponses[i], err = m.MapEntityToResponse(ctx, addonCategoryRepository, addonEntity)
 		if err != nil {
 			return nil, err
 		}

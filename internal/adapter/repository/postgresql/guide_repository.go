@@ -87,7 +87,7 @@ func (r guideRepositoryPostgresql) Update(ctx context.Context, id int64, guide e
 			guide.AvatarId, guide.Name, guide.Type, guide.Description,
 		).
 		S(`WHERE "id" = $5 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "avatar_id", "name", "type", "description", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "avatar_id", "name", "type", "description", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&guide.Id, &guide.AvatarId, &guide.Name, &guide.Type, &guide.Description,
@@ -103,7 +103,7 @@ func (r guideRepositoryPostgresql) Delete(ctx context.Context, id int64) (entity
 	builder := sqlbuilder.New().
 		S(`UPDATE "guides" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "avatar_id", "name", "type", "description", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "avatar_id", "name", "type", "description", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&guide.Id, &guide.AvatarId, &guide.Name, &guide.Type, &guide.Description,

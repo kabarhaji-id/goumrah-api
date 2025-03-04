@@ -15,17 +15,25 @@ type packageServiceImpl struct {
 	packageRepository repository.PackageRepository
 	packageValidator  validator.PackageValidator
 	packageMapper     mapper.PackageMapper
+
+	imageRepository repository.ImageRepository
+
+	unitOfWork repository.UnitOfWork
 }
 
 func NewPackageService(
 	packageRepository repository.PackageRepository,
 	packageValidator validator.PackageValidator,
 	packageMapper mapper.PackageMapper,
+	imageRepository repository.ImageRepository,
+	unitOfWork repository.UnitOfWork,
 ) serviceport.PackageService {
 	return packageServiceImpl{
 		packageRepository,
 		packageValidator,
 		packageMapper,
+		imageRepository,
+		unitOfWork,
 	}
 }
 
@@ -38,22 +46,38 @@ func (s packageServiceImpl) CreatePackage(ctx context.Context, request dto.Packa
 	// Map request into entity
 	packageEntity := s.packageMapper.MapRequestToEntity(ctx, request)
 
-	// Create entity with repository
-	packageEntity, err := s.packageRepository.Create(ctx, packageEntity)
-	if err != nil {
-		return dto.PackageResponse{}, err
-	}
+	// Create response
+	response := dto.PackageResponse{}
 
-	// Create images with repository
-	if _, err := s.packageRepository.CreateImages(ctx, packageEntity.Id, request.Images); err != nil {
-		return dto.PackageResponse{}, err
-	}
+	// Start transaction with unit of work
+	err := s.unitOfWork.Do(ctx, func(ctx context.Context, factory repository.Factory) error {
+		// Create package repository
+		packageRepository := factory.NewPackageRepository()
 
-	// Map entity into response
-	response, err := s.packageMapper.MapEntityToResponse(ctx, packageEntity)
-	if err != nil {
-		return dto.PackageResponse{}, err
-	}
+		// Create image repository
+		imageRepository := factory.NewImageRepository()
+
+		// Create entity with repository
+		packageEntity, err := packageRepository.Create(ctx, packageEntity)
+		if err != nil {
+			return err
+		}
+
+		// Create images with repository
+		if _, err := packageRepository.CreateImages(ctx, packageEntity.Id, request.Images); err != nil {
+			return err
+		}
+
+		// Map entity into response
+		response, err = s.packageMapper.MapEntityToResponse(
+			ctx,
+			imageRepository,
+			packageRepository,
+			packageEntity,
+		)
+
+		return err
+	})
 
 	return response, err
 }
@@ -71,7 +95,12 @@ func (s packageServiceImpl) GetPackageById(ctx context.Context, id int64) (dto.P
 	}
 
 	// Map entity into response
-	response, err := s.packageMapper.MapEntityToResponse(ctx, packageEntity)
+	response, err := s.packageMapper.MapEntityToResponse(
+		ctx,
+		s.imageRepository,
+		s.packageRepository,
+		packageEntity,
+	)
 	if err != nil {
 		return dto.PackageResponse{}, err
 	}
@@ -95,7 +124,11 @@ func (s packageServiceImpl) GetAllPackage(ctx context.Context, request dto.GetAl
 	}
 
 	// Map entities into responses
-	responses, err := s.packageMapper.MapEntitiesToListResponses(ctx, packageEntities)
+	responses, err := s.packageMapper.MapEntitiesToListResponses(ctx,
+		s.imageRepository,
+		s.packageRepository,
+		packageEntities,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -117,27 +150,45 @@ func (s packageServiceImpl) UpdatePackage(ctx context.Context, id int64, request
 	// Map request into entity
 	packageEntity := s.packageMapper.MapRequestToEntity(ctx, request)
 
-	// Update entity with repository
-	packageEntity, err := s.packageRepository.Update(ctx, id, packageEntity)
-	if err != nil {
-		return dto.PackageResponse{}, err
-	}
+	// Create response
+	response := dto.PackageResponse{}
 
-	// Delete images with repository
-	if _, err := s.packageRepository.DeleteImages(ctx, packageEntity.Id); err != nil {
-		return dto.PackageResponse{}, err
-	}
+	// Start transaction with unit of work
+	err := s.unitOfWork.Do(ctx, func(ctx context.Context, factory repository.Factory) error {
+		// Create package repository
+		packageRepository := factory.NewPackageRepository()
 
-	// Create images with repository
-	if _, err := s.packageRepository.CreateImages(ctx, packageEntity.Id, request.Images); err != nil {
-		return dto.PackageResponse{}, err
-	}
+		// Create image repository
+		imageRepository := factory.NewImageRepository()
 
-	// Map entity into response
-	response, err := s.packageMapper.MapEntityToResponse(ctx, packageEntity)
-	if err != nil {
-		return dto.PackageResponse{}, err
-	}
+		// Update entity with repository
+		packageEntity, err := packageRepository.Update(ctx, id, packageEntity)
+		if err != nil {
+			return err
+		}
+
+		// Delete images with repository
+		if _, err := packageRepository.DeleteImages(ctx, packageEntity.Id); err != nil {
+			return err
+		}
+
+		// Create images with repository
+		if _, err := packageRepository.CreateImages(ctx, packageEntity.Id, request.Images); err != nil {
+			return err
+		}
+
+		// Map entity into response
+		response, err = s.packageMapper.MapEntityToResponse(ctx,
+			imageRepository,
+			packageRepository,
+			packageEntity,
+		)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	return response, err
 }
@@ -155,7 +206,12 @@ func (s packageServiceImpl) DeletePackage(ctx context.Context, id int64) (dto.Pa
 	}
 
 	// Map entity into response
-	response, err := s.packageMapper.MapEntityToResponse(ctx, packageEntity)
+	response, err := s.packageMapper.MapEntityToResponse(
+		ctx,
+		s.imageRepository,
+		s.packageRepository,
+		packageEntity,
+	)
 	if err != nil {
 		return dto.PackageResponse{}, err
 	}

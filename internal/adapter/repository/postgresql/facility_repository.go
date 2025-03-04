@@ -87,7 +87,7 @@ func (r facilityRepositoryPostgresql) Update(ctx context.Context, id int64, faci
 			facility.Name, facility.Icon,
 		).
 		S(`WHERE "id" = $3 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "icon", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "icon", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&facility.Id, &facility.Name, &facility.Icon,
@@ -103,7 +103,7 @@ func (r facilityRepositoryPostgresql) Delete(ctx context.Context, id int64) (ent
 	builder := sqlbuilder.New().
 		S(`UPDATE "facilities" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "icon", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "icon", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&facility.Id, &facility.Name, &facility.Icon,

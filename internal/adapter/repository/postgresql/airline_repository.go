@@ -87,7 +87,7 @@ func (r airlineRepositoryPostgresql) Update(ctx context.Context, id int64, airli
 			airline.Name, airline.SkytraxType, airline.SkytraxRating, airline.LogoId,
 		).
 		S(`WHERE "id" = $5 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "skytrax_type", "skytrax_rating", "logo_id", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "skytrax_type", "skytrax_rating", "logo_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&airline.Id, &airline.Name, &airline.SkytraxType, &airline.SkytraxRating, &airline.LogoId,
@@ -103,7 +103,7 @@ func (r airlineRepositoryPostgresql) Delete(ctx context.Context, id int64) (enti
 	builder := sqlbuilder.New().
 		S(`UPDATE "airlines" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "skytrax_type", "skytrax_rating", "logo_id", "created_at", "updated_at", "deleted_at`)
+		S(`RETURNING "id", "name", "skytrax_type", "skytrax_rating", "logo_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&airline.Id, &airline.Name, &airline.SkytraxType, &airline.SkytraxRating, &airline.LogoId,
