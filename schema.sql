@@ -172,6 +172,23 @@ $$;
 
 
 --
+-- Name: prevent_insert_addon_if_category_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_addon_if_category_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM addon_categories WHERE id = NEW.category_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert addon with soft deleted category'
+            USING ERRCODE = '23503', CONSTRAINT = 'addons_category_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_airline_if_logo_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -229,6 +246,74 @@ $$;
 
 
 --
+-- Name: prevent_insert_package_image_if_image_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_image_if_image_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package image with soft deleted image'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_images_image_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_package_image_if_package_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_image_if_package_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM packages WHERE id = NEW.package_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package image with soft deleted package'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_images_package_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_package_session_guide_if_guide_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_guide_if_guide_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM guides WHERE id = NEW.guide_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package session guide with soft deleted guide'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_session_guides_guide_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_package_session_guide_if_package_session_is_soft(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_guide_if_package_session_is_soft() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM package_sessions WHERE id = NEW.package_session_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package session guide with soft deleted package session'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_session_guides_package_session_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_session_if_embarkation_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -236,11 +321,9 @@ CREATE FUNCTION public.prevent_insert_package_session_if_embarkation_is_soft_del
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    IF NEW.embarkation_id IS NOT NULL THEN
-        IF (SELECT deleted_at FROM embarkations WHERE id = NEW.embarkation_id) IS NOT NULL THEN
-            RAISE EXCEPTION 'Cannot insert package_session with soft deleted embarkation'
-                USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_embarkation_id_fkey';
-        END IF;
+    IF (SELECT deleted_at FROM embarkations WHERE id = NEW.embarkation_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package session with soft deleted embarkation'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_embarkation_id_fkey';
     END IF;
     RETURN NEW;
 END;
@@ -257,7 +340,7 @@ CREATE FUNCTION public.prevent_insert_package_session_if_package_is_soft_deleted
 BEGIN
     IF NEW.package_id IS NOT NULL THEN
         IF (SELECT deleted_at FROM packages WHERE id = NEW.package_id) IS NOT NULL THEN
-            RAISE EXCEPTION 'Cannot insert package_session with soft deleted package'
+            RAISE EXCEPTION 'Cannot insert package session with soft deleted package'
                 USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_package_id_fkey';
         END IF;
     END IF;
@@ -838,19 +921,19 @@ ALTER TABLE ONLY public.migrations
 
 
 --
--- Name: package_session_guides package_guides_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.package_session_guides
-    ADD CONSTRAINT package_guides_id_pkey PRIMARY KEY (package_session_id, guide_id);
-
-
---
 -- Name: package_images package_images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.package_images
     ADD CONSTRAINT package_images_id_pkey PRIMARY KEY (package_id, image_id);
+
+
+--
+-- Name: package_session_guides package_session_guides_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_guides
+    ADD CONSTRAINT package_session_guides_id_pkey PRIMARY KEY (package_session_id, guide_id);
 
 
 --
@@ -1038,6 +1121,13 @@ CREATE TRIGGER delete_package_session_on_package_soft_deleted BEFORE UPDATE ON p
 
 
 --
+-- Name: addons prevent_insert_addon_if_category_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_addon_if_category_is_soft_deleted BEFORE INSERT OR UPDATE ON public.addons FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_addon_if_category_is_soft_deleted();
+
+
+--
 -- Name: airlines prevent_insert_airline_if_logo_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1056,6 +1146,34 @@ CREATE TRIGGER prevent_insert_guide_if_avatar_is_soft_deleted BEFORE INSERT OR U
 --
 
 CREATE TRIGGER prevent_insert_package_if_thumbnail_is_soft_deleted BEFORE INSERT OR UPDATE ON public.packages FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_if_thumbnail_is_soft_deleted();
+
+
+--
+-- Name: package_images prevent_insert_package_image_if_image_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_image_if_image_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_image_if_image_is_soft_deleted();
+
+
+--
+-- Name: package_images prevent_insert_package_image_if_package_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_image_if_package_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_image_if_package_is_soft_deleted();
+
+
+--
+-- Name: package_session_guides prevent_insert_package_session_guide_if_guide_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_guide_if_guide_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_session_guides FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_guide_if_guide_is_soft_deleted();
+
+
+--
+-- Name: package_session_guides prevent_insert_package_session_guide_if_package_session_is_soft; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_guide_if_package_session_is_soft BEFORE INSERT OR UPDATE ON public.package_session_guides FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_guide_if_package_session_is_soft();
 
 
 --
@@ -1118,22 +1236,6 @@ ALTER TABLE ONLY public.guides
 
 
 --
--- Name: package_session_guides package_guides_guide_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.package_session_guides
-    ADD CONSTRAINT package_guides_guide_id_fkey FOREIGN KEY (guide_id) REFERENCES public.guides(id);
-
-
---
--- Name: package_session_guides package_guides_package_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.package_session_guides
-    ADD CONSTRAINT package_guides_package_session_id_fkey FOREIGN KEY (package_session_id) REFERENCES public.package_sessions(id);
-
-
---
 -- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1147,6 +1249,22 @@ ALTER TABLE ONLY public.package_images
 
 ALTER TABLE ONLY public.package_images
     ADD CONSTRAINT package_images_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id);
+
+
+--
+-- Name: package_session_guides package_session_guides_guide_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_guides
+    ADD CONSTRAINT package_session_guides_guide_id_fkey FOREIGN KEY (guide_id) REFERENCES public.guides(id);
+
+
+--
+-- Name: package_session_guides package_session_guides_package_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_guides
+    ADD CONSTRAINT package_session_guides_package_session_id_fkey FOREIGN KEY (package_session_id) REFERENCES public.package_sessions(id);
 
 
 --
