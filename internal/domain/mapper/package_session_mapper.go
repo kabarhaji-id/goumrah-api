@@ -13,11 +13,12 @@ type PackageSessionMapper struct {
 	embarkationMapper EmbarkationMapper
 	guideMapper       GuideMapper
 	flightMapper      FlightMapper
+	busMapper         BusMapper
 }
 
-func NewPackageSessionMapper(embarkationMapper EmbarkationMapper, guideMapper GuideMapper, flightMapper FlightMapper) PackageSessionMapper {
+func NewPackageSessionMapper(embarkationMapper EmbarkationMapper, guideMapper GuideMapper, flightMapper FlightMapper, busMapper BusMapper) PackageSessionMapper {
 	return PackageSessionMapper{
-		embarkationMapper, guideMapper, flightMapper,
+		embarkationMapper, guideMapper, flightMapper, busMapper,
 	}
 }
 
@@ -28,6 +29,7 @@ func (PackageSessionMapper) MapRequestToEntity(ctx context.Context, request dto.
 		PackageId:     request.Package,
 		EmbarkationId: request.Embarkation,
 		DepartureDate: departureDate,
+		BusId:         request.Bus,
 	}
 }
 
@@ -40,6 +42,7 @@ func (m PackageSessionMapper) MapEntityToResponse(
 	flightRepository repository.FlightRepository,
 	airlineRepository repository.AirlineRepository,
 	airportRepository repository.AirportRepository,
+	busRepository repository.BusRepository,
 	packageSessionEntity entity.PackageSession,
 ) (dto.PackageSessionResponse, error) {
 	embarkationEntity, err := embarkationRepository.FindById(ctx, packageSessionEntity.EmbarkationId)
@@ -121,6 +124,12 @@ func (m PackageSessionMapper) MapEntityToResponse(
 		return dto.PackageSessionResponse{}, err
 	}
 
+	busEntity, err := busRepository.FindById(ctx, packageSessionEntity.BusId)
+	if err != nil {
+		return dto.PackageSessionResponse{}, err
+	}
+	busResponse := m.busMapper.MapEntityToResponse(ctx, busEntity)
+
 	return dto.PackageSessionResponse{
 		Id:               packageSessionEntity.Id,
 		Package:          packageSessionEntity.PackageId,
@@ -129,6 +138,7 @@ func (m PackageSessionMapper) MapEntityToResponse(
 		DepartureFlights: departureFlightResponses,
 		ReturnFlights:    returnFlightResponses,
 		Guides:           guideResponses,
+		Bus:              busResponse,
 		CreatedAt:        packageSessionEntity.CreatedAt,
 		UpdatedAt:        packageSessionEntity.UpdatedAt,
 		DeletedAt:        packageSessionEntity.DeletedAt,
@@ -189,6 +199,7 @@ func (m PackageSessionMapper) MapEntityToListResponse(
 		DepartureFlights: departureFlightIds,
 		ReturnFlights:    returnFlightIds,
 		Guides:           guideIds,
+		Bus:              packageSessionEntity.BusId,
 		CreatedAt:        packageSessionEntity.CreatedAt,
 		UpdatedAt:        packageSessionEntity.UpdatedAt,
 		DeletedAt:        packageSessionEntity.DeletedAt,
@@ -204,6 +215,7 @@ func (m PackageSessionMapper) MapEntitiesToResponses(
 	flightRepository repository.FlightRepository,
 	airlineRepository repository.AirlineRepository,
 	airportRepository repository.AirportRepository,
+	busRepository repository.BusRepository,
 	packageSessionEntities []entity.PackageSession,
 ) ([]dto.PackageSessionResponse, error) {
 	packageSessionResponses := make([]dto.PackageSessionResponse, len(packageSessionEntities))
@@ -219,6 +231,7 @@ func (m PackageSessionMapper) MapEntitiesToResponses(
 			flightRepository,
 			airlineRepository,
 			airportRepository,
+			busRepository,
 			packageSessionEntity,
 		)
 		if err != nil {

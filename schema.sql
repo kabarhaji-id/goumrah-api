@@ -183,6 +183,38 @@ $$;
 
 
 --
+-- Name: delete_package_session_bus_on_bus_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_session_bus_on_bus_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_session_buses SET deleted_at = NOW() WHERE bus_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_package_session_bus_on_package_session_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_session_bus_on_package_session_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_session_buses SET deleted_at = NOW() WHERE package_session_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_session_guide_on_guide_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -208,6 +240,22 @@ CREATE FUNCTION public.delete_package_session_guide_on_package_session_soft_dele
 BEGIN
     IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
         UPDATE package_session_guides SET deleted_at = NOW() WHERE package_session_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_package_session_on_bus_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_package_session_on_bus_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_sessions SET deleted_at = NOW() WHERE bus_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -442,6 +490,40 @@ $$;
 
 
 --
+-- Name: prevent_insert_package_session_bus_if_bus_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_bus_if_bus_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM buses WHERE id = NEW.bus_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package session bus with soft deleted bus'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_session_buses_bus_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_package_session_bus_if_package_session_is_soft_d(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_bus_if_package_session_is_soft_d() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM package_sessions WHERE id = NEW.package_session_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package session bus with soft deleted package session'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_session_buses_package_session_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_session_guide_if_guide_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -469,6 +551,23 @@ BEGIN
     IF (SELECT deleted_at FROM package_sessions WHERE id = NEW.package_session_id) IS NOT NULL THEN
         RAISE EXCEPTION 'Cannot insert package session guide with soft deleted package session'
             USING ERRCODE = '23503', CONSTRAINT = 'package_session_guides_package_session_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_package_session_if_bus_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_if_bus_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM buses WHERE id = NEW.bus_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package session with soft deleted bus'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_bus_id_fkey';
     END IF;
     RETURN NEW;
 END;
@@ -1064,6 +1163,19 @@ CREATE TABLE public.package_images (
 
 
 --
+-- Name: package_session_buses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.package_session_buses (
+    package_session_id bigint NOT NULL,
+    bus_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: package_session_guides; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1089,7 +1201,8 @@ CREATE TABLE public.package_sessions (
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
     deleted_at timestamp without time zone,
     departure_flight_route_id bigint,
-    return_flight_route_id bigint
+    return_flight_route_id bigint,
+    bus_id bigint
 );
 
 
@@ -1259,6 +1372,14 @@ ALTER TABLE ONLY public.migrations
 
 ALTER TABLE ONLY public.package_images
     ADD CONSTRAINT package_images_id_pkey PRIMARY KEY (package_id, image_id);
+
+
+--
+-- Name: package_session_buses package_session_buses_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_buses
+    ADD CONSTRAINT package_session_buses_id_pkey PRIMARY KEY (package_session_id, bus_id);
 
 
 --
@@ -1454,6 +1575,20 @@ CREATE TRIGGER delete_package_image_on_package_soft_deleted BEFORE UPDATE ON pub
 
 
 --
+-- Name: buses delete_package_session_bus_on_bus_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_session_bus_on_bus_soft_deleted BEFORE UPDATE ON public.buses FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_bus_on_bus_soft_deleted();
+
+
+--
+-- Name: package_sessions delete_package_session_bus_on_package_session_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_session_bus_on_package_session_soft_deleted BEFORE UPDATE ON public.package_sessions FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_bus_on_package_session_soft_deleted();
+
+
+--
 -- Name: guides delete_package_session_guide_on_guide_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1465,6 +1600,13 @@ CREATE TRIGGER delete_package_session_guide_on_guide_soft_deleted BEFORE UPDATE 
 --
 
 CREATE TRIGGER delete_package_session_guide_on_package_session_soft_deleted BEFORE UPDATE ON public.package_sessions FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_guide_on_package_session_soft_deleted();
+
+
+--
+-- Name: buses delete_package_session_on_bus_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_package_session_on_bus_soft_deleted BEFORE UPDATE ON public.buses FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_on_bus_soft_deleted();
 
 
 --
@@ -1559,6 +1701,20 @@ CREATE TRIGGER prevent_insert_package_image_if_package_is_soft_deleted BEFORE IN
 
 
 --
+-- Name: package_session_buses prevent_insert_package_session_bus_if_bus_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_bus_if_bus_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_session_buses FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_bus_if_bus_is_soft_deleted();
+
+
+--
+-- Name: package_session_buses prevent_insert_package_session_bus_if_package_session_is_soft_d; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_bus_if_package_session_is_soft_d BEFORE INSERT OR UPDATE ON public.package_session_buses FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_bus_if_package_session_is_soft_d();
+
+
+--
 -- Name: package_session_guides prevent_insert_package_session_guide_if_guide_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1570,6 +1726,13 @@ CREATE TRIGGER prevent_insert_package_session_guide_if_guide_is_soft_deleted BEF
 --
 
 CREATE TRIGGER prevent_insert_package_session_guide_if_package_session_is_soft BEFORE INSERT OR UPDATE ON public.package_session_guides FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_guide_if_package_session_is_soft();
+
+
+--
+-- Name: package_sessions prevent_insert_package_session_if_bus_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_if_bus_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_sessions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_if_bus_is_soft_deleted();
 
 
 --
@@ -1723,6 +1886,22 @@ ALTER TABLE ONLY public.package_images
 
 
 --
+-- Name: package_session_buses package_session_buses_bus_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_buses
+    ADD CONSTRAINT package_session_buses_bus_id_fkey FOREIGN KEY (bus_id) REFERENCES public.buses(id);
+
+
+--
+-- Name: package_session_buses package_session_buses_package_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_session_buses
+    ADD CONSTRAINT package_session_buses_package_session_id_fkey FOREIGN KEY (package_session_id) REFERENCES public.package_sessions(id);
+
+
+--
 -- Name: package_session_guides package_session_guides_guide_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1736,6 +1915,14 @@ ALTER TABLE ONLY public.package_session_guides
 
 ALTER TABLE ONLY public.package_session_guides
     ADD CONSTRAINT package_session_guides_package_session_id_fkey FOREIGN KEY (package_session_id) REFERENCES public.package_sessions(id);
+
+
+--
+-- Name: package_sessions package_sessions_bus_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_sessions
+    ADD CONSTRAINT package_sessions_bus_id_fkey FOREIGN KEY (bus_id) REFERENCES public.buses(id);
 
 
 --
@@ -1804,4 +1991,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250227135554'),
     ('20250227142557'),
     ('20250303092458'),
-    ('20250304061836');
+    ('20250304061836'),
+    ('20250305052727');

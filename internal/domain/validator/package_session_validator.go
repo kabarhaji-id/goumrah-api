@@ -55,6 +55,10 @@ func (v PackageSessionValidator) ValidateRequest(ctx context.Context, request dt
 		}
 	}
 
+	if request.Bus < 1 {
+		return newError("Bus", mustBeGte(1))
+	}
+
 	return nil
 }
 

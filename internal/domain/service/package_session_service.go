@@ -30,6 +30,8 @@ type packageSessionServiceImpl struct {
 
 	airportRepository repository.AirportRepository
 
+	busRepository repository.BusRepository
+
 	unitOfWork repository.UnitOfWork
 }
 
@@ -43,6 +45,7 @@ func NewPackageSessionService(
 	flightRepository repository.FlightRepository,
 	airlineRepository repository.AirlineRepository,
 	airportRepository repository.AirportRepository,
+	busRepository repository.BusRepository,
 	unitOfWork repository.UnitOfWork,
 ) serviceport.PackageSessionService {
 	return packageSessionServiceImpl{
@@ -55,6 +58,7 @@ func NewPackageSessionService(
 		flightRepository,
 		airlineRepository,
 		airportRepository,
+		busRepository,
 		unitOfWork,
 	}
 }
@@ -93,6 +97,9 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 
 		// Create airport repository
 		airportRepository := factory.NewAirportRepository()
+
+		// Create bus repository
+		busRepository := factory.NewBusRepository()
 
 		// Create departure flight route
 		for _, departureFlight := range slices.Backward(request.DepartureFlights) {
@@ -147,6 +154,7 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 			flightRepository,
 			airlineRepository,
 			airportRepository,
+			busRepository,
 			packageSessionEntity,
 		)
 
@@ -178,6 +186,7 @@ func (s packageSessionServiceImpl) GetPackageSessionById(ctx context.Context, id
 		s.flightRepository,
 		s.airlineRepository,
 		s.airportRepository,
+		s.busRepository,
 		packageSessionEntity,
 	)
 	if err != nil {
@@ -264,6 +273,9 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		// Create airport repository
 		airportRepository := factory.NewAirportRepository()
 
+		// Create bus repository
+		busRepository := factory.NewBusRepository()
+
 		// Delete departure flight route
 		departureFlightRoute, err := s.flightRouteRepository.FindById(ctx, packageSessionEntity.DepartureFlightRouteId)
 		if err != nil {
@@ -344,6 +356,7 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 			flightRepository,
 			airlineRepository,
 			airportRepository,
+			busRepository,
 			packageSessionEntity,
 		)
 
@@ -375,6 +388,7 @@ func (s packageSessionServiceImpl) DeletePackageSession(ctx context.Context, id 
 		s.flightRepository,
 		s.airlineRepository,
 		s.airportRepository,
+		s.busRepository,
 		packageSessionEntity,
 	)
 	if err != nil {

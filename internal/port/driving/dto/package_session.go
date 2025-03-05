@@ -13,6 +13,7 @@ type PackageSessionRequest struct {
 	DepartureFlights []int64
 	ReturnFlights    []int64
 	Guides           []int64
+	Bus              int64
 }
 
 type GetAllPackageSessionRequest struct {
@@ -29,6 +30,7 @@ type PackageSessionResponse struct {
 	DepartureFlights []FlightResponse
 	ReturnFlights    []FlightResponse
 	Guides           []GuideResponse
+	Bus              BusResponse
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -43,6 +45,7 @@ type PackageSessionListResponse struct {
 	DepartureFlights []int64
 	ReturnFlights    []int64
 	Guides           []int64
+	Bus              int64
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

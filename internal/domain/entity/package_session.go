@@ -13,6 +13,7 @@ type PackageSession struct {
 	DepartureDate          time.Time
 	DepartureFlightRouteId int64
 	ReturnFlightRouteId    int64
+	BusId                  int64
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

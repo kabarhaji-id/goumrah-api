@@ -13,6 +13,7 @@ type PackageSessionRequest struct {
 	DepartureFlights []int64 `json:"departure_flights"`
 	ReturnFlights    []int64 `json:"return_flights"`
 	Guides           []int64 `json:"guides"`
+	Bus              int64   `json:"bus"`
 }
 
 func (r PackageSessionRequest) ToDtoRequest() dto.PackageSessionRequest {
@@ -22,6 +23,7 @@ func (r PackageSessionRequest) ToDtoRequest() dto.PackageSessionRequest {
 		DepartureFlights: r.DepartureFlights,
 		ReturnFlights:    r.ReturnFlights,
 		Guides:           r.Guides,
+		Bus:              r.Bus,
 	}
 }
 
@@ -42,6 +44,7 @@ type PackageSessionResponse struct {
 	DepartureFlights []FlightResponse    `json:"departure_flights"`
 	ReturnFlights    []FlightResponse    `json:"return_flights"`
 	Guides           []GuideResponse     `json:"guides"`
+	Bus              BusResponse         `json:"bus"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -53,6 +56,7 @@ func NewPackageSessionResponse(dtoResponse dto.PackageSessionResponse) PackageSe
 	departureFlights := NewFlightResponses(dtoResponse.DepartureFlights)
 	returnFlights := NewFlightResponses(dtoResponse.ReturnFlights)
 	guides := NewGuideResponses(dtoResponse.Guides)
+	bus := NewBusResponse(dtoResponse.Bus)
 
 	return PackageSessionResponse{
 		Id:               dtoResponse.Id,
@@ -62,6 +66,7 @@ func NewPackageSessionResponse(dtoResponse dto.PackageSessionResponse) PackageSe
 		DepartureFlights: departureFlights,
 		ReturnFlights:    returnFlights,
 		Guides:           guides,
+		Bus:              bus,
 		CreatedAt:        dtoResponse.CreatedAt,
 		UpdatedAt:        dtoResponse.UpdatedAt,
 		DeletedAt:        dtoResponse.DeletedAt,
@@ -86,6 +91,7 @@ type PackageSessionListResponse struct {
 	DepartureFlights []int64             `json:"departure_flights"`
 	ReturnFlights    []int64             `json:"return_flights"`
 	Guides           []int64             `json:"guides"`
+	Bus              int64               `json:"bus"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -103,6 +109,7 @@ func NewPackageSessionListResponse(dtoResponse dto.PackageSessionListResponse) P
 		DepartureFlights: dtoResponse.DepartureFlights,
 		ReturnFlights:    dtoResponse.ReturnFlights,
 		Guides:           dtoResponse.Guides,
+		Bus:              dtoResponse.Bus,
 		CreatedAt:        dtoResponse.CreatedAt,
 		UpdatedAt:        dtoResponse.UpdatedAt,
 		DeletedAt:        dtoResponse.DeletedAt,
