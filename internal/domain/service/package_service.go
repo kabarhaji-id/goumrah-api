@@ -64,7 +64,7 @@ func (s packageServiceImpl) CreatePackage(ctx context.Context, request dto.Packa
 		}
 
 		// Create images with repository
-		if _, err := packageRepository.CreateImages(ctx, packageEntity.Id, request.Images); err != nil {
+		if _, err := packageRepository.AttachImages(ctx, packageEntity.Id, request.Images); err != nil {
 			return err
 		}
 
@@ -168,12 +168,12 @@ func (s packageServiceImpl) UpdatePackage(ctx context.Context, id int64, request
 		}
 
 		// Delete images with repository
-		if _, err := packageRepository.DeleteImages(ctx, packageEntity.Id); err != nil {
+		if _, err := packageRepository.DetachImages(ctx, packageEntity.Id); err != nil {
 			return err
 		}
 
 		// Create images with repository
-		if _, err := packageRepository.CreateImages(ctx, packageEntity.Id, request.Images); err != nil {
+		if _, err := packageRepository.AttachImages(ctx, packageEntity.Id, request.Images); err != nil {
 			return err
 		}
 

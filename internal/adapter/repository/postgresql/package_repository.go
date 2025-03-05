@@ -113,7 +113,7 @@ func (r packageRepositoryPostgresql) Delete(ctx context.Context, id int64) (enti
 	return pkg, err
 }
 
-func (r packageRepositoryPostgresql) CreateImages(ctx context.Context, id int64, imageIds []int64) ([]int64, error) {
+func (r packageRepositoryPostgresql) AttachImages(ctx context.Context, id int64, imageIds []int64) ([]int64, error) {
 	if len(imageIds) == 0 {
 		return []int64{}, nil
 	}
@@ -196,7 +196,7 @@ func (r packageRepositoryPostgresql) FindImageIds(ctx context.Context, id int64)
 	return imageIds, nil
 }
 
-func (r packageRepositoryPostgresql) DeleteImages(ctx context.Context, id int64) ([]int64, error) {
+func (r packageRepositoryPostgresql) DetachImages(ctx context.Context, id int64) ([]int64, error) {
 	builder := sqlbuilder.New().
 		S(`DELETE FROM "package_images"`).
 		S(`WHERE "package_id" = $1`, id).

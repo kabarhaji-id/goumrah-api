@@ -87,6 +87,70 @@ $$;
 
 
 --
+-- Name: delete_flight_on_airline_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_flight_on_airline_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE flights SET deleted_at = NOW() WHERE airline_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_flight_on_arrival_airport_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_flight_on_arrival_airport_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE flights SET deleted_at = NOW() WHERE arrival_airport_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_flight_on_departure_airport_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_flight_on_departure_airport_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE flights SET deleted_at = NOW() WHERE departure_airport_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_flight_route_on_flight_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_flight_route_on_flight_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE flight_routes SET deleted_at = NOW() WHERE flight_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -219,6 +283,93 @@ $$;
 
 
 --
+-- Name: prevent_insert_flight_if_airline_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_flight_if_airline_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM airlines WHERE id = NEW.airline_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert flight with soft deleted airline'
+            USING ERRCODE = '23503', CONSTRAINT = 'flight_routes_flight_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_flight_if_arrival_airport_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_flight_if_arrival_airport_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM airports WHERE id = NEW.arrival_airport_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert flight with soft deleted arrival airport'
+            USING ERRCODE = '23503', CONSTRAINT = 'flights_arrival_airport_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_flight_if_departure_airport_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_flight_if_departure_airport_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM airports WHERE id = NEW.departure_airport_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert flight with soft deleted departure airport'
+            USING ERRCODE = '23503', CONSTRAINT = 'flights_departure_airport_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_flight_route_if_flight_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_flight_route_if_flight_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM flights WHERE id = NEW.flight_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert flight route with soft deleted flight'
+            USING ERRCODE = '23503', CONSTRAINT = 'flight_routes_flight_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_flight_route_if_next_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_flight_route_if_next_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.next_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM flight_routes WHERE id = NEW.next_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert flight route with soft deleted next'
+                USING ERRCODE = '23503', CONSTRAINT = 'flights_return_flight_route_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_guide_if_avatar_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -325,6 +476,25 @@ $$;
 
 
 --
+-- Name: prevent_insert_package_session_if_departure_flight_route_is_sof(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_if_departure_flight_route_is_sof() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.departure_flight_route_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM flight_routes WHERE id = NEW.departure_flight_route_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert package session with soft deleted departure flight route'
+                USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_departure_flight_route_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_session_if_embarkation_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -361,6 +531,25 @@ $$;
 
 
 --
+-- Name: prevent_insert_package_session_if_return_flight_route_is_soft_d(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_package_session_if_return_flight_route_is_soft_d() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.return_flight_route_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM flight_routes WHERE id = NEW.return_flight_route_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert package session with soft deleted return flight route'
+                USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_return_flight_route_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: set_airline_logo_id_null_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -386,6 +575,54 @@ CREATE FUNCTION public.set_guide_avatar_id_null_on_image_soft_deleted() RETURNS 
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
         UPDATE guides SET avatar_id = NULL WHERE avatar_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_next_id_null_on_flight_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_next_id_null_on_flight_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE flight_routes SET next_id = NULL WHERE next_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_package_session_departure_flight_route_id_null_on_flight_ro(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_package_session_departure_flight_route_id_null_on_flight_ro() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_sessions SET departure_flight_route_id = NULL WHERE departure_flight_route_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_package_session_return_flight_route_id_null_on_flight_route(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_package_session_return_flight_route_id_null_on_flight_route() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE package_sessions SET return_flight_route_id = NULL WHERE return_flight_route_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -649,7 +886,7 @@ ALTER TABLE public.facilities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE public.flight_routes (
     id bigint NOT NULL,
     flight_id bigint NOT NULL,
-    next_flight_id bigint,
+    next_id bigint,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
     deleted_at timestamp without time zone
@@ -691,9 +928,7 @@ CREATE TABLE public.flights (
     class public.flight_class NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp without time zone,
-    departure_flight_route_id bigint,
-    return_flight_route_id bigint
+    deleted_at timestamp without time zone
 );
 
 
@@ -852,7 +1087,9 @@ CREATE TABLE public.package_sessions (
     departure_date date NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    departure_flight_route_id bigint,
+    return_flight_route_id bigint
 );
 
 
@@ -1175,6 +1412,34 @@ CREATE TRIGGER delete_addon_on_category_soft_deleted BEFORE UPDATE ON public.add
 
 
 --
+-- Name: airlines delete_flight_on_airline_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_flight_on_airline_soft_deleted BEFORE UPDATE ON public.airlines FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_flight_on_airline_soft_deleted();
+
+
+--
+-- Name: airports delete_flight_on_arrival_airport_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_flight_on_arrival_airport_soft_deleted BEFORE UPDATE ON public.airports FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_flight_on_arrival_airport_soft_deleted();
+
+
+--
+-- Name: airports delete_flight_on_departure_airport_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_flight_on_departure_airport_soft_deleted BEFORE UPDATE ON public.airports FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_flight_on_departure_airport_soft_deleted();
+
+
+--
+-- Name: flights delete_flight_route_on_flight_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_flight_route_on_flight_soft_deleted BEFORE UPDATE ON public.flights FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_flight_route_on_flight_soft_deleted();
+
+
+--
 -- Name: images delete_package_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1231,6 +1496,41 @@ CREATE TRIGGER prevent_insert_airline_if_logo_is_soft_deleted BEFORE INSERT OR U
 
 
 --
+-- Name: flights prevent_insert_flight_if_airline_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_flight_if_airline_is_soft_deleted BEFORE INSERT OR UPDATE ON public.flights FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_flight_if_airline_is_soft_deleted();
+
+
+--
+-- Name: flights prevent_insert_flight_if_arrival_airport_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_flight_if_arrival_airport_is_soft_deleted BEFORE INSERT OR UPDATE ON public.flights FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_flight_if_arrival_airport_is_soft_deleted();
+
+
+--
+-- Name: flights prevent_insert_flight_if_departure_airport_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_flight_if_departure_airport_is_soft_deleted BEFORE INSERT OR UPDATE ON public.flights FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_flight_if_departure_airport_is_soft_deleted();
+
+
+--
+-- Name: flight_routes prevent_insert_flight_route_if_flight_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_flight_route_if_flight_is_soft_deleted BEFORE INSERT OR UPDATE ON public.flight_routes FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_flight_route_if_flight_is_soft_deleted();
+
+
+--
+-- Name: flight_routes prevent_insert_flight_route_if_next_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_flight_route_if_next_is_soft_deleted BEFORE INSERT OR UPDATE ON public.flight_routes FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_flight_route_if_next_is_soft_deleted();
+
+
+--
 -- Name: guides prevent_insert_guide_if_avatar_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1273,6 +1573,13 @@ CREATE TRIGGER prevent_insert_package_session_guide_if_package_session_is_soft B
 
 
 --
+-- Name: package_sessions prevent_insert_package_session_if_departure_flight_route_is_sof; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_if_departure_flight_route_is_sof BEFORE INSERT OR UPDATE ON public.package_sessions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_if_departure_flight_route_is_sof();
+
+
+--
 -- Name: package_sessions prevent_insert_package_session_if_embarkation_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1287,6 +1594,13 @@ CREATE TRIGGER prevent_insert_package_session_if_package_is_soft_deleted BEFORE 
 
 
 --
+-- Name: package_sessions prevent_insert_package_session_if_return_flight_route_is_soft_d; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_package_session_if_return_flight_route_is_soft_d BEFORE INSERT OR UPDATE ON public.package_sessions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_if_return_flight_route_is_soft_d();
+
+
+--
 -- Name: images set_airline_logo_id_null_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1298,6 +1612,27 @@ CREATE TRIGGER set_airline_logo_id_null_on_image_soft_deleted BEFORE UPDATE ON p
 --
 
 CREATE TRIGGER set_guide_avatar_id_null_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_guide_avatar_id_null_on_image_soft_deleted();
+
+
+--
+-- Name: flight_routes set_next_id_null_on_flight_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_next_id_null_on_flight_soft_deleted BEFORE UPDATE ON public.flight_routes FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_next_id_null_on_flight_soft_deleted();
+
+
+--
+-- Name: flight_routes set_package_session_departure_flight_route_id_null_on_flight_ro; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_package_session_departure_flight_route_id_null_on_flight_ro BEFORE UPDATE ON public.flight_routes FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_package_session_departure_flight_route_id_null_on_flight_ro();
+
+
+--
+-- Name: flight_routes set_package_session_return_flight_route_id_null_on_flight_route; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_package_session_return_flight_route_id_null_on_flight_route BEFORE UPDATE ON public.flight_routes FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_package_session_return_flight_route_id_null_on_flight_route();
 
 
 --
@@ -1332,11 +1667,11 @@ ALTER TABLE ONLY public.flight_routes
 
 
 --
--- Name: flight_routes flight_routes_next_flight_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: flight_routes flight_routes_next_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.flight_routes
-    ADD CONSTRAINT flight_routes_next_flight_id_fkey FOREIGN KEY (next_flight_id) REFERENCES public.flights(id);
+    ADD CONSTRAINT flight_routes_next_id_fkey FOREIGN KEY (next_id) REFERENCES public.flight_routes(id);
 
 
 --
@@ -1361,22 +1696,6 @@ ALTER TABLE ONLY public.flights
 
 ALTER TABLE ONLY public.flights
     ADD CONSTRAINT flights_departure_airport_id_fkey FOREIGN KEY (departure_airport_id) REFERENCES public.airports(id);
-
-
---
--- Name: flights flights_departure_flight_route_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.flights
-    ADD CONSTRAINT flights_departure_flight_route_id_fkey FOREIGN KEY (departure_flight_route_id) REFERENCES public.flight_routes(id);
-
-
---
--- Name: flights flights_return_flight_route_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.flights
-    ADD CONSTRAINT flights_return_flight_route_id_fkey FOREIGN KEY (return_flight_route_id) REFERENCES public.flight_routes(id);
 
 
 --
@@ -1420,6 +1739,14 @@ ALTER TABLE ONLY public.package_session_guides
 
 
 --
+-- Name: package_sessions package_sessions_departure_flight_route_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_sessions
+    ADD CONSTRAINT package_sessions_departure_flight_route_id_fkey FOREIGN KEY (departure_flight_route_id) REFERENCES public.flight_routes(id);
+
+
+--
 -- Name: package_sessions package_sessions_embarkation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1433,6 +1760,14 @@ ALTER TABLE ONLY public.package_sessions
 
 ALTER TABLE ONLY public.package_sessions
     ADD CONSTRAINT package_sessions_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id);
+
+
+--
+-- Name: package_sessions package_sessions_return_flight_route_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_sessions
+    ADD CONSTRAINT package_sessions_return_flight_route_id_fkey FOREIGN KEY (return_flight_route_id) REFERENCES public.flight_routes(id);
 
 
 --

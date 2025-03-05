@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"slices"
 
 	"github.com/guregu/null/v5"
+	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/mapper"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/validator"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driven/repository"
@@ -20,6 +22,14 @@ type packageSessionServiceImpl struct {
 
 	imageRepository repository.ImageRepository
 
+	flightRouteRepository repository.FlightRouteRepository
+
+	flightRepository repository.FlightRepository
+
+	airlineRepository repository.AirlineRepository
+
+	airportRepository repository.AirportRepository
+
 	unitOfWork repository.UnitOfWork
 }
 
@@ -29,6 +39,10 @@ func NewPackageSessionService(
 	packageSessionMapper mapper.PackageSessionMapper,
 	embarkationRepository repository.EmbarkationRepository,
 	imageRepository repository.ImageRepository,
+	flightRouteRepository repository.FlightRouteRepository,
+	flightRepository repository.FlightRepository,
+	airlineRepository repository.AirlineRepository,
+	airportRepository repository.AirportRepository,
 	unitOfWork repository.UnitOfWork,
 ) serviceport.PackageSessionService {
 	return packageSessionServiceImpl{
@@ -37,6 +51,10 @@ func NewPackageSessionService(
 		packageSessionMapper,
 		embarkationRepository,
 		imageRepository,
+		flightRouteRepository,
+		flightRepository,
+		airlineRepository,
+		airportRepository,
 		unitOfWork,
 	}
 }
@@ -64,14 +82,58 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 		// Create image repository
 		imageRepository := factory.NewImageRepository()
 
+		// Create flight route repository
+		flightRouteRepository := factory.NewFlightRouteRepository()
+
+		// Create flight repository
+		flightRepository := factory.NewFlightRepository()
+
+		// Create airline repository
+		airlineRepository := factory.NewAirlineRepository()
+
+		// Create airport repository
+		airportRepository := factory.NewAirportRepository()
+
+		// Create departure flight route
+		for _, departureFlight := range slices.Backward(request.DepartureFlights) {
+			flightRoute, err := flightRouteRepository.Create(
+				ctx,
+				entity.FlightRoute{
+					FlightId: departureFlight,
+					NextId:   null.NewInt(packageSessionEntity.DepartureFlightRouteId, packageSessionEntity.DepartureFlightRouteId != 0),
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			packageSessionEntity.DepartureFlightRouteId = flightRoute.Id
+		}
+
+		// Create return flight route
+		for _, returnFlight := range slices.Backward(request.ReturnFlights) {
+			flightRoute, err := flightRouteRepository.Create(
+				ctx,
+				entity.FlightRoute{
+					FlightId: returnFlight,
+					NextId:   null.NewInt(packageSessionEntity.ReturnFlightRouteId, packageSessionEntity.ReturnFlightRouteId != 0),
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			packageSessionEntity.ReturnFlightRouteId = flightRoute.Id
+		}
+
 		// Create entity with repository
 		packageSessionEntity, err := packageSessionRepository.Create(ctx, packageSessionEntity)
 		if err != nil {
 			return err
 		}
 
-		// Create guides with repository
-		if _, err := packageSessionRepository.CreateGuides(ctx, packageSessionEntity.Id, request.Guides); err != nil {
+		// Attach guides with repository
+		if _, err := packageSessionRepository.AttachGuides(ctx, packageSessionEntity.Id, request.Guides); err != nil {
 			return err
 		}
 
@@ -81,6 +143,10 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 			embarkationRepository,
 			packageSessionRepository,
 			imageRepository,
+			flightRouteRepository,
+			flightRepository,
+			airlineRepository,
+			airportRepository,
 			packageSessionEntity,
 		)
 
@@ -108,6 +174,10 @@ func (s packageSessionServiceImpl) GetPackageSessionById(ctx context.Context, id
 		s.embarkationRepository,
 		s.packageSessionRepository,
 		s.imageRepository,
+		s.flightRouteRepository,
+		s.flightRepository,
+		s.airlineRepository,
+		s.airportRepository,
 		packageSessionEntity,
 	)
 	if err != nil {
@@ -144,6 +214,7 @@ func (s packageSessionServiceImpl) GetAllPackageSession(ctx context.Context, req
 		ctx,
 		s.embarkationRepository,
 		s.packageSessionRepository,
+		s.flightRouteRepository,
 		packageSessionEntities,
 	)
 	if err != nil {
@@ -181,6 +252,72 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		// Create image repository
 		imageRepository := factory.NewImageRepository()
 
+		// Create flight route repository
+		flightRouteRepository := factory.NewFlightRouteRepository()
+
+		// Create flight repository
+		flightRepository := factory.NewFlightRepository()
+
+		// Create airline repository
+		airlineRepository := factory.NewAirlineRepository()
+
+		// Create airport repository
+		airportRepository := factory.NewAirportRepository()
+
+		// Delete departure flight route
+		departureFlightRoute, err := s.flightRouteRepository.FindById(ctx, packageSessionEntity.DepartureFlightRouteId)
+		if err != nil {
+			return err
+		}
+		for departureFlightRoute.NextId.Valid {
+			if departureFlightRoute, err = s.flightRouteRepository.Delete(ctx, departureFlightRoute.NextId.Int64); err != nil {
+				return err
+			}
+		}
+
+		// Create departure flight route
+		for _, departureFlight := range slices.Backward(request.DepartureFlights) {
+			flightRoute, err := flightRouteRepository.Create(
+				ctx,
+				entity.FlightRoute{
+					FlightId: departureFlight,
+					NextId:   null.NewInt(packageSessionEntity.DepartureFlightRouteId, packageSessionEntity.DepartureFlightRouteId != 0),
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			packageSessionEntity.DepartureFlightRouteId = flightRoute.Id
+		}
+
+		// Delete return flight route
+		returnFlightRoute, err := s.flightRouteRepository.FindById(ctx, packageSessionEntity.ReturnFlightRouteId)
+		if err != nil {
+			return err
+		}
+		for returnFlightRoute.NextId.Valid {
+			if returnFlightRoute, err = s.flightRouteRepository.Delete(ctx, returnFlightRoute.NextId.Int64); err != nil {
+				return err
+			}
+		}
+
+		// Create return flight route
+		for _, returnFlight := range slices.Backward(request.ReturnFlights) {
+			flightRoute, err := flightRouteRepository.Create(
+				ctx,
+				entity.FlightRoute{
+					FlightId: returnFlight,
+					NextId:   null.NewInt(packageSessionEntity.ReturnFlightRouteId, packageSessionEntity.ReturnFlightRouteId != 0),
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			packageSessionEntity.ReturnFlightRouteId = flightRoute.Id
+		}
+
 		// Update entity with repository
 		packageSessionEntity, err := packageSessionRepository.Update(ctx, id, packageSessionEntity)
 		if err != nil {
@@ -188,12 +325,12 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		}
 
 		// Delete guides with repository
-		if _, err := packageSessionRepository.DeleteGuides(ctx, packageSessionEntity.Id); err != nil {
+		if _, err := packageSessionRepository.DetachGuides(ctx, packageSessionEntity.Id); err != nil {
 			return err
 		}
 
 		// Create guides with repository
-		if _, err := packageSessionRepository.CreateGuides(ctx, packageSessionEntity.Id, request.Guides); err != nil {
+		if _, err := packageSessionRepository.AttachGuides(ctx, packageSessionEntity.Id, request.Guides); err != nil {
 			return err
 		}
 
@@ -203,6 +340,10 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 			embarkationRepository,
 			packageSessionRepository,
 			imageRepository,
+			flightRouteRepository,
+			flightRepository,
+			airlineRepository,
+			airportRepository,
 			packageSessionEntity,
 		)
 
@@ -230,6 +371,10 @@ func (s packageSessionServiceImpl) DeletePackageSession(ctx context.Context, id 
 		s.embarkationRepository,
 		s.packageSessionRepository,
 		s.imageRepository,
+		s.flightRouteRepository,
+		s.flightRepository,
+		s.airlineRepository,
+		s.airportRepository,
 		packageSessionEntity,
 	)
 	if err != nil {

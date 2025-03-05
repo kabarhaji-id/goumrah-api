@@ -13,8 +13,8 @@ type PackageRepository interface {
 	Update(ctx context.Context, id int64, pkg entity.Package) (entity.Package, error)
 	Delete(ctx context.Context, id int64) (entity.Package, error)
 
-	CreateImages(ctx context.Context, id int64, pkgIds []int64) ([]int64, error)
+	AttachImages(ctx context.Context, id int64, pkgIds []int64) ([]int64, error)
 	FindImages(ctx context.Context, id int64) ([]entity.Image, error)
 	FindImageIds(ctx context.Context, id int64) ([]int64, error)
-	DeleteImages(ctx context.Context, id int64) ([]int64, error)
+	DetachImages(ctx context.Context, id int64) ([]int64, error)
 }

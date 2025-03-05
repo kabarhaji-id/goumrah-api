@@ -62,6 +62,14 @@ func (factory factoryPostgresql) NewCityTourRepository() repository.CityTourRepo
 	return NewCityTourRepository(factory.db)
 }
 
+func (factory factoryPostgresql) NewFlightRepository() repository.FlightRepository {
+	return NewFlightRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewFlightRouteRepository() repository.FlightRouteRepository {
+	return NewFlightRouteRepository(factory.db)
+}
+
 type unitOfWorkPostgresql struct {
 	db DB
 }

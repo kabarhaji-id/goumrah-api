@@ -19,7 +19,7 @@ func (v ImageValidator) ValidateRequest(ctx context.Context, request dto.ImageRe
 		return newError("FileData", mustBeNotEmpty)
 	}
 
-	if strings.HasPrefix(request.FileType, "image/") {
+	if !strings.HasPrefix(request.FileType, "image/") {
 		return newError("FileType", "Must be image")
 	}
 

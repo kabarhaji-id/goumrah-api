@@ -7,10 +7,12 @@ import (
 )
 
 type PackageSessionRequest struct {
-	Package       int64
-	Embarkation   int64
-	DepartureDate string
-	Guides        []int64
+	Package          int64
+	Embarkation      int64
+	DepartureDate    string
+	DepartureFlights []int64
+	ReturnFlights    []int64
+	Guides           []int64
 }
 
 type GetAllPackageSessionRequest struct {
@@ -20,11 +22,13 @@ type GetAllPackageSessionRequest struct {
 }
 
 type PackageSessionResponse struct {
-	Id            int64
-	Package       int64
-	Embarkation   EmbarkationResponse
-	DepartureDate time.Time
-	Guides        []GuideResponse
+	Id               int64
+	Package          int64
+	Embarkation      EmbarkationResponse
+	DepartureDate    time.Time
+	DepartureFlights []FlightResponse
+	ReturnFlights    []FlightResponse
+	Guides           []GuideResponse
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -32,11 +36,13 @@ type PackageSessionResponse struct {
 }
 
 type PackageSessionListResponse struct {
-	Id            int64
-	Package       int64
-	Embarkation   EmbarkationResponse
-	DepartureDate time.Time
-	Guides        []int64
+	Id               int64
+	Package          int64
+	Embarkation      EmbarkationResponse
+	DepartureDate    time.Time
+	DepartureFlights []int64
+	ReturnFlights    []int64
+	Guides           []int64
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

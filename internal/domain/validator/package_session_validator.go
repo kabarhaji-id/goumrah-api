@@ -31,6 +31,24 @@ func (v PackageSessionValidator) ValidateRequest(ctx context.Context, request dt
 		return newError("DepartureDate", invalidDate("DD/MM/YYYY"))
 	}
 
+	for i, departureFlight := range request.DepartureFlights {
+		if departureFlight < 1 {
+			return newError(fmt.Sprintf("DepartureFlights.%d", i), mustBeGte(1))
+		}
+	}
+
+	if len(request.ReturnFlights) < 1 {
+		return newError("ReturnFlights", mustBeNotEmpty)
+	}
+	for i, returnFlight := range request.ReturnFlights {
+		if returnFlight < 1 {
+			return newError(fmt.Sprintf("ReturnFlights.%d", i), mustBeGte(1))
+		}
+	}
+
+	if len(request.DepartureFlights) < 1 {
+		return newError("DepartureFlights", mustBeNotEmpty)
+	}
 	for i, guide := range request.Guides {
 		if guide < 1 {
 			return newError(fmt.Sprintf("Guides.%d", i), mustBeGte(1))

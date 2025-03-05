@@ -16,6 +16,8 @@ type Factory interface {
 	NewFacilityRepository() FacilityRepository
 	NewAddonRepository() AddonRepository
 	NewCityTourRepository() CityTourRepository
+	NewFlightRepository() FlightRepository
+	NewFlightRouteRepository() FlightRouteRepository
 }
 
 type UnitOfWork interface {

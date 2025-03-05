@@ -34,3 +34,13 @@ type Flight struct {
 	UpdatedAt time.Time
 	DeletedAt null.Time
 }
+
+type FlightRoute struct {
+	Id       int64
+	FlightId int64
+	NextId   null.Int64
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt null.Time
+}
