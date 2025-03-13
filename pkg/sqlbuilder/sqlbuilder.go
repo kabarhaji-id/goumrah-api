@@ -51,6 +51,14 @@ func (sb *SQLBuilder) Build() (string, []any) {
 	return sb.sb.String(), sb.args
 }
 
+func (sb *SQLBuilder) Query() string {
+	return sb.sb.String()
+}
+
+func (sb *SQLBuilder) Args() []any {
+	return sb.args
+}
+
 func (sb *SQLBuilder) Reset() {
 	sb.sb.Reset()
 	sb.args = []any{}

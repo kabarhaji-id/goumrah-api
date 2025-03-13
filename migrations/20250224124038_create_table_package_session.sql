@@ -31,11 +31,9 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION prevent_insert_package_session_if_embarkation_is_soft_deleted()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NEW.embarkation_id IS NOT NULL THEN
-        IF (SELECT deleted_at FROM embarkations WHERE id = NEW.embarkation_id) IS NOT NULL THEN
-            RAISE EXCEPTION 'Cannot insert package_session with soft deleted embarkation'
-                USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_embarkation_id_fkey';
-        END IF;
+    IF (SELECT deleted_at FROM embarkations WHERE id = NEW.embarkation_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert package session with soft deleted embarkation'
+            USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_embarkation_id_fkey';
     END IF;
     RETURN NEW;
 END;
@@ -67,7 +65,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.package_id IS NOT NULL THEN
         IF (SELECT deleted_at FROM packages WHERE id = NEW.package_id) IS NOT NULL THEN
-            RAISE EXCEPTION 'Cannot insert package_session with soft deleted package'
+            RAISE EXCEPTION 'Cannot insert package session with soft deleted package'
                 USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_package_id_fkey';
         END IF;
     END IF;
