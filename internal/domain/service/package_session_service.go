@@ -32,6 +32,22 @@ type packageSessionServiceImpl struct {
 
 	busRepository repository.BusRepository
 
+	hotelRepository repository.HotelRepository
+
+	itineraryRepository repository.ItineraryRepository
+	itineraryMapper     mapper.ItineraryMapper
+
+	itineraryDayRepository repository.ItineraryDayRepository
+	itineraryDayMapper     mapper.ItineraryDayMapper
+
+	itineraryWidgetRepository               repository.ItineraryWidgetRepository
+	itineraryWidgetActivityRepository       repository.ItineraryWidgetActivityRepository
+	itineraryWidgetHotelRepository          repository.ItineraryWidgetHotelRepository
+	itineraryWidgetInformationRepository    repository.ItineraryWidgetInformationRepository
+	itineraryWidgetTransportRepository      repository.ItineraryWidgetTransportRepository
+	itineraryWidgetRecommendationRepository repository.ItineraryWidgetRecommendationRepository
+	itineraryWidgetMapper                   mapper.ItineraryWidgetMapper
+
 	unitOfWork repository.UnitOfWork
 }
 
@@ -46,6 +62,18 @@ func NewPackageSessionService(
 	airlineRepository repository.AirlineRepository,
 	airportRepository repository.AirportRepository,
 	busRepository repository.BusRepository,
+	hotelRepository repository.HotelRepository,
+	itineraryRepository repository.ItineraryRepository,
+	itineraryMapper mapper.ItineraryMapper,
+	itineraryDayRepository repository.ItineraryDayRepository,
+	itineraryDayMapper mapper.ItineraryDayMapper,
+	itineraryWidgetRepository repository.ItineraryWidgetRepository,
+	itineraryWidgetActivityRepository repository.ItineraryWidgetActivityRepository,
+	itineraryWidgetHotelRepository repository.ItineraryWidgetHotelRepository,
+	itineraryWidgetInformationRepository repository.ItineraryWidgetInformationRepository,
+	itineraryWidgetTransportRepository repository.ItineraryWidgetTransportRepository,
+	itineraryWidgetRecommendationRepository repository.ItineraryWidgetRecommendationRepository,
+	itineraryWidgetMapper mapper.ItineraryWidgetMapper,
 	unitOfWork repository.UnitOfWork,
 ) serviceport.PackageSessionService {
 	return packageSessionServiceImpl{
@@ -59,6 +87,18 @@ func NewPackageSessionService(
 		airlineRepository,
 		airportRepository,
 		busRepository,
+		hotelRepository,
+		itineraryRepository,
+		itineraryMapper,
+		itineraryDayRepository,
+		itineraryDayMapper,
+		itineraryWidgetRepository,
+		itineraryWidgetActivityRepository,
+		itineraryWidgetHotelRepository,
+		itineraryWidgetInformationRepository,
+		itineraryWidgetTransportRepository,
+		itineraryWidgetRecommendationRepository,
+		itineraryWidgetMapper,
 		unitOfWork,
 	}
 }
@@ -101,6 +141,33 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 		// Create bus repository
 		busRepository := factory.NewBusRepository()
 
+		// Create hotel repository
+		hotelRepository := factory.NewHotelRepository()
+
+		// Create itinerary repository
+		itineraryRepository := factory.NewItineraryRepository()
+
+		// Create itinerary day repository
+		itineraryDayRepository := factory.NewItineraryDayRepository()
+
+		// Create itinerary widget repository
+		itineraryWidgetRepository := factory.NewItineraryWidgetRepository()
+
+		// Create itinerary widget activity repository
+		itineraryWidgetActivityRepository := factory.NewItineraryWidgetActivityRepository()
+
+		// Create itinerary widget hotel repository
+		itineraryWidgetHotelRepository := factory.NewItineraryWidgetHotelRepository()
+
+		// Create itinerary widget information repository
+		itineraryWidgetInformationRepository := factory.NewItineraryWidgetInformationRepository()
+
+		// Create itinerary widget transport repository
+		itineraryWidgetTransportRepository := factory.NewItineraryWidgetTransportRepository()
+
+		// Create itinerary widget recommendation repository
+		itineraryWidgetRecommendationRepository := factory.NewItineraryWidgetRecommendationRepository()
+
 		// Create departure flight route
 		for _, departureFlight := range slices.Backward(request.DepartureFlights) {
 			flightRoute, err := flightRouteRepository.Create(
@@ -133,6 +200,156 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 			packageSessionEntity.ReturnFlightRouteId = flightRoute.Id
 		}
 
+		// Create itinerary with repository
+		itineraryEntity := null.NewValue(entity.Itinerary{}, false)
+		for _, itineraryRequest := range request.Itineraries {
+			var err error
+
+			itineraryEntity = null.ValueFrom(entity.Itinerary{
+				City: itineraryRequest.City,
+				NextId: null.NewInt(
+					itineraryEntity.V.Id,
+					itineraryEntity.Valid,
+				),
+			})
+
+			itineraryDayEntity := null.NewValue(entity.ItineraryDay{}, false)
+			for _, itineraryDayRequest := range itineraryRequest.Days {
+				itineraryDayEntity = null.ValueFrom(entity.ItineraryDay{
+					Title:       itineraryDayRequest.Title,
+					Description: itineraryDayRequest.Description,
+					NextId: null.NewInt(
+						itineraryDayEntity.V.Id,
+						itineraryDayEntity.Valid,
+					),
+				})
+
+				itineraryWidgetEntity := null.NewValue(entity.ItineraryWidget{}, false)
+				for _, itineraryWidgetRequest := range itineraryDayRequest.Widgets {
+					itineraryWidgetEntity = null.ValueFrom(entity.ItineraryWidget{
+						NextId: null.NewInt(
+							itineraryWidgetEntity.V.Id,
+							itineraryWidgetEntity.Valid,
+						),
+					})
+
+					switch itineraryWidgetRequest.Type() {
+					case "Activity":
+						itineraryWidgetActivityRequest := itineraryWidgetRequest.(dto.ItineraryWidgetActivityRequest)
+						itineraryWidgetActivityEntity, err := itineraryWidgetActivityRepository.Create(
+							ctx,
+							entity.ItineraryWidgetActivity{
+								Title:       itineraryWidgetActivityRequest.Title,
+								Description: itineraryWidgetActivityRequest.Description,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						if _, err = itineraryWidgetActivityRepository.AttachImages(
+							ctx,
+							itineraryWidgetActivityEntity.Id,
+							itineraryWidgetActivityRequest.Images,
+						); err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.ActivityId = null.IntFrom(itineraryWidgetActivityEntity.Id)
+					case "Hotel":
+						itineraryWidgetHotelRequest := itineraryWidgetRequest.(dto.ItineraryWidgetHotelRequest)
+						itineraryWidgetHotelEntity, err := itineraryWidgetHotelRepository.Create(
+							ctx,
+							entity.ItineraryWidgetHotel{
+								HotelId: itineraryWidgetHotelRequest.Hotel,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.HotelId = null.IntFrom(itineraryWidgetHotelEntity.Id)
+					case "Information":
+						itineraryWidgetInformationRequest := itineraryWidgetRequest.(dto.ItineraryWidgetInformationRequest)
+						itineraryWidgetInformationEntity, err := itineraryWidgetInformationRepository.Create(
+							ctx,
+							entity.ItineraryWidgetInformation{
+								Description: itineraryWidgetInformationRequest.Description,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.InformationId = null.IntFrom(itineraryWidgetInformationEntity.Id)
+					case "Transport":
+						itineraryWidgetTransportRequest := itineraryWidgetRequest.(dto.ItineraryWidgetTransportRequest)
+						itineraryWidgetTransportEntity, err := itineraryWidgetTransportRepository.Create(
+							ctx,
+							entity.ItineraryWidgetTransport{
+								Transportation: itineraryWidgetTransportRequest.Transportation,
+								From:           itineraryWidgetTransportRequest.From,
+								To:             itineraryWidgetTransportRequest.To,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.TransportId = null.IntFrom(itineraryWidgetTransportEntity.Id)
+					case "Recommendation":
+						itineraryWidgetRecommendationRequest := itineraryWidgetRequest.(dto.ItineraryWidgetRecommendationRequest)
+						itineraryWidgetRecommendationEntity, err := itineraryWidgetRecommendationRepository.Create(
+							ctx,
+							entity.ItineraryWidgetRecommendation{
+								Description: itineraryWidgetRecommendationRequest.Description,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						if _, err = itineraryWidgetRecommendationRepository.AttachImages(
+							ctx,
+							itineraryWidgetRecommendationEntity.Id,
+							itineraryWidgetRecommendationRequest.Images,
+						); err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.RecommendationId = null.IntFrom(itineraryWidgetRecommendationEntity.Id)
+					}
+
+					itineraryWidgetEntity.V, err = itineraryWidgetRepository.Create(ctx, itineraryWidgetEntity.V)
+					if err != nil {
+						return err
+					}
+				}
+				itineraryDayEntity.V.WidgetId = null.NewInt(itineraryWidgetEntity.V.Id, itineraryWidgetEntity.Valid)
+
+				itineraryDayEntity.V, err = itineraryDayRepository.Create(ctx, itineraryDayEntity.V)
+				if err != nil {
+					return err
+				}
+			}
+			itineraryEntity.V.DayId = itineraryDayEntity.V.Id
+
+			itineraryEntity.V, err = itineraryRepository.Create(ctx, itineraryEntity.V)
+			if err != nil {
+				return err
+			}
+
+			if _, err = itineraryRepository.AttachImages(
+				ctx,
+				itineraryEntity.V.Id,
+				itineraryRequest.Images,
+			); err != nil {
+				return err
+			}
+
+			packageSessionEntity.ItineraryId = itineraryEntity.V.Id
+		}
+
 		// Create entity with repository
 		packageSessionEntity, err := packageSessionRepository.Create(ctx, packageSessionEntity)
 		if err != nil {
@@ -155,6 +372,15 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 			airlineRepository,
 			airportRepository,
 			busRepository,
+			hotelRepository,
+			itineraryRepository,
+			itineraryDayRepository,
+			itineraryWidgetRepository,
+			itineraryWidgetActivityRepository,
+			itineraryWidgetHotelRepository,
+			itineraryWidgetInformationRepository,
+			itineraryWidgetTransportRepository,
+			itineraryWidgetRecommendationRepository,
 			packageSessionEntity,
 		)
 
@@ -187,6 +413,15 @@ func (s packageSessionServiceImpl) GetPackageSessionById(ctx context.Context, id
 		s.airlineRepository,
 		s.airportRepository,
 		s.busRepository,
+		s.hotelRepository,
+		s.itineraryRepository,
+		s.itineraryDayRepository,
+		s.itineraryWidgetRepository,
+		s.itineraryWidgetActivityRepository,
+		s.itineraryWidgetHotelRepository,
+		s.itineraryWidgetInformationRepository,
+		s.itineraryWidgetTransportRepository,
+		s.itineraryWidgetRecommendationRepository,
 		packageSessionEntity,
 	)
 	if err != nil {
@@ -276,13 +511,40 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		// Create bus repository
 		busRepository := factory.NewBusRepository()
 
+		// Create hotel repository
+		hotelRepository := factory.NewHotelRepository()
+
+		// Create itinerary repository
+		itineraryRepository := factory.NewItineraryRepository()
+
+		// Create itinerary day repository
+		itineraryDayRepository := factory.NewItineraryDayRepository()
+
+		// Create itinerary widget repository
+		itineraryWidgetRepository := factory.NewItineraryWidgetRepository()
+
+		// Create itinerary widget activity repository
+		itineraryWidgetActivityRepository := factory.NewItineraryWidgetActivityRepository()
+
+		// Create itinerary widget hotel repository
+		itineraryWidgetHotelRepository := factory.NewItineraryWidgetHotelRepository()
+
+		// Create itinerary widget information repository
+		itineraryWidgetInformationRepository := factory.NewItineraryWidgetInformationRepository()
+
+		// Create itinerary widget transport repository
+		itineraryWidgetTransportRepository := factory.NewItineraryWidgetTransportRepository()
+
+		// Create itinerary widget recommendation repository
+		itineraryWidgetRecommendationRepository := factory.NewItineraryWidgetRecommendationRepository()
+
 		// Delete departure flight route
-		departureFlightRoute, err := s.flightRouteRepository.FindById(ctx, packageSessionEntity.DepartureFlightRouteId)
+		departureFlightRoute, err := flightRouteRepository.FindById(ctx, packageSessionEntity.DepartureFlightRouteId)
 		if err != nil {
 			return err
 		}
 		for departureFlightRoute.NextId.Valid {
-			if departureFlightRoute, err = s.flightRouteRepository.Delete(ctx, departureFlightRoute.NextId.Int64); err != nil {
+			if departureFlightRoute, err = flightRouteRepository.Delete(ctx, departureFlightRoute.NextId.Int64); err != nil {
 				return err
 			}
 		}
@@ -304,12 +566,12 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		}
 
 		// Delete return flight route
-		returnFlightRoute, err := s.flightRouteRepository.FindById(ctx, packageSessionEntity.ReturnFlightRouteId)
+		returnFlightRoute, err := flightRouteRepository.FindById(ctx, packageSessionEntity.ReturnFlightRouteId)
 		if err != nil {
 			return err
 		}
 		for returnFlightRoute.NextId.Valid {
-			if returnFlightRoute, err = s.flightRouteRepository.Delete(ctx, returnFlightRoute.NextId.Int64); err != nil {
+			if returnFlightRoute, err = flightRouteRepository.Delete(ctx, returnFlightRoute.NextId.Int64); err != nil {
 				return err
 			}
 		}
@@ -328,6 +590,167 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 			}
 
 			packageSessionEntity.ReturnFlightRouteId = flightRoute.Id
+		}
+
+		// Delete itinerary
+		itinerary, err := itineraryRepository.FindById(ctx, packageSessionEntity.ItineraryId)
+		if err != nil {
+			return err
+		}
+		for itinerary.NextId.Valid {
+			if itinerary, err = itineraryRepository.Delete(ctx, itinerary.NextId.Int64); err != nil {
+				return err
+			}
+		}
+
+		// Create itinerary with repository
+		itineraryEntity := null.NewValue(entity.Itinerary{}, false)
+		for _, itineraryRequest := range request.Itineraries {
+			var err error
+
+			itineraryEntity = null.ValueFrom(entity.Itinerary{
+				City: itineraryRequest.City,
+				NextId: null.NewInt(
+					itineraryEntity.V.Id,
+					itineraryEntity.Valid,
+				),
+			})
+
+			itineraryDayEntity := null.NewValue(entity.ItineraryDay{}, false)
+			for _, itineraryDayRequest := range itineraryRequest.Days {
+				itineraryDayEntity = null.ValueFrom(entity.ItineraryDay{
+					Title:       itineraryDayRequest.Title,
+					Description: itineraryDayRequest.Description,
+					NextId: null.NewInt(
+						itineraryDayEntity.V.Id,
+						itineraryDayEntity.Valid,
+					),
+				})
+
+				itineraryWidgetEntity := null.NewValue(entity.ItineraryWidget{}, false)
+				for _, itineraryWidgetRequest := range itineraryDayRequest.Widgets {
+					itineraryWidgetEntity = null.ValueFrom(entity.ItineraryWidget{
+						NextId: null.NewInt(
+							itineraryWidgetEntity.V.Id,
+							itineraryWidgetEntity.Valid,
+						),
+					})
+
+					switch itineraryWidgetRequest.Type() {
+					case "Activity":
+						itineraryWidgetActivityRequest := itineraryWidgetRequest.(dto.ItineraryWidgetActivityRequest)
+						itineraryWidgetActivityEntity, err := itineraryWidgetActivityRepository.Create(
+							ctx,
+							entity.ItineraryWidgetActivity{
+								Title:       itineraryWidgetActivityRequest.Title,
+								Description: itineraryWidgetActivityRequest.Description,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						if _, err = itineraryWidgetActivityRepository.AttachImages(
+							ctx,
+							itineraryWidgetActivityEntity.Id,
+							itineraryWidgetActivityRequest.Images,
+						); err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.ActivityId = null.IntFrom(itineraryWidgetActivityEntity.Id)
+					case "Hotel":
+						itineraryWidgetHotelRequest := itineraryWidgetRequest.(dto.ItineraryWidgetHotelRequest)
+						itineraryWidgetHotelEntity, err := itineraryWidgetHotelRepository.Create(
+							ctx,
+							entity.ItineraryWidgetHotel{
+								HotelId: itineraryWidgetHotelRequest.Hotel,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.HotelId = null.IntFrom(itineraryWidgetHotelEntity.Id)
+					case "Information":
+						itineraryWidgetInformationRequest := itineraryWidgetRequest.(dto.ItineraryWidgetInformationRequest)
+						itineraryWidgetInformationEntity, err := itineraryWidgetInformationRepository.Create(
+							ctx,
+							entity.ItineraryWidgetInformation{
+								Description: itineraryWidgetInformationRequest.Description,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.InformationId = null.IntFrom(itineraryWidgetInformationEntity.Id)
+					case "Transport":
+						itineraryWidgetTransportRequest := itineraryWidgetRequest.(dto.ItineraryWidgetTransportRequest)
+						itineraryWidgetTransportEntity, err := itineraryWidgetTransportRepository.Create(
+							ctx,
+							entity.ItineraryWidgetTransport{
+								Transportation: itineraryWidgetTransportRequest.Transportation,
+								From:           itineraryWidgetTransportRequest.From,
+								To:             itineraryWidgetTransportRequest.To,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.TransportId = null.IntFrom(itineraryWidgetTransportEntity.Id)
+					case "Recommendation":
+						itineraryWidgetRecommendationRequest := itineraryWidgetRequest.(dto.ItineraryWidgetRecommendationRequest)
+						itineraryWidgetRecommendationEntity, err := itineraryWidgetRecommendationRepository.Create(
+							ctx,
+							entity.ItineraryWidgetRecommendation{
+								Description: itineraryWidgetRecommendationRequest.Description,
+							},
+						)
+						if err != nil {
+							return err
+						}
+
+						if _, err = itineraryWidgetRecommendationRepository.AttachImages(
+							ctx,
+							itineraryWidgetRecommendationEntity.Id,
+							itineraryWidgetRecommendationRequest.Images,
+						); err != nil {
+							return err
+						}
+
+						itineraryWidgetEntity.V.RecommendationId = null.IntFrom(itineraryWidgetRecommendationEntity.Id)
+					}
+
+					itineraryWidgetEntity.V, err = itineraryWidgetRepository.Create(ctx, itineraryWidgetEntity.V)
+					if err != nil {
+						return err
+					}
+				}
+				itineraryDayEntity.V.WidgetId = null.IntFrom(itineraryWidgetEntity.V.Id)
+
+				itineraryDayEntity.V, err = itineraryDayRepository.Create(ctx, itineraryDayEntity.V)
+				if err != nil {
+					return err
+				}
+			}
+			itineraryEntity.V.DayId = itineraryDayEntity.V.Id
+
+			itineraryEntity.V, err = itineraryRepository.Create(ctx, itineraryEntity.V)
+			if err != nil {
+				return err
+			}
+
+			if _, err = itineraryRepository.AttachImages(
+				ctx,
+				itineraryEntity.V.Id,
+				itineraryRequest.Images,
+			); err != nil {
+				return err
+			}
+
+			packageSessionEntity.ItineraryId = itineraryEntity.V.Id
 		}
 
 		// Update entity with repository
@@ -357,6 +780,15 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 			airlineRepository,
 			airportRepository,
 			busRepository,
+			hotelRepository,
+			itineraryRepository,
+			itineraryDayRepository,
+			itineraryWidgetRepository,
+			itineraryWidgetActivityRepository,
+			itineraryWidgetHotelRepository,
+			itineraryWidgetInformationRepository,
+			itineraryWidgetTransportRepository,
+			itineraryWidgetRecommendationRepository,
 			packageSessionEntity,
 		)
 
@@ -389,6 +821,15 @@ func (s packageSessionServiceImpl) DeletePackageSession(ctx context.Context, id 
 		s.airlineRepository,
 		s.airportRepository,
 		s.busRepository,
+		s.hotelRepository,
+		s.itineraryRepository,
+		s.itineraryDayRepository,
+		s.itineraryWidgetRepository,
+		s.itineraryWidgetActivityRepository,
+		s.itineraryWidgetHotelRepository,
+		s.itineraryWidgetInformationRepository,
+		s.itineraryWidgetTransportRepository,
+		s.itineraryWidgetRecommendationRepository,
 		packageSessionEntity,
 	)
 	if err != nil {

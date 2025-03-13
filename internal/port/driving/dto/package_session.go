@@ -14,6 +14,7 @@ type PackageSessionRequest struct {
 	ReturnFlights    []int64
 	Guides           []int64
 	Bus              int64
+	Itineraries      []ItineraryRequest
 }
 
 type GetAllPackageSessionRequest struct {
@@ -31,6 +32,7 @@ type PackageSessionResponse struct {
 	ReturnFlights    []FlightResponse
 	Guides           []GuideResponse
 	Bus              BusResponse
+	Itineraries      []ItineraryResponse
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

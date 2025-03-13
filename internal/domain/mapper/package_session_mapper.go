@@ -14,11 +14,12 @@ type PackageSessionMapper struct {
 	guideMapper       GuideMapper
 	flightMapper      FlightMapper
 	busMapper         BusMapper
+	itineraryMapper   ItineraryMapper
 }
 
-func NewPackageSessionMapper(embarkationMapper EmbarkationMapper, guideMapper GuideMapper, flightMapper FlightMapper, busMapper BusMapper) PackageSessionMapper {
+func NewPackageSessionMapper(embarkationMapper EmbarkationMapper, guideMapper GuideMapper, flightMapper FlightMapper, busMapper BusMapper, itineraryMapper ItineraryMapper) PackageSessionMapper {
 	return PackageSessionMapper{
-		embarkationMapper, guideMapper, flightMapper, busMapper,
+		embarkationMapper, guideMapper, flightMapper, busMapper, itineraryMapper,
 	}
 }
 
@@ -43,6 +44,15 @@ func (m PackageSessionMapper) MapEntityToResponse(
 	airlineRepository repository.AirlineRepository,
 	airportRepository repository.AirportRepository,
 	busRepository repository.BusRepository,
+	hotelRepository repository.HotelRepository,
+	itineraryRepository repository.ItineraryRepository,
+	itineraryDayRepository repository.ItineraryDayRepository,
+	itineraryWidgetRepository repository.ItineraryWidgetRepository,
+	itineraryWidgetActivityRepository repository.ItineraryWidgetActivityRepository,
+	itineraryWidgetHotelRepository repository.ItineraryWidgetHotelRepository,
+	itineraryWidgetInformationRepository repository.ItineraryWidgetInformationRepository,
+	itineraryWidgetTransportRepository repository.ItineraryWidgetTransportRepository,
+	itineraryWidgetRecommendationRepository repository.ItineraryWidgetRecommendationRepository,
 	packageSessionEntity entity.PackageSession,
 ) (dto.PackageSessionResponse, error) {
 	embarkationEntity, err := embarkationRepository.FindById(ctx, packageSessionEntity.EmbarkationId)
@@ -130,6 +140,36 @@ func (m PackageSessionMapper) MapEntityToResponse(
 	}
 	busResponse := m.busMapper.MapEntityToResponse(ctx, busEntity)
 
+	itineraryEntity, err := itineraryRepository.FindById(ctx, packageSessionEntity.ItineraryId)
+	if err != nil {
+		return dto.PackageSessionResponse{}, err
+	}
+	itineraryEntities := []entity.Itinerary{itineraryEntity}
+	for itineraryEntity.NextId.Valid {
+		itineraryEntity, err = itineraryRepository.FindById(ctx, itineraryEntity.NextId.Int64)
+		if err != nil {
+			return dto.PackageSessionResponse{}, err
+		}
+		itineraryEntities = append(itineraryEntities, itineraryEntity)
+	}
+	itineraryResponses, err := m.itineraryMapper.MapEntitiesToResponses(
+		ctx,
+		imageRepository,
+		hotelRepository,
+		itineraryRepository,
+		itineraryDayRepository,
+		itineraryWidgetRepository,
+		itineraryWidgetActivityRepository,
+		itineraryWidgetHotelRepository,
+		itineraryWidgetInformationRepository,
+		itineraryWidgetTransportRepository,
+		itineraryWidgetRecommendationRepository,
+		itineraryEntities,
+	)
+	if err != nil {
+		return dto.PackageSessionResponse{}, err
+	}
+
 	return dto.PackageSessionResponse{
 		Id:               packageSessionEntity.Id,
 		Package:          packageSessionEntity.PackageId,
@@ -139,6 +179,7 @@ func (m PackageSessionMapper) MapEntityToResponse(
 		ReturnFlights:    returnFlightResponses,
 		Guides:           guideResponses,
 		Bus:              busResponse,
+		Itineraries:      itineraryResponses,
 		CreatedAt:        packageSessionEntity.CreatedAt,
 		UpdatedAt:        packageSessionEntity.UpdatedAt,
 		DeletedAt:        packageSessionEntity.DeletedAt,
@@ -216,6 +257,15 @@ func (m PackageSessionMapper) MapEntitiesToResponses(
 	airlineRepository repository.AirlineRepository,
 	airportRepository repository.AirportRepository,
 	busRepository repository.BusRepository,
+	hotelRepository repository.HotelRepository,
+	itineraryRepository repository.ItineraryRepository,
+	itineraryDayRepository repository.ItineraryDayRepository,
+	itineraryWidgetRepository repository.ItineraryWidgetRepository,
+	itineraryWidgetActivityRepository repository.ItineraryWidgetActivityRepository,
+	itineraryWidgetHotelRepository repository.ItineraryWidgetHotelRepository,
+	itineraryWidgetInformationRepository repository.ItineraryWidgetInformationRepository,
+	itineraryWidgetTransportRepository repository.ItineraryWidgetTransportRepository,
+	itineraryWidgetRecommendationRepository repository.ItineraryWidgetRecommendationRepository,
 	packageSessionEntities []entity.PackageSession,
 ) ([]dto.PackageSessionResponse, error) {
 	packageSessionResponses := make([]dto.PackageSessionResponse, len(packageSessionEntities))
@@ -232,6 +282,15 @@ func (m PackageSessionMapper) MapEntitiesToResponses(
 			airlineRepository,
 			airportRepository,
 			busRepository,
+			hotelRepository,
+			itineraryRepository,
+			itineraryDayRepository,
+			itineraryWidgetRepository,
+			itineraryWidgetActivityRepository,
+			itineraryWidgetHotelRepository,
+			itineraryWidgetInformationRepository,
+			itineraryWidgetTransportRepository,
+			itineraryWidgetRecommendationRepository,
 			packageSessionEntity,
 		)
 		if err != nil {

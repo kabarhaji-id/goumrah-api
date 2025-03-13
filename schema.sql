@@ -151,6 +151,134 @@ $$;
 
 
 --
+-- Name: delete_itinerary_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_image_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_images SET deleted_at = NOW() WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_itinerary_image_on_itinerary_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_image_on_itinerary_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_images SET deleted_at = NOW() WHERE itinerary_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_itinerary_on_day_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_on_day_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itineraries SET deleted_at = NOW() WHERE day_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_itinerary_widget_activity_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_widget_activity_image_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widget_activity_images SET deleted_at = NOW() WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_itinerary_widget_activity_image_on_itinerary_widget_acti(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_widget_activity_image_on_itinerary_widget_acti() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widget_activity_images SET deleted_at = NOW() WHERE itinerary_widget_activity_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_itinerary_widget_hotel_on_hotel_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_widget_hotel_on_hotel_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widget_hotels SET deleted_at = NOW() WHERE hotel_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_itinerary_widget_recommendation_image_on_image_soft_dele(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_widget_recommendation_image_on_image_soft_dele() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widget_recommendation_images SET deleted_at = NOW() WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_itinerary_widget_recommendation_image_on_itinerary_widge(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_itinerary_widget_recommendation_image_on_itinerary_widge() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widget_recommendation_images SET deleted_at = NOW() WHERE itinerary_widget_recommendation_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -176,38 +304,6 @@ CREATE FUNCTION public.delete_package_image_on_package_soft_deleted() RETURNS tr
 BEGIN
     IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
         UPDATE package_images SET deleted_at = NOW() WHERE package_id = OLD.id;
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: delete_package_session_bus_on_bus_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.delete_package_session_bus_on_bus_soft_deleted() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
-        UPDATE package_session_buses SET deleted_at = NOW() WHERE bus_id = OLD.id;
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: delete_package_session_bus_on_package_session_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.delete_package_session_bus_on_package_session_soft_deleted() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
-        UPDATE package_session_buses SET deleted_at = NOW() WHERE package_session_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -437,6 +533,313 @@ $$;
 
 
 --
+-- Name: prevent_insert_itinerary_day_if_next_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_day_if_next_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.next_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_days WHERE id = NEW.next_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary day with soft deleted next'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_days_next_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_day_if_widget_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_day_if_widget_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.widget_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_widgets WHERE id = NEW.widget_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary day with soft deleted widget'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_days_widget_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_if_day_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_if_day_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM itinerary_days WHERE id = NEW.day_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary with soft deleted day'
+            USING ERRCODE = '23503', CONSTRAINT = 'itineraries_day_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_if_next_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_if_next_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.next_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itineraries WHERE id = NEW.next_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary with soft deleted next'
+                USING ERRCODE = '23503', CONSTRAINT = 'itineraries_next_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_image_if_image_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_image_if_image_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary image with soft deleted image'
+            USING ERRCODE = '23503', CONSTRAINT = 'itinerary_images_image_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_image_if_package_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_image_if_package_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM itineraries WHERE id = NEW.itinerary_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary image with soft deleted itinerary'
+            USING ERRCODE = '23503', CONSTRAINT = 'itinerary_images_itinerary_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_activity_image_if_image_is_soft(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_activity_image_if_image_is_soft() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary widget activity image with soft deleted image'
+            USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widget_activity_images_image_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_activity_image_if_itinerary_wid(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_activity_image_if_itinerary_wid() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM itineraries WHERE id = NEW.itinerary_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary widget activity image with soft deleted itinerary widget activity'
+            USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widget_activity_images_itinerary_widget_activity_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_hotel_if_hotel_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_hotel_if_hotel_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM hotels WHERE id = NEW.hotel_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary widget hotel with soft deleted hotel'
+            USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widget_hotels_hotel_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_if_activity_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_if_activity_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.activity_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_widget_activities WHERE id = NEW.activity_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary widget with soft deleted activity'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widgets_activity_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_if_hotel_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_if_hotel_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.hotel_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_widget_hotels WHERE id = NEW.hotel_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary widget with soft deleted hotel'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widgets_hotel_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_if_information_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_if_information_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.information_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_widget_informations WHERE id = NEW.information_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary widget with soft deleted information'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widgets_information_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_if_next_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_if_next_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.next_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_widgets WHERE id = NEW.next_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary widget with soft deleted next'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widgets_next_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_if_recommendation_is_soft_delet(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_if_recommendation_is_soft_delet() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.recommendation_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_widget_recommendations WHERE id = NEW.recommendation_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary widget with soft deleted recommendation'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widgets_recommendation_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_if_transport_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_if_transport_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.transport_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM itinerary_widget_transports WHERE id = NEW.transport_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert itinerary widget with soft deleted transport'
+                USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widgets_transport_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_recommendation_image_if_image_i(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_recommendation_image_if_image_i() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary widget recommendation image with soft deleted image'
+            USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widget_recommendation_images_image_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_itinerary_widget_recommendation_image_if_itinera(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_itinerary_widget_recommendation_image_if_itinera() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM itineraries WHERE id = NEW.itinerary_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert itinerary widget recommendation image with soft deleted itinerary widget recommendation'
+            USING ERRCODE = '23503', CONSTRAINT = 'itinerary_widget_recommendation_images_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_if_thumbnail_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -483,40 +886,6 @@ BEGIN
     IF (SELECT deleted_at FROM packages WHERE id = NEW.package_id) IS NOT NULL THEN
         RAISE EXCEPTION 'Cannot insert package image with soft deleted package'
             USING ERRCODE = '23503', CONSTRAINT = 'package_images_package_id_fkey';
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: prevent_insert_package_session_bus_if_bus_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.prevent_insert_package_session_bus_if_bus_is_soft_deleted() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    IF (SELECT deleted_at FROM buses WHERE id = NEW.bus_id) IS NOT NULL THEN
-        RAISE EXCEPTION 'Cannot insert package session bus with soft deleted bus'
-            USING ERRCODE = '23503', CONSTRAINT = 'package_session_buses_bus_id_fkey';
-    END IF;
-    RETURN NEW;
-END;
-$$;
-
-
---
--- Name: prevent_insert_package_session_bus_if_package_session_is_soft_d(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.prevent_insert_package_session_bus_if_package_session_is_soft_d() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    IF (SELECT deleted_at FROM package_sessions WHERE id = NEW.package_session_id) IS NOT NULL THEN
-        RAISE EXCEPTION 'Cannot insert package session bus with soft deleted package session'
-            USING ERRCODE = '23503', CONSTRAINT = 'package_session_buses_package_session_id_fkey';
     END IF;
     RETURN NEW;
 END;
@@ -649,6 +1018,22 @@ $$;
 
 
 --
+-- Name: set_activity_id_null_on_activity_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_activity_id_null_on_activity_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widgets SET activity_id = NULL WHERE activity_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: set_airline_logo_id_null_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -681,15 +1066,95 @@ $$;
 
 
 --
--- Name: set_next_id_null_on_flight_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: set_hotel_id_null_on_hotel_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.set_next_id_null_on_flight_soft_deleted() RETURNS trigger
+CREATE FUNCTION public.set_hotel_id_null_on_hotel_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widgets SET hotel_id = NULL WHERE hotel_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_information_id_null_on_information_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_information_id_null_on_information_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widgets SET information_id = NULL WHERE information_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_next_id_null_on_flight_route_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_next_id_null_on_flight_route_soft_deleted() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
         UPDATE flight_routes SET next_id = NULL WHERE next_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_next_id_null_on_itinerary_day_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_next_id_null_on_itinerary_day_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_days SET next_id = NULL WHERE next_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_next_id_null_on_itinerary_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_next_id_null_on_itinerary_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itineraries SET next_id = NULL WHERE next_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_next_id_null_on_itinerary_widget_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_next_id_null_on_itinerary_widget_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widgets SET next_id = NULL WHERE next_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -738,6 +1203,54 @@ CREATE FUNCTION public.set_package_thumbnail_id_null_on_image_soft_deleted() RET
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
         UPDATE packages SET thumbnail_id = NULL WHERE thumbnail_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_recommendation_id_null_on_recommendation_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_recommendation_id_null_on_recommendation_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widgets SET recommendation_id = NULL WHERE recommendation_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_transport_id_null_on_transport_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_transport_id_null_on_transport_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_widgets SET transport_id = NULL WHERE transport_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_widget_id_null_on_widget_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_widget_id_null_on_widget_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE itinerary_days SET widget_id = NULL WHERE widget_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -1141,6 +1654,274 @@ ALTER TABLE public.images ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: itineraries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itineraries (
+    id bigint NOT NULL,
+    city character varying(100) NOT NULL,
+    day_id bigint NOT NULL,
+    next_id bigint,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itineraries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itineraries ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itineraries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: itinerary_days; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_days (
+    id bigint NOT NULL,
+    title character varying(100) NOT NULL,
+    description character varying(500) NOT NULL,
+    widget_id bigint,
+    next_id bigint,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_days_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itinerary_days ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itinerary_days_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: itinerary_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_images (
+    itinerary_id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widget_activities (
+    id bigint NOT NULL,
+    title character varying(100) NOT NULL,
+    description character varying(500) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_activities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itinerary_widget_activities ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itinerary_widget_activities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: itinerary_widget_activity_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widget_activity_images (
+    itinerary_widget_activity_id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_hotels; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widget_hotels (
+    id bigint NOT NULL,
+    hotel_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_hotels_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itinerary_widget_hotels ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itinerary_widget_hotels_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: itinerary_widget_informations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widget_informations (
+    id bigint NOT NULL,
+    description character varying(500) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_informations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itinerary_widget_informations ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itinerary_widget_informations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: itinerary_widget_recommendation_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widget_recommendation_images (
+    itinerary_widget_recommendation_id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_recommendations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widget_recommendations (
+    id bigint NOT NULL,
+    description character varying(500) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_recommendations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itinerary_widget_recommendations ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itinerary_widget_recommendations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: itinerary_widget_transports; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widget_transports (
+    id bigint NOT NULL,
+    transportation character varying(100) NOT NULL,
+    "from" character varying(100) NOT NULL,
+    "to" character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widget_transports_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itinerary_widget_transports ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itinerary_widget_transports_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: itinerary_widgets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.itinerary_widgets (
+    id bigint NOT NULL,
+    activity_id bigint,
+    hotel_id bigint,
+    information_id bigint,
+    transport_id bigint,
+    recommendation_id bigint,
+    next_id bigint,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: itinerary_widgets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.itinerary_widgets ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.itinerary_widgets_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1156,19 +1937,6 @@ CREATE TABLE public.migrations (
 CREATE TABLE public.package_images (
     package_id bigint NOT NULL,
     image_id bigint NOT NULL,
-    created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: package_session_buses; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.package_session_buses (
-    package_session_id bigint NOT NULL,
-    bus_id bigint NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
     deleted_at timestamp without time zone
@@ -1202,7 +1970,8 @@ CREATE TABLE public.package_sessions (
     deleted_at timestamp without time zone,
     departure_flight_route_id bigint,
     return_flight_route_id bigint,
-    bus_id bigint
+    bus_id bigint,
+    itinerary_id bigint
 );
 
 
@@ -1359,6 +2128,94 @@ ALTER TABLE ONLY public.images
 
 
 --
+-- Name: itineraries itineraries_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itineraries
+    ADD CONSTRAINT itineraries_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: itinerary_days itinerary_days_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_days
+    ADD CONSTRAINT itinerary_days_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: itinerary_images itinerary_images_itinerary_id_image_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_images
+    ADD CONSTRAINT itinerary_images_itinerary_id_image_id_key PRIMARY KEY (itinerary_id, image_id);
+
+
+--
+-- Name: itinerary_widget_activities itinerary_widget_activities_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_activities
+    ADD CONSTRAINT itinerary_widget_activities_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: itinerary_widget_activity_images itinerary_widget_activity_images_itinerary_widget_activity_id_i; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_activity_images
+    ADD CONSTRAINT itinerary_widget_activity_images_itinerary_widget_activity_id_i PRIMARY KEY (itinerary_widget_activity_id, image_id);
+
+
+--
+-- Name: itinerary_widget_hotels itinerary_widget_hotels_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_hotels
+    ADD CONSTRAINT itinerary_widget_hotels_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: itinerary_widget_informations itinerary_widget_informations_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_informations
+    ADD CONSTRAINT itinerary_widget_informations_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: itinerary_widget_recommendation_images itinerary_widget_recommendation_images_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_recommendation_images
+    ADD CONSTRAINT itinerary_widget_recommendation_images_pkey PRIMARY KEY (itinerary_widget_recommendation_id, image_id);
+
+
+--
+-- Name: itinerary_widget_recommendations itinerary_widget_recommendations_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_recommendations
+    ADD CONSTRAINT itinerary_widget_recommendations_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: itinerary_widget_transports itinerary_widget_transports_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_transports
+    ADD CONSTRAINT itinerary_widget_transports_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: itinerary_widgets itinerary_widgets_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widgets
+    ADD CONSTRAINT itinerary_widgets_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1372,14 +2229,6 @@ ALTER TABLE ONLY public.migrations
 
 ALTER TABLE ONLY public.package_images
     ADD CONSTRAINT package_images_id_pkey PRIMARY KEY (package_id, image_id);
-
-
---
--- Name: package_session_buses package_session_buses_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.package_session_buses
-    ADD CONSTRAINT package_session_buses_id_pkey PRIMARY KEY (package_session_id, bus_id);
 
 
 --
@@ -1561,6 +2410,62 @@ CREATE TRIGGER delete_flight_route_on_flight_soft_deleted BEFORE UPDATE ON publi
 
 
 --
+-- Name: images delete_itinerary_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_image_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_image_on_image_soft_deleted();
+
+
+--
+-- Name: itineraries delete_itinerary_image_on_itinerary_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_image_on_itinerary_soft_deleted BEFORE UPDATE ON public.itineraries FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_image_on_itinerary_soft_deleted();
+
+
+--
+-- Name: itinerary_days delete_itinerary_on_day_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_on_day_soft_deleted BEFORE UPDATE ON public.itinerary_days FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_on_day_soft_deleted();
+
+
+--
+-- Name: images delete_itinerary_widget_activity_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_widget_activity_image_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_widget_activity_image_on_image_soft_deleted();
+
+
+--
+-- Name: itinerary_widget_activities delete_itinerary_widget_activity_image_on_itinerary_widget_acti; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_widget_activity_image_on_itinerary_widget_acti BEFORE UPDATE ON public.itinerary_widget_activities FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_widget_activity_image_on_itinerary_widget_acti();
+
+
+--
+-- Name: hotels delete_itinerary_widget_hotel_on_hotel_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_widget_hotel_on_hotel_soft_deleted BEFORE UPDATE ON public.hotels FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_widget_hotel_on_hotel_soft_deleted();
+
+
+--
+-- Name: images delete_itinerary_widget_recommendation_image_on_image_soft_dele; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_widget_recommendation_image_on_image_soft_dele BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_widget_recommendation_image_on_image_soft_dele();
+
+
+--
+-- Name: itinerary_widget_recommendations delete_itinerary_widget_recommendation_image_on_itinerary_widge; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_itinerary_widget_recommendation_image_on_itinerary_widge BEFORE UPDATE ON public.itinerary_widget_recommendations FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_itinerary_widget_recommendation_image_on_itinerary_widge();
+
+
+--
 -- Name: images delete_package_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1572,20 +2477,6 @@ CREATE TRIGGER delete_package_image_on_image_soft_deleted BEFORE UPDATE ON publi
 --
 
 CREATE TRIGGER delete_package_image_on_package_soft_deleted BEFORE UPDATE ON public.packages FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_image_on_package_soft_deleted();
-
-
---
--- Name: buses delete_package_session_bus_on_bus_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER delete_package_session_bus_on_bus_soft_deleted BEFORE UPDATE ON public.buses FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_bus_on_bus_soft_deleted();
-
-
---
--- Name: package_sessions delete_package_session_bus_on_package_session_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER delete_package_session_bus_on_package_session_soft_deleted BEFORE UPDATE ON public.package_sessions FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_bus_on_package_session_soft_deleted();
 
 
 --
@@ -1680,6 +2571,125 @@ CREATE TRIGGER prevent_insert_guide_if_avatar_is_soft_deleted BEFORE INSERT OR U
 
 
 --
+-- Name: itinerary_days prevent_insert_itinerary_day_if_next_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_day_if_next_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_days FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_day_if_next_is_soft_deleted();
+
+
+--
+-- Name: itinerary_days prevent_insert_itinerary_day_if_widget_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_day_if_widget_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_days FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_day_if_widget_is_soft_deleted();
+
+
+--
+-- Name: itineraries prevent_insert_itinerary_if_day_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_if_day_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itineraries FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_if_day_is_soft_deleted();
+
+
+--
+-- Name: itineraries prevent_insert_itinerary_if_next_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_if_next_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itineraries FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_if_next_is_soft_deleted();
+
+
+--
+-- Name: itinerary_images prevent_insert_itinerary_image_if_image_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_image_if_image_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_image_if_image_is_soft_deleted();
+
+
+--
+-- Name: itinerary_images prevent_insert_itinerary_image_if_package_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_image_if_package_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_image_if_package_is_soft_deleted();
+
+
+--
+-- Name: itinerary_widget_activity_images prevent_insert_itinerary_widget_activity_image_if_image_is_soft; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_activity_image_if_image_is_soft BEFORE INSERT OR UPDATE ON public.itinerary_widget_activity_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_activity_image_if_image_is_soft();
+
+
+--
+-- Name: itinerary_widget_activity_images prevent_insert_itinerary_widget_activity_image_if_itinerary_wid; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_activity_image_if_itinerary_wid BEFORE INSERT OR UPDATE ON public.itinerary_widget_activity_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_activity_image_if_itinerary_wid();
+
+
+--
+-- Name: itinerary_widget_hotels prevent_insert_itinerary_widget_hotel_if_hotel_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_hotel_if_hotel_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_widget_hotels FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_hotel_if_hotel_is_soft_deleted();
+
+
+--
+-- Name: itinerary_widgets prevent_insert_itinerary_widget_if_activity_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_if_activity_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_widgets FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_if_activity_is_soft_deleted();
+
+
+--
+-- Name: itinerary_widgets prevent_insert_itinerary_widget_if_hotel_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_if_hotel_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_widgets FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_if_hotel_is_soft_deleted();
+
+
+--
+-- Name: itinerary_widgets prevent_insert_itinerary_widget_if_information_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_if_information_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_widgets FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_if_information_is_soft_deleted();
+
+
+--
+-- Name: itinerary_widgets prevent_insert_itinerary_widget_if_next_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_if_next_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_widgets FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_if_next_is_soft_deleted();
+
+
+--
+-- Name: itinerary_widgets prevent_insert_itinerary_widget_if_recommendation_is_soft_delet; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_if_recommendation_is_soft_delet BEFORE INSERT OR UPDATE ON public.itinerary_widgets FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_if_recommendation_is_soft_delet();
+
+
+--
+-- Name: itinerary_widgets prevent_insert_itinerary_widget_if_transport_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_if_transport_is_soft_deleted BEFORE INSERT OR UPDATE ON public.itinerary_widgets FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_if_transport_is_soft_deleted();
+
+
+--
+-- Name: itinerary_widget_recommendation_images prevent_insert_itinerary_widget_recommendation_image_if_image_i; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_recommendation_image_if_image_i BEFORE INSERT OR UPDATE ON public.itinerary_widget_recommendation_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_recommendation_image_if_image_i();
+
+
+--
+-- Name: itinerary_widget_recommendation_images prevent_insert_itinerary_widget_recommendation_image_if_itinera; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_itinerary_widget_recommendation_image_if_itinera BEFORE INSERT OR UPDATE ON public.itinerary_widget_recommendation_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_itinerary_widget_recommendation_image_if_itinera();
+
+
+--
 -- Name: packages prevent_insert_package_if_thumbnail_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1698,20 +2708,6 @@ CREATE TRIGGER prevent_insert_package_image_if_image_is_soft_deleted BEFORE INSE
 --
 
 CREATE TRIGGER prevent_insert_package_image_if_package_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_image_if_package_is_soft_deleted();
-
-
---
--- Name: package_session_buses prevent_insert_package_session_bus_if_bus_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER prevent_insert_package_session_bus_if_bus_is_soft_deleted BEFORE INSERT OR UPDATE ON public.package_session_buses FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_bus_if_bus_is_soft_deleted();
-
-
---
--- Name: package_session_buses prevent_insert_package_session_bus_if_package_session_is_soft_d; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER prevent_insert_package_session_bus_if_package_session_is_soft_d BEFORE INSERT OR UPDATE ON public.package_session_buses FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_bus_if_package_session_is_soft_d();
 
 
 --
@@ -1764,6 +2760,13 @@ CREATE TRIGGER prevent_insert_package_session_if_return_flight_route_is_soft_d B
 
 
 --
+-- Name: itinerary_widget_activities set_activity_id_null_on_activity_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_activity_id_null_on_activity_soft_deleted BEFORE UPDATE ON public.itinerary_widget_activities FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_activity_id_null_on_activity_soft_deleted();
+
+
+--
 -- Name: images set_airline_logo_id_null_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1778,10 +2781,45 @@ CREATE TRIGGER set_guide_avatar_id_null_on_image_soft_deleted BEFORE UPDATE ON p
 
 
 --
--- Name: flight_routes set_next_id_null_on_flight_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+-- Name: itinerary_widget_hotels set_hotel_id_null_on_hotel_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER set_next_id_null_on_flight_soft_deleted BEFORE UPDATE ON public.flight_routes FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_next_id_null_on_flight_soft_deleted();
+CREATE TRIGGER set_hotel_id_null_on_hotel_soft_deleted BEFORE UPDATE ON public.itinerary_widget_hotels FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_hotel_id_null_on_hotel_soft_deleted();
+
+
+--
+-- Name: itinerary_widget_informations set_information_id_null_on_information_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_information_id_null_on_information_soft_deleted BEFORE UPDATE ON public.itinerary_widget_informations FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_information_id_null_on_information_soft_deleted();
+
+
+--
+-- Name: flight_routes set_next_id_null_on_flight_route_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_next_id_null_on_flight_route_soft_deleted BEFORE UPDATE ON public.flight_routes FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_next_id_null_on_flight_route_soft_deleted();
+
+
+--
+-- Name: itinerary_days set_next_id_null_on_itinerary_day_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_next_id_null_on_itinerary_day_soft_deleted BEFORE UPDATE ON public.itinerary_days FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_next_id_null_on_itinerary_day_soft_deleted();
+
+
+--
+-- Name: itineraries set_next_id_null_on_itinerary_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_next_id_null_on_itinerary_soft_deleted BEFORE UPDATE ON public.itineraries FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_next_id_null_on_itinerary_soft_deleted();
+
+
+--
+-- Name: itinerary_widgets set_next_id_null_on_itinerary_widget_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_next_id_null_on_itinerary_widget_soft_deleted BEFORE UPDATE ON public.itinerary_widgets FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_next_id_null_on_itinerary_widget_soft_deleted();
 
 
 --
@@ -1803,6 +2841,27 @@ CREATE TRIGGER set_package_session_return_flight_route_id_null_on_flight_route B
 --
 
 CREATE TRIGGER set_package_thumbnail_id_null_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_package_thumbnail_id_null_on_image_soft_deleted();
+
+
+--
+-- Name: itinerary_widget_recommendations set_recommendation_id_null_on_recommendation_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_recommendation_id_null_on_recommendation_soft_deleted BEFORE UPDATE ON public.itinerary_widget_recommendations FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_recommendation_id_null_on_recommendation_soft_deleted();
+
+
+--
+-- Name: itinerary_widget_transports set_transport_id_null_on_transport_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_transport_id_null_on_transport_soft_deleted BEFORE UPDATE ON public.itinerary_widget_transports FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_transport_id_null_on_transport_soft_deleted();
+
+
+--
+-- Name: itinerary_widgets set_widget_id_null_on_widget_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_widget_id_null_on_widget_soft_deleted BEFORE UPDATE ON public.itinerary_widgets FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_widget_id_null_on_widget_soft_deleted();
 
 
 --
@@ -1870,6 +2929,142 @@ ALTER TABLE ONLY public.guides
 
 
 --
+-- Name: itineraries itineraries_day_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itineraries
+    ADD CONSTRAINT itineraries_day_id_fkey FOREIGN KEY (day_id) REFERENCES public.itinerary_days(id);
+
+
+--
+-- Name: itineraries itineraries_next_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itineraries
+    ADD CONSTRAINT itineraries_next_id_fkey FOREIGN KEY (next_id) REFERENCES public.itineraries(id);
+
+
+--
+-- Name: itinerary_days itinerary_days_next_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_days
+    ADD CONSTRAINT itinerary_days_next_id_fkey FOREIGN KEY (next_id) REFERENCES public.itinerary_days(id);
+
+
+--
+-- Name: itinerary_days itinerary_days_widget_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_days
+    ADD CONSTRAINT itinerary_days_widget_id_fkey FOREIGN KEY (widget_id) REFERENCES public.itinerary_widgets(id);
+
+
+--
+-- Name: itinerary_images itinerary_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_images
+    ADD CONSTRAINT itinerary_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: itinerary_images itinerary_images_itinerary_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_images
+    ADD CONSTRAINT itinerary_images_itinerary_id_fkey FOREIGN KEY (itinerary_id) REFERENCES public.itineraries(id);
+
+
+--
+-- Name: itinerary_widget_activity_images itinerary_widget_activity_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_activity_images
+    ADD CONSTRAINT itinerary_widget_activity_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: itinerary_widget_activity_images itinerary_widget_activity_images_itinerary_widget_activity_id_f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_activity_images
+    ADD CONSTRAINT itinerary_widget_activity_images_itinerary_widget_activity_id_f FOREIGN KEY (itinerary_widget_activity_id) REFERENCES public.itinerary_widget_activities(id);
+
+
+--
+-- Name: itinerary_widget_hotels itinerary_widget_hotels_hotel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_hotels
+    ADD CONSTRAINT itinerary_widget_hotels_hotel_id_fkey FOREIGN KEY (hotel_id) REFERENCES public.hotels(id);
+
+
+--
+-- Name: itinerary_widget_recommendation_images itinerary_widget_recommendation_images_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_recommendation_images
+    ADD CONSTRAINT itinerary_widget_recommendation_images_fkey FOREIGN KEY (itinerary_widget_recommendation_id) REFERENCES public.itinerary_widget_recommendations(id);
+
+
+--
+-- Name: itinerary_widget_recommendation_images itinerary_widget_recommendation_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widget_recommendation_images
+    ADD CONSTRAINT itinerary_widget_recommendation_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: itinerary_widgets itinerary_widgets_activity_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widgets
+    ADD CONSTRAINT itinerary_widgets_activity_id_fkey FOREIGN KEY (activity_id) REFERENCES public.itinerary_widget_activities(id);
+
+
+--
+-- Name: itinerary_widgets itinerary_widgets_hotel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widgets
+    ADD CONSTRAINT itinerary_widgets_hotel_id_fkey FOREIGN KEY (hotel_id) REFERENCES public.itinerary_widget_hotels(id);
+
+
+--
+-- Name: itinerary_widgets itinerary_widgets_information_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widgets
+    ADD CONSTRAINT itinerary_widgets_information_id_fkey FOREIGN KEY (information_id) REFERENCES public.itinerary_widget_informations(id);
+
+
+--
+-- Name: itinerary_widgets itinerary_widgets_next_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widgets
+    ADD CONSTRAINT itinerary_widgets_next_id_fkey FOREIGN KEY (next_id) REFERENCES public.itinerary_widgets(id);
+
+
+--
+-- Name: itinerary_widgets itinerary_widgets_recommendation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widgets
+    ADD CONSTRAINT itinerary_widgets_recommendation_id_fkey FOREIGN KEY (recommendation_id) REFERENCES public.itinerary_widget_recommendations(id);
+
+
+--
+-- Name: itinerary_widgets itinerary_widgets_transport_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.itinerary_widgets
+    ADD CONSTRAINT itinerary_widgets_transport_id_fkey FOREIGN KEY (transport_id) REFERENCES public.itinerary_widget_transports(id);
+
+
+--
 -- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1883,22 +3078,6 @@ ALTER TABLE ONLY public.package_images
 
 ALTER TABLE ONLY public.package_images
     ADD CONSTRAINT package_images_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id);
-
-
---
--- Name: package_session_buses package_session_buses_bus_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.package_session_buses
-    ADD CONSTRAINT package_session_buses_bus_id_fkey FOREIGN KEY (bus_id) REFERENCES public.buses(id);
-
-
---
--- Name: package_session_buses package_session_buses_package_session_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.package_session_buses
-    ADD CONSTRAINT package_session_buses_package_session_id_fkey FOREIGN KEY (package_session_id) REFERENCES public.package_sessions(id);
 
 
 --
@@ -1939,6 +3118,14 @@ ALTER TABLE ONLY public.package_sessions
 
 ALTER TABLE ONLY public.package_sessions
     ADD CONSTRAINT package_sessions_embarkation_id_fkey FOREIGN KEY (embarkation_id) REFERENCES public.embarkations(id);
+
+
+--
+-- Name: package_sessions package_sessions_itinerary_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.package_sessions
+    ADD CONSTRAINT package_sessions_itinerary_id_fkey FOREIGN KEY (itinerary_id) REFERENCES public.itineraries(id);
 
 
 --
@@ -1992,4 +3179,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250227142557'),
     ('20250303092458'),
     ('20250304061836'),
-    ('20250305052727');
+    ('20250305052727'),
+    ('20250305060747');

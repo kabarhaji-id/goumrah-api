@@ -18,6 +18,14 @@ type Factory interface {
 	NewCityTourRepository() CityTourRepository
 	NewFlightRepository() FlightRepository
 	NewFlightRouteRepository() FlightRouteRepository
+	NewItineraryRepository() ItineraryRepository
+	NewItineraryDayRepository() ItineraryDayRepository
+	NewItineraryWidgetRepository() ItineraryWidgetRepository
+	NewItineraryWidgetActivityRepository() ItineraryWidgetActivityRepository
+	NewItineraryWidgetHotelRepository() ItineraryWidgetHotelRepository
+	NewItineraryWidgetInformationRepository() ItineraryWidgetInformationRepository
+	NewItineraryWidgetTransportRepository() ItineraryWidgetTransportRepository
+	NewItineraryWidgetRecommendationRepository() ItineraryWidgetRecommendationRepository
 }
 
 type UnitOfWork interface {

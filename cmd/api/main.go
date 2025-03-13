@@ -41,6 +41,14 @@ func main() {
 	cityTourRepository := postgresqlrepository.NewCityTourRepository(db)
 	flightRepository := postgresqlrepository.NewFlightRepository(db)
 	flightRouteRepository := postgresqlrepository.NewFlightRouteRepository(db)
+	itineraryRepository := postgresqlrepository.NewItineraryRepository(db)
+	itineraryDayRepository := postgresqlrepository.NewItineraryDayRepository(db)
+	itineraryWidgetRepository := postgresqlrepository.NewItineraryWidgetRepository(db)
+	itineraryWidgetActivityRepository := postgresqlrepository.NewItineraryWidgetActivityRepository(db)
+	itineraryWidgetHotelRepository := postgresqlrepository.NewItineraryWidgetHotelRepository(db)
+	itineraryWidgetInformationRepository := postgresqlrepository.NewItineraryWidgetInformationRepository(db)
+	itineraryWidgetTransportRepository := postgresqlrepository.NewItineraryWidgetTransportRepository(db)
+	itineraryWidgetRecommendationRepository := postgresqlrepository.NewItineraryWidgetRecommendationRepository(db)
 
 	imageValidator := validator.NewImageValidator()
 	airlineValidator := validator.NewAirlineValidator()
@@ -66,8 +74,11 @@ func main() {
 	airportMapper := mapper.NewAirportMapper()
 	busMapper := mapper.NewBusMapper()
 	flightMapper := mapper.NewFlightMapper(airlineMapper, airportMapper)
-	packageSessionMapper := mapper.NewPackageSessionMapper(embarkationMapper, guideMapper, flightMapper, busMapper)
 	hotelMapper := mapper.NewHotelMapper()
+	itineraryWidgetMapper := mapper.NewItineraryWidgetMapper(imageMapper, hotelMapper)
+	itineraryDayMapper := mapper.NewItineraryDayMapper(imageMapper, itineraryWidgetMapper)
+	itineraryMapper := mapper.NewItineraryMapper(imageMapper, itineraryDayMapper)
+	packageSessionMapper := mapper.NewPackageSessionMapper(embarkationMapper, guideMapper, flightMapper, busMapper, itineraryMapper)
 	facilityMapper := mapper.NewFacilityMapper()
 	addonMapper := mapper.NewAddonMapper(addonCategoryMapper)
 	cityTourMapper := mapper.NewCityTourMapper()
@@ -80,7 +91,29 @@ func main() {
 	guideService := service.NewGuideService(guideRepository, guideValidator, guideMapper, imageRepository)
 	airportService := service.NewAirportService(airportRepository, airportValidator, airportMapper)
 	busService := service.NewBusService(busRepository, busValidator, busMapper)
-	packageSessionService := service.NewPackageSessionService(packageSessionRepository, packageSessionValidator, packageSessionMapper, embarkationRepository, imageRepository, flightRouteRepository, flightRepository, airlineRepository, airportRepository, busRepository, unitOfWork)
+	packageSessionService := service.NewPackageSessionService(
+		packageSessionRepository, packageSessionValidator, packageSessionMapper,
+		embarkationRepository,
+		imageRepository,
+		flightRouteRepository,
+		flightRepository,
+		airlineRepository,
+		airportRepository,
+		busRepository,
+		hotelRepository,
+		itineraryRepository,
+		itineraryMapper,
+		itineraryDayRepository,
+		itineraryDayMapper,
+		itineraryWidgetRepository,
+		itineraryWidgetActivityRepository,
+		itineraryWidgetHotelRepository,
+		itineraryWidgetInformationRepository,
+		itineraryWidgetTransportRepository,
+		itineraryWidgetRecommendationRepository,
+		itineraryWidgetMapper,
+		unitOfWork,
+	)
 	hotelService := service.NewHotelService(hotelRepository, hotelValidator, hotelMapper)
 	facilityService := service.NewFacilityService(facilityRepository, facilityValidator, facilityMapper)
 	addonService := service.NewAddonService(addonRepository, addonValidator, addonMapper, addonCategoryRepository)

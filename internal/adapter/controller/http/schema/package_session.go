@@ -8,15 +8,21 @@ import (
 )
 
 type PackageSessionRequest struct {
-	Embarkation      int64   `json:"embarkation"`
-	DepartureDate    string  `json:"departure_date"`
-	DepartureFlights []int64 `json:"departure_flights"`
-	ReturnFlights    []int64 `json:"return_flights"`
-	Guides           []int64 `json:"guides"`
-	Bus              int64   `json:"bus"`
+	Embarkation      int64              `json:"embarkation"`
+	DepartureDate    string             `json:"departure_date"`
+	DepartureFlights []int64            `json:"departure_flights"`
+	ReturnFlights    []int64            `json:"return_flights"`
+	Guides           []int64            `json:"guides"`
+	Bus              int64              `json:"bus"`
+	Itineraries      []ItineraryRequest `json:"itineraries"`
 }
 
 func (r PackageSessionRequest) ToDtoRequest() dto.PackageSessionRequest {
+	dtoItineraries := make([]dto.ItineraryRequest, len(r.Itineraries))
+	for i, itinerary := range r.Itineraries {
+		dtoItineraries[i] = itinerary.ToDtoRequest()
+	}
+
 	return dto.PackageSessionRequest{
 		Embarkation:      r.Embarkation,
 		DepartureDate:    r.DepartureDate,
@@ -24,6 +30,7 @@ func (r PackageSessionRequest) ToDtoRequest() dto.PackageSessionRequest {
 		ReturnFlights:    r.ReturnFlights,
 		Guides:           r.Guides,
 		Bus:              r.Bus,
+		Itineraries:      dtoItineraries,
 	}
 }
 
@@ -45,6 +52,7 @@ type PackageSessionResponse struct {
 	ReturnFlights    []FlightResponse    `json:"return_flights"`
 	Guides           []GuideResponse     `json:"guides"`
 	Bus              BusResponse         `json:"bus"`
+	Itineraries      []ItineraryResponse `json:"itineraries"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -67,6 +75,7 @@ func NewPackageSessionResponse(dtoResponse dto.PackageSessionResponse) PackageSe
 		ReturnFlights:    returnFlights,
 		Guides:           guides,
 		Bus:              bus,
+		Itineraries:      NewItineraryResponses(dtoResponse.Itineraries),
 		CreatedAt:        dtoResponse.CreatedAt,
 		UpdatedAt:        dtoResponse.UpdatedAt,
 		DeletedAt:        dtoResponse.DeletedAt,

@@ -176,7 +176,7 @@ BEFORE INSERT OR UPDATE ON flight_routes
 FOR EACH ROW
 EXECUTE FUNCTION prevent_insert_flight_route_if_flight_is_soft_deleted();
 
-CREATE OR REPLACE FUNCTION set_next_id_null_on_flight_soft_deleted()
+CREATE OR REPLACE FUNCTION set_next_id_null_on_flight_route_soft_deleted()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
@@ -199,11 +199,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_next_id_null_on_flight_soft_deleted
+CREATE TRIGGER set_next_id_null_on_flight_route_soft_deleted
 BEFORE UPDATE ON flight_routes
 FOR EACH ROW
 WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
-EXECUTE FUNCTION set_next_id_null_on_flight_soft_deleted();
+EXECUTE FUNCTION set_next_id_null_on_flight_route_soft_deleted();
 
 CREATE TRIGGER prevent_insert_flight_route_if_next_is_soft_deleted
 BEFORE INSERT OR UPDATE ON flight_routes
@@ -285,7 +285,7 @@ DROP TRIGGER IF EXISTS "set_package_session_return_flight_route_id_null_on_fligh
 DROP TRIGGER IF EXISTS "prevent_insert_package_session_if_departure_flight_route_is_soft_deleted" ON "package_sessions";
 DROP TRIGGER IF EXISTS "set_package_session_departure_flight_route_id_null_on_flight_route_soft_deleted" ON "flight_routes";
 DROP TRIGGER IF EXISTS "prevent_insert_flight_route_if_next_is_soft_deleted" ON "flight_routes";
-DROP TRIGGER IF EXISTS "set_next_id_null_on_flight_soft_deleted" ON "flight_routes";
+DROP TRIGGER IF EXISTS "set_next_id_null_on_flight_route_soft_deleted" ON "flight_routes";
 DROP TRIGGER IF EXISTS "prevent_insert_flight_route_if_flight_is_soft_deleted" ON "flight_routes";
 DROP TRIGGER IF EXISTS "delete_flight_route_on_flight_soft_deleted" ON "flights";
 DROP TRIGGER IF EXISTS "prevent_insert_flight_if_arrival_airport_is_soft_deleted" ON "flights";
@@ -300,7 +300,7 @@ DROP FUNCTION IF EXISTS "set_package_session_return_flight_route_id_null_on_flig
 DROP FUNCTION IF EXISTS "prevent_insert_package_session_if_departure_flight_route_is_soft_deleted";
 DROP FUNCTION IF EXISTS "set_package_session_departure_flight_route_id_null_on_flight_route_soft_deleted";
 DROP FUNCTION IF EXISTS "prevent_insert_flight_route_if_next_is_soft_deleted";
-DROP FUNCTION IF EXISTS "set_next_id_null_on_flight_soft_deleted";
+DROP FUNCTION IF EXISTS "set_next_id_null_on_flight_route_soft_deleted";
 DROP FUNCTION IF EXISTS "prevent_insert_flight_route_if_flight_is_soft_deleted";
 DROP FUNCTION IF EXISTS "delete_flight_route_on_flight_soft_deleted";
 DROP FUNCTION IF EXISTS "prevent_insert_flight_if_arrival_airport_is_soft_deleted";

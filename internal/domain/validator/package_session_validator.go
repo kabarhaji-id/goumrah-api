@@ -59,6 +59,133 @@ func (v PackageSessionValidator) ValidateRequest(ctx context.Context, request dt
 		return newError("Bus", mustBeGte(1))
 	}
 
+	if len(request.Itineraries) < 1 {
+		return newError("Itineraries", mustBeNotEmpty)
+	}
+	for itineraryIndex, itinerary := range request.Itineraries {
+		itineraryCityLength := len(itinerary.City)
+		if itineraryCityLength < 1 {
+			return newError(fmt.Sprintf("Itineraries.%d.City", itineraryIndex), mustBeNotEmpty)
+		}
+		if itineraryCityLength > 100 {
+			return newError(fmt.Sprintf("Itineraries.%d.City", itineraryIndex), maxChars(100))
+		}
+
+		for itineraryImageIndex, itineraryImage := range itinerary.Images {
+			if itineraryImage < 1 {
+				return newError(fmt.Sprintf("Itineraries.%d.Images.%d", itineraryIndex, itineraryImageIndex), mustBeGte(1))
+			}
+		}
+
+		if len(itinerary.Days) < 1 {
+			return newError(fmt.Sprintf("Itineraries.%d.Days", itineraryIndex), mustBeNotEmpty)
+		}
+		for itineraryDayIndex, itineraryDay := range itinerary.Days {
+			itineraryDayTitleLength := len(itineraryDay.Title)
+			if itineraryDayTitleLength < 1 {
+				return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Title", itineraryIndex, itineraryDayIndex), mustBeNotEmpty)
+			}
+			if itineraryDayTitleLength > 100 {
+				return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Title", itineraryIndex, itineraryDayIndex), maxChars(100))
+			}
+
+			itineraryDayDescriptionLength := len(itineraryDay.Description)
+			if itineraryDayDescriptionLength < 1 {
+				return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Description", itineraryIndex, itineraryDayIndex), mustBeNotEmpty)
+			}
+			if itineraryDayDescriptionLength > 500 {
+				return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Description", itineraryIndex, itineraryDayIndex), maxChars(500))
+			}
+
+			for itineraryWidgetIndex, itineraryWidget := range itineraryDay.Widgets {
+				switch itineraryWidget.(type) {
+				case dto.ItineraryWidgetActivityRequest:
+					activityWidget := itineraryWidget.(dto.ItineraryWidgetActivityRequest)
+
+					widgetTitleLength := len(activityWidget.Title)
+					if widgetTitleLength < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Title", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeNotEmpty)
+					}
+					if widgetTitleLength > 100 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Title", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), maxChars(100))
+					}
+
+					widgetDescriptionLength := len(activityWidget.Description)
+					if widgetDescriptionLength < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Description", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeNotEmpty)
+					}
+					if widgetDescriptionLength > 500 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Description", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), maxChars(500))
+					}
+
+					for imageIndex, image := range activityWidget.Images {
+						if image < 1 {
+							return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Images.%d", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex, imageIndex), mustBeGte(1))
+						}
+					}
+				case dto.ItineraryWidgetHotelRequest:
+					hotelWidget := itineraryWidget.(dto.ItineraryWidgetHotelRequest)
+
+					if hotelWidget.Hotel < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Hotel", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeGte(1))
+					}
+				case dto.ItineraryWidgetInformationRequest:
+					informationWidget := itineraryWidget.(dto.ItineraryWidgetInformationRequest)
+
+					widgetDescriptionLength := len(informationWidget.Description)
+					if widgetDescriptionLength < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Description", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeNotEmpty)
+					}
+					if widgetDescriptionLength > 500 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Description", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), maxChars(500))
+					}
+				case dto.ItineraryWidgetTransportRequest:
+					transportWidget := itineraryWidget.(dto.ItineraryWidgetTransportRequest)
+
+					widgetTransportationLength := len(transportWidget.Transportation)
+					if widgetTransportationLength < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Transportation", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeNotEmpty)
+					}
+					if widgetTransportationLength > 100 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Transportation", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), maxChars(100))
+					}
+
+					widgetFromLength := len(transportWidget.From)
+					if widgetFromLength < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.From", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeNotEmpty)
+					}
+					if widgetFromLength > 100 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.From", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), maxChars(100))
+					}
+
+					widgetToLength := len(transportWidget.To)
+					if widgetToLength < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.To", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeNotEmpty)
+					}
+					if widgetToLength > 100 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.To", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), maxChars(100))
+					}
+				case dto.ItineraryWidgetRecommendationRequest:
+					recommendationWidget := itineraryWidget.(dto.ItineraryWidgetRecommendationRequest)
+
+					widgetDescriptionLength := len(recommendationWidget.Description)
+					if widgetDescriptionLength < 1 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Description", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), mustBeNotEmpty)
+					}
+					if widgetDescriptionLength > 500 {
+						return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Description", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex), maxChars(500))
+					}
+
+					for imageIndex, image := range recommendationWidget.Images {
+						if image < 1 {
+							return newError(fmt.Sprintf("Itineraries.%d.Days.%d.Widgets.%d.Images.%d", itineraryIndex, itineraryDayIndex, itineraryWidgetIndex, imageIndex), mustBeGte(1))
+						}
+					}
+				}
+			}
+		}
+	}
+
 	return nil
 }
 

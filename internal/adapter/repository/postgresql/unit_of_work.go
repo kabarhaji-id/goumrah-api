@@ -70,6 +70,38 @@ func (factory factoryPostgresql) NewFlightRouteRepository() repository.FlightRou
 	return NewFlightRouteRepository(factory.db)
 }
 
+func (factory factoryPostgresql) NewItineraryRepository() repository.ItineraryRepository {
+	return NewItineraryRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewItineraryDayRepository() repository.ItineraryDayRepository {
+	return NewItineraryDayRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewItineraryWidgetRepository() repository.ItineraryWidgetRepository {
+	return NewItineraryWidgetRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewItineraryWidgetActivityRepository() repository.ItineraryWidgetActivityRepository {
+	return NewItineraryWidgetActivityRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewItineraryWidgetHotelRepository() repository.ItineraryWidgetHotelRepository {
+	return NewItineraryWidgetHotelRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewItineraryWidgetInformationRepository() repository.ItineraryWidgetInformationRepository {
+	return NewItineraryWidgetInformationRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewItineraryWidgetTransportRepository() repository.ItineraryWidgetTransportRepository {
+	return NewItineraryWidgetTransportRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewItineraryWidgetRecommendationRepository() repository.ItineraryWidgetRecommendationRepository {
+	return NewItineraryWidgetRecommendationRepository(factory.db)
+}
+
 type unitOfWorkPostgresql struct {
 	db DB
 }
