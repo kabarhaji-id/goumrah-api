@@ -60,7 +60,10 @@ func (m ItineraryWidgetMapper) MapEntityToResponse(
 		if err != nil {
 			return nil, err
 		}
-		hotelResponse := m.hotelMapper.MapEntityToResponse(ctx, hotelEntity)
+		hotelResponse, err := m.hotelMapper.MapEntityToResponse(ctx, hotelRepository, hotelEntity)
+		if err != nil {
+			return nil, err
+		}
 
 		return dto.ItineraryWidgetHotelResponse{
 			Hotel: hotelResponse,

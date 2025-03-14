@@ -183,11 +183,8 @@ func (s packageServiceImpl) UpdatePackage(ctx context.Context, id int64, request
 			packageRepository,
 			packageEntity,
 		)
-		if err != nil {
-			return err
-		}
 
-		return nil
+		return err
 	})
 
 	return response, err

@@ -15,6 +15,7 @@ type HotelRequest struct {
 	Review      string
 	Description string
 	Location    string
+	Images      []int64
 }
 
 type GetAllHotelRequest struct {
@@ -33,6 +34,7 @@ type HotelResponse struct {
 	Description string
 	Location    string
 	Slug        string
+	Images      []ImageResponse
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

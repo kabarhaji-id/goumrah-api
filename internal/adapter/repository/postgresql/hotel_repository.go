@@ -112,3 +112,111 @@ func (r hotelRepositoryPostgresql) Delete(ctx context.Context, id int64) (entity
 
 	return hotel, err
 }
+
+func (r hotelRepositoryPostgresql) AttachImages(ctx context.Context, id int64, imageIds []int64) ([]int64, error) {
+	if len(imageIds) == 0 {
+		return []int64{}, nil
+	}
+
+	builder := sqlbuilder.New().
+		S(`INSERT INTO "hotel_images" ("hotel_id", "image_id", "created_at", "updated_at", "deleted_at") VALUES`)
+
+	imageIdsLen := len(imageIds)
+	for index, imageId := range imageIds {
+		builder.SA(`(?, ?, NOW(), NOW(), NULL)`, id, imageId)
+		if index+1 < imageIdsLen {
+			builder.S(",")
+		}
+	}
+
+	_, err := r.db.Exec(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+
+	return imageIds, nil
+}
+
+func (r hotelRepositoryPostgresql) FindImages(ctx context.Context, id int64) ([]entity.Image, error) {
+	images := []entity.Image{}
+
+	builder := sqlbuilder.New().
+		S(`SELECT "images"."id", "images"."src", "images"."alt", "images"."category", "images"."title", "images"."created_at", "images"."updated_at", "images"."deleted_at"`).
+		S(`FROM "hotel_images"`).
+		S(`INNER JOIN "hotels" ON "hotels"."id" = "hotel_images"."hotel_id"`).
+		S(`INNER JOIN "images" ON "images"."id" = "hotel_images"."image_id"`).
+		S(`WHERE "hotel_images"."hotel_id" = $1 AND "hotel_images"."deleted_at" IS NULL AND "hotels"."deleted_at" IS NULL AND "images"."deleted_at" IS NULL`, id)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return images, err
+	}
+
+	for rows.Next() {
+		image := entity.Image{}
+		err = rows.Scan(
+			&image.Id, &image.Src, &image.Alt, &image.Category, &image.Title,
+			&image.CreatedAt, &image.UpdatedAt, &image.DeletedAt,
+		)
+		if err != nil {
+			return images, err
+		}
+
+		images = append(images, image)
+	}
+
+	return images, nil
+}
+
+func (r hotelRepositoryPostgresql) FindImageIds(ctx context.Context, id int64) ([]int64, error) {
+	imageIds := []int64{}
+
+	builder := sqlbuilder.New().
+		S(`SELECT "images"."id"`).
+		S(`FROM "hotel_images"`).
+		S(`INNER JOIN "hotels" ON "hotels"."id" = "hotel_images"."hotel_id"`).
+		S(`INNER JOIN "images" ON "images"."id" = "hotel_images"."image_id"`).
+		S(`WHERE "hotel_images"."hotel_id" = $1 AND "hotel_images"."deleted_at" IS NULL AND "hotels"."deleted_at" IS NULL AND "images"."deleted_at" IS NULL`, id)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return imageIds, err
+	}
+
+	for rows.Next() {
+		var imageId int64
+		err = rows.Scan(&imageId)
+		if err != nil {
+			return imageIds, err
+		}
+
+		imageIds = append(imageIds, imageId)
+	}
+
+	return imageIds, nil
+}
+
+func (r hotelRepositoryPostgresql) DetachImages(ctx context.Context, id int64) ([]int64, error) {
+	builder := sqlbuilder.New().
+		S(`DELETE FROM "hotel_images"`).
+		S(`WHERE "hotel_id" = $1`, id).
+		S(`RETURNING "image_id"`)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	imageIds := []int64{}
+	for rows.Next() {
+		var imageId int64
+		if err = rows.Scan(&imageId); err != nil {
+			return nil, err
+		}
+
+		imageIds = append(imageIds, imageId)
+	}
+
+	return imageIds, nil
+}

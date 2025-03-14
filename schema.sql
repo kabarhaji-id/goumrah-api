@@ -151,6 +151,38 @@ $$;
 
 
 --
+-- Name: delete_hotel_image_on_hotel_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_hotel_image_on_hotel_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE hotel_images SET deleted_at = NOW() WHERE hotel_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_hotel_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_hotel_image_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE hotel_images SET deleted_at = NOW() WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_itinerary_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -526,6 +558,40 @@ BEGIN
             RAISE EXCEPTION 'Cannot insert guide with soft deleted avatar'
                 USING ERRCODE = '23503', CONSTRAINT = 'guides_avatar_id_fkey';
         END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_hotel_image_if_hotel_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_hotel_image_if_hotel_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM hotels WHERE id = NEW.hotel_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert hotel image with soft deleted hotel'
+            USING ERRCODE = '23503', CONSTRAINT = 'hotel_images_hotel_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_hotel_image_if_image_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_hotel_image_if_image_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert hotel image with soft deleted image'
+            USING ERRCODE = '23503', CONSTRAINT = 'hotel_images_image_id_fkey';
     END IF;
     RETURN NEW;
 END;
@@ -1589,6 +1655,19 @@ ALTER TABLE public.guides ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: hotel_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.hotel_images (
+    hotel_id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: hotels; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2112,6 +2191,14 @@ ALTER TABLE ONLY public.guides
 
 
 --
+-- Name: hotel_images hotel_images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotel_images
+    ADD CONSTRAINT hotel_images_id_pkey PRIMARY KEY (hotel_id, image_id);
+
+
+--
 -- Name: hotels hotels_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2410,6 +2497,20 @@ CREATE TRIGGER delete_flight_route_on_flight_soft_deleted BEFORE UPDATE ON publi
 
 
 --
+-- Name: hotels delete_hotel_image_on_hotel_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_hotel_image_on_hotel_soft_deleted BEFORE UPDATE ON public.hotels FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_hotel_image_on_hotel_soft_deleted();
+
+
+--
+-- Name: images delete_hotel_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_hotel_image_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_hotel_image_on_image_soft_deleted();
+
+
+--
 -- Name: images delete_itinerary_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2568,6 +2669,20 @@ CREATE TRIGGER prevent_insert_flight_route_if_next_is_soft_deleted BEFORE INSERT
 --
 
 CREATE TRIGGER prevent_insert_guide_if_avatar_is_soft_deleted BEFORE INSERT OR UPDATE ON public.guides FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_guide_if_avatar_is_soft_deleted();
+
+
+--
+-- Name: hotel_images prevent_insert_hotel_image_if_hotel_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_hotel_image_if_hotel_is_soft_deleted BEFORE INSERT OR UPDATE ON public.hotel_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_hotel_image_if_hotel_is_soft_deleted();
+
+
+--
+-- Name: hotel_images prevent_insert_hotel_image_if_image_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_hotel_image_if_image_is_soft_deleted BEFORE INSERT OR UPDATE ON public.hotel_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_hotel_image_if_image_is_soft_deleted();
 
 
 --
@@ -2929,6 +3044,22 @@ ALTER TABLE ONLY public.guides
 
 
 --
+-- Name: hotel_images hotel_images_hotel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotel_images
+    ADD CONSTRAINT hotel_images_hotel_id_fkey FOREIGN KEY (hotel_id) REFERENCES public.hotels(id);
+
+
+--
+-- Name: hotel_images hotel_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotel_images
+    ADD CONSTRAINT hotel_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
 -- Name: itineraries itineraries_day_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3180,4 +3311,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250303092458'),
     ('20250304061836'),
     ('20250305052727'),
-    ('20250305060747');
+    ('20250305060747'),
+    ('20250313123300');

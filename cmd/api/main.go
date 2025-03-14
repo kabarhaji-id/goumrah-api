@@ -74,7 +74,7 @@ func main() {
 	airportMapper := mapper.NewAirportMapper()
 	busMapper := mapper.NewBusMapper()
 	flightMapper := mapper.NewFlightMapper(airlineMapper, airportMapper)
-	hotelMapper := mapper.NewHotelMapper()
+	hotelMapper := mapper.NewHotelMapper(imageMapper)
 	itineraryWidgetMapper := mapper.NewItineraryWidgetMapper(imageMapper, hotelMapper)
 	itineraryDayMapper := mapper.NewItineraryDayMapper(imageMapper, itineraryWidgetMapper)
 	itineraryMapper := mapper.NewItineraryMapper(imageMapper, itineraryDayMapper)
@@ -114,7 +114,7 @@ func main() {
 		itineraryWidgetMapper,
 		unitOfWork,
 	)
-	hotelService := service.NewHotelService(hotelRepository, hotelValidator, hotelMapper)
+	hotelService := service.NewHotelService(hotelRepository, hotelValidator, hotelMapper, unitOfWork)
 	facilityService := service.NewFacilityService(facilityRepository, facilityValidator, facilityMapper)
 	addonService := service.NewAddonService(addonRepository, addonValidator, addonMapper, addonCategoryRepository)
 	cityTourService := service.NewCityTourService(cityTourRepository, cityTourValidator, cityTourMapper)
