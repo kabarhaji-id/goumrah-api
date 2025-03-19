@@ -49,6 +49,7 @@ func main() {
 	itineraryWidgetInformationRepository := postgresqlrepository.NewItineraryWidgetInformationRepository(db)
 	itineraryWidgetTransportRepository := postgresqlrepository.NewItineraryWidgetTransportRepository(db)
 	itineraryWidgetRecommendationRepository := postgresqlrepository.NewItineraryWidgetRecommendationRepository(db)
+	userRepository := postgresqlrepository.NewUserRepository(db)
 
 	imageValidator := validator.NewImageValidator()
 	airlineValidator := validator.NewAirlineValidator()
@@ -64,6 +65,7 @@ func main() {
 	addonValidator := validator.NewAddonValidator()
 	cityTourValidator := validator.NewCityTourValidator()
 	flightValidator := validator.NewFlightValidator()
+	userValidator := validator.NewUserValidator()
 
 	imageMapper := mapper.NewImageMapper()
 	airlineMapper := mapper.NewAirlineMapper(imageMapper)
@@ -82,6 +84,7 @@ func main() {
 	facilityMapper := mapper.NewFacilityMapper()
 	addonMapper := mapper.NewAddonMapper(addonCategoryMapper)
 	cityTourMapper := mapper.NewCityTourMapper()
+	userMapper := mapper.NewUserMapper()
 
 	imageService := service.NewImageService(imageRepository, imageValidator, imageMapper, unitOfWork)
 	airlineService := service.NewAirlineService(airlineRepository, airlineValidator, airlineMapper, imageRepository)
@@ -119,6 +122,7 @@ func main() {
 	addonService := service.NewAddonService(addonRepository, addonValidator, addonMapper, addonCategoryRepository)
 	cityTourService := service.NewCityTourService(cityTourRepository, cityTourValidator, cityTourMapper)
 	flightService := service.NewFlightService(flightRepository, flightValidator, flightMapper, imageRepository, airlineRepository, airportRepository)
+	userService := service.NewUserService(userRepository, userValidator, userMapper)
 
 	imageController := httpcontroller.NewImageController(imageService)
 	airlineController := httpcontroller.NewAirlineController(airlineService)
@@ -134,6 +138,7 @@ func main() {
 	addonController := httpcontroller.NewAddonController(addonService)
 	cityTourController := httpcontroller.NewCityTourController(cityTourService)
 	flightController := httpcontroller.NewFlightController(flightService)
+	userController := httpcontroller.NewUserController(userService)
 
 	app := fiber.New()
 	app.Route("/images", func(router fiber.Router) {
@@ -234,6 +239,13 @@ func main() {
 		router.Get("/:id", flightController.GetFlightById)
 		router.Put("/:id", flightController.UpdateFlight)
 		router.Delete("/:id", flightController.DeleteFlight)
+	})
+	app.Route("/users", func(router fiber.Router) {
+		router.Post("", userController.CreateUser)
+		router.Get("", userController.GetAllUser)
+		router.Get("/:id", userController.GetUserById)
+		router.Put("/:id", userController.UpdateUser)
+		router.Delete("/:id", userController.DeleteUser)
 	})
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {

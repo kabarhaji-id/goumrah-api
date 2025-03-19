@@ -2103,6 +2103,36 @@ ALTER TABLE public.packages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    id bigint NOT NULL,
+    full_name character varying(100) NOT NULL,
+    phone_number character varying(20) NOT NULL,
+    email character varying(256) NOT NULL,
+    address character varying(500) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.users ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: addon_categories addon_categories_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2343,6 +2373,14 @@ ALTER TABLE ONLY public.packages
 
 
 --
+-- Name: users users_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: addon_categories_name_unique; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2459,6 +2497,20 @@ CREATE UNIQUE INDEX packages_name_unique ON public.packages USING btree (upper((
 --
 
 CREATE UNIQUE INDEX packages_slug_unique ON public.packages USING btree (upper((slug)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: users_email_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_email_unique ON public.users USING btree (upper((email)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: users_phone_number_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_phone_number_unique ON public.users USING btree (upper((phone_number)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -3312,4 +3364,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250304061836'),
     ('20250305052727'),
     ('20250305060747'),
-    ('20250313123300');
+    ('20250313123300'),
+    ('20250314090911');

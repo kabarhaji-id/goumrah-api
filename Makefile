@@ -9,3 +9,6 @@ migration:
 
 run:
 	go run cmd/api/main.go
+
+build:
+	go build -o goumrah-api cmd/api/main.go
