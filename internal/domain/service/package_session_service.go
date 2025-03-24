@@ -4,7 +4,7 @@ import (
 	"context"
 	"slices"
 
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/mapper"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/validator"

@@ -50,6 +50,22 @@ func main() {
 	itineraryWidgetTransportRepository := postgresqlrepository.NewItineraryWidgetTransportRepository(db)
 	itineraryWidgetRecommendationRepository := postgresqlrepository.NewItineraryWidgetRecommendationRepository(db)
 	userRepository := postgresqlrepository.NewUserRepository(db)
+	landingHeroContentRepository := postgresqlrepository.NewLandingHeroContentRepository(db)
+	landingSectionHeaderRepository := postgresqlrepository.NewLandingSectionHeaderRepository(db)
+	landingPackageItemRepository := postgresqlrepository.NewLandingPackageItemRepository(db)
+	landingSinglePackageContentRepository := postgresqlrepository.NewLandingSinglePackageContentRepository(db)
+	landingPackageDetailRepository := postgresqlrepository.NewLandingPackageDetailRepository(db)
+	landingPackageDetailItemRepository := postgresqlrepository.NewLandingPackageDetailItemRepository(db)
+	landingPackagesContentRepository := postgresqlrepository.NewLandingPackagesContentRepository(db)
+	landingFeaturesContentRepository := postgresqlrepository.NewLandingFeaturesContentRepository(db)
+	landingFeaturesContentBenefitRepository := postgresqlrepository.NewLandingFeaturesContentBenefitRepository(db)
+	landingMomentsContentRepository := postgresqlrepository.NewLandingMomentsContentRepository(db)
+	landingMomentsContentImageRepository := postgresqlrepository.NewLandingMomentsContentImageRepository(db)
+	landingAffiliatesContentRepository := postgresqlrepository.NewLandingAffiliatesContentRepository(db)
+	landingAffiliatesContentAffiliateRepository := postgresqlrepository.NewLandingAffiliatesContentAffiliateRepository(db)
+	landingFaqContentRepository := postgresqlrepository.NewLandingFaqContentRepository(db)
+	landingFaqContentFaqRepository := postgresqlrepository.NewLandingFaqContentFaqRepository(db)
+	landingMenuRepository := postgresqlrepository.NewLandingMenuRepository(db)
 
 	imageValidator := validator.NewImageValidator()
 	airlineValidator := validator.NewAirlineValidator()
@@ -66,6 +82,7 @@ func main() {
 	cityTourValidator := validator.NewCityTourValidator()
 	flightValidator := validator.NewFlightValidator()
 	userValidator := validator.NewUserValidator()
+	landingValidator := validator.NewLandingValidator()
 
 	imageMapper := mapper.NewImageMapper()
 	airlineMapper := mapper.NewAirlineMapper(imageMapper)
@@ -85,6 +102,7 @@ func main() {
 	addonMapper := mapper.NewAddonMapper(addonCategoryMapper)
 	cityTourMapper := mapper.NewCityTourMapper()
 	userMapper := mapper.NewUserMapper()
+	landingMapper := mapper.NewLandingMapper(imageMapper)
 
 	imageService := service.NewImageService(imageRepository, imageValidator, imageMapper, unitOfWork)
 	airlineService := service.NewAirlineService(airlineRepository, airlineValidator, airlineMapper, imageRepository)
@@ -123,6 +141,35 @@ func main() {
 	cityTourService := service.NewCityTourService(cityTourRepository, cityTourValidator, cityTourMapper)
 	flightService := service.NewFlightService(flightRepository, flightValidator, flightMapper, imageRepository, airlineRepository, airportRepository)
 	userService := service.NewUserService(userRepository, userValidator, userMapper)
+	landingService := service.NewLandingService(
+		landingHeroContentRepository,
+		landingSectionHeaderRepository,
+		landingPackageItemRepository,
+		landingSinglePackageContentRepository,
+		landingPackageDetailRepository,
+		landingPackageDetailItemRepository,
+		landingPackagesContentRepository,
+		landingFeaturesContentRepository,
+		landingFeaturesContentBenefitRepository,
+		landingMomentsContentRepository,
+		landingMomentsContentImageRepository,
+		landingAffiliatesContentRepository,
+		landingAffiliatesContentAffiliateRepository,
+		landingFaqContentRepository,
+		landingFaqContentFaqRepository,
+		landingMenuRepository,
+		imageRepository,
+		packageRepository,
+		packageSessionRepository,
+		itineraryRepository,
+		itineraryDayRepository,
+		flightRouteRepository,
+		flightRepository,
+		airlineRepository,
+		landingValidator,
+		landingMapper,
+		unitOfWork,
+	)
 
 	imageController := httpcontroller.NewImageController(imageService)
 	airlineController := httpcontroller.NewAirlineController(airlineService)
@@ -139,6 +186,7 @@ func main() {
 	cityTourController := httpcontroller.NewCityTourController(cityTourService)
 	flightController := httpcontroller.NewFlightController(flightService)
 	userController := httpcontroller.NewUserController(userService)
+	landingController := httpcontroller.NewLandingController(landingService)
 
 	app := fiber.New()
 	app.Route("/images", func(router fiber.Router) {
@@ -246,6 +294,11 @@ func main() {
 		router.Get("/:id", userController.GetUserById)
 		router.Put("/:id", userController.UpdateUser)
 		router.Delete("/:id", userController.DeleteUser)
+	})
+	app.Route("/landing", func(router fiber.Router) {
+		router.Post("", landingController.CreateLanding)
+		router.Get("", landingController.GetLanding)
+		router.Put("/:id", landingController.UpdateLanding)
 	})
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {

@@ -1,7 +1,6 @@
 package regexpattern_test
 
 import (
-	"regexp"
 	"testing"
 
 	"github.com/kabarhaji-id/goumrah-api/pkg/regexpattern"
@@ -102,11 +101,7 @@ func TestPhoneNumber(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			result, err := regexp.MatchString(regexpattern.PhoneNumber, test.input)
-			if err != nil {
-				t.Fatal(err)
-			}
-
+			result := regexpattern.PhoneNumber().MatchString(test.input)
 			if result != test.expected {
 				t.Fatalf("expected %v, got %v", test.expected, result)
 			}

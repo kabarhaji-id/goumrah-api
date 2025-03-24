@@ -102,6 +102,71 @@ func (factory factoryPostgresql) NewItineraryWidgetRecommendationRepository() re
 	return NewItineraryWidgetRecommendationRepository(factory.db)
 }
 
+func (factory factoryPostgresql) NewLandingHeroContentRepository() repository.LandingHeroContentRepository {
+	return NewLandingHeroContentRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingSectionHeaderRepository() repository.LandingSectionHeaderRepository {
+	return NewLandingSectionHeaderRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingPackageItemRepository() repository.LandingPackageItemRepository {
+	return NewLandingPackageItemRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingSinglePackageContentRepository() repository.LandingSinglePackageContentRepository {
+	return NewLandingSinglePackageContentRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingPackageDetailRepository() repository.LandingPackageDetailRepository {
+	return NewLandingPackageDetailRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingPackageDetailItemRepository() repository.LandingPackageDetailItemRepository {
+	return NewLandingPackageDetailItemRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingPackagesContentRepository() repository.LandingPackagesContentRepository {
+	return NewLandingPackagesContentRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingFeaturesContentRepository() repository.LandingFeaturesContentRepository {
+	return NewLandingFeaturesContentRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingFeaturesContentBenefitRepository() repository.LandingFeaturesContentBenefitRepository {
+	return NewLandingFeaturesContentBenefitRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingMomentsContentRepository() repository.LandingMomentsContentRepository {
+	return NewLandingMomentsContentRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingMomentsContentImageRepository() repository.LandingMomentsContentImageRepository {
+	return NewLandingMomentsContentImageRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingAffiliatesContentRepository() repository.LandingAffiliatesContentRepository {
+	return NewLandingAffiliatesContentRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingAffiliatesContentAffiliateRepository() repository.LandingAffiliatesContentAffiliateRepository {
+	return NewLandingAffiliatesContentAffiliateRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingFaqContentRepository() repository.LandingFaqContentRepository {
+	return NewLandingFaqContentRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingFaqContentFaqRepository() repository.LandingFaqContentFaqRepository {
+	return NewLandingFaqContentFaqRepository(factory.db)
+
+}
+func (factory factoryPostgresql) NewLandingMenuRepository() repository.LandingMenuRepository {
+	return NewLandingMenuRepository(factory.db)
+
+}
+
 type unitOfWorkPostgresql struct {
 	db DB
 }

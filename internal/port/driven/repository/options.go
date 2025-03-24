@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/guregu/null/v5"
+import "github.com/guregu/null/v6"
 
 type FindAllOptions struct {
 	Limit  null.Int
