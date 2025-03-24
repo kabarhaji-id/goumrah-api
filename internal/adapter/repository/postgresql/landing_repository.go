@@ -18,12 +18,12 @@ func NewLandingHeroContentRepository(db DB) repository.LandingHeroContentReposit
 
 func (r landingHeroContentRepositoryPostgresql) Create(ctx context.Context, landingHeroContent entity.LandingHeroContent) (entity.LandingHeroContent, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "landing_hero_contents" ("is_enabled", "title", "description", "tags_line", "button_label", "button_url", "image_id", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "landing_hero_content" ("is_enabled", "title", "description", "tags_line", "button_label", "button_url", "image_id", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), NULL)`, landingHeroContent.IsEnabled, landingHeroContent.Title, landingHeroContent.Description, landingHeroContent.TagsLine, landingHeroContent.ButtonLabel, landingHeroContent.ButtonUrl, landingHeroContent.ImageId).
 		S(`RETURNING "id", "is_enabled", "title", "description", "tags_line", "button_label", "button_url", "image_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&landingHeroContent.Id, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.ImageId,
+		&landingHeroContent.Id, &landingHeroContent.IsEnabled, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.TagsLine, &landingHeroContent.ButtonLabel, &landingHeroContent.ButtonUrl, &landingHeroContent.ImageId,
 		&landingHeroContent.CreatedAt, &landingHeroContent.UpdatedAt, &landingHeroContent.DeletedAt,
 	)
 
@@ -35,10 +35,10 @@ func (r landingHeroContentRepositoryPostgresql) Find(ctx context.Context) (entit
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "is_enabled", "title", "description", "tags_line", "button_label", "button_url", "image_id", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_hero_contents" WHERE "deleted_at" IS NULL`)
+		S(`FROM "landing_hero_content" WHERE "deleted_at" IS NULL`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&landingHeroContent.Id, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.ImageId,
+		&landingHeroContent.Id, &landingHeroContent.IsEnabled, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.TagsLine, &landingHeroContent.ButtonLabel, &landingHeroContent.ButtonUrl, &landingHeroContent.ImageId,
 		&landingHeroContent.CreatedAt, &landingHeroContent.UpdatedAt, &landingHeroContent.DeletedAt,
 	)
 
@@ -47,12 +47,12 @@ func (r landingHeroContentRepositoryPostgresql) Find(ctx context.Context) (entit
 
 func (r landingHeroContentRepositoryPostgresql) Update(ctx context.Context, landingHeroContent entity.LandingHeroContent) (entity.LandingHeroContent, error) {
 	builder := sqlbuilder.New().
-		S(`UPDATE "landing_hero_contents" SET "is_enabled" = $1, "title" = $2, "description" = $3, "tags_line" = $4, "button_label" = $5, "button_url" = $6, "image_id" = $7, "updated_at" = NOW()`, landingHeroContent.IsEnabled, landingHeroContent.Title, landingHeroContent.Description, landingHeroContent.TagsLine, landingHeroContent.ButtonLabel, landingHeroContent.ButtonUrl, landingHeroContent.ImageId).
+		S(`UPDATE "landing_hero_content" SET "is_enabled" = $1, "title" = $2, "description" = $3, "tags_line" = $4, "button_label" = $5, "button_url" = $6, "image_id" = $7, "updated_at" = NOW()`, landingHeroContent.IsEnabled, landingHeroContent.Title, landingHeroContent.Description, landingHeroContent.TagsLine, landingHeroContent.ButtonLabel, landingHeroContent.ButtonUrl, landingHeroContent.ImageId).
 		S(`WHERE "id" = $8 AND "deleted_at" IS NULL`, landingHeroContent.Id).
 		S(`RETURNING "id", "is_enabled", "title", "description", "tags_line", "button_label", "button_url", "image_id", "created_at", "updated_at", "deleted_at`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&landingHeroContent.Id, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.ImageId,
+		&landingHeroContent.Id, &landingHeroContent.IsEnabled, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.TagsLine, &landingHeroContent.ButtonLabel, &landingHeroContent.ButtonUrl, &landingHeroContent.ImageId,
 		&landingHeroContent.CreatedAt, &landingHeroContent.UpdatedAt, &landingHeroContent.DeletedAt,
 	)
 
@@ -63,11 +63,11 @@ func (r landingHeroContentRepositoryPostgresql) Delete(ctx context.Context) (ent
 	landingHeroContent := entity.LandingHeroContent{}
 
 	builder := sqlbuilder.New().
-		S(`DELETE FROM "landing_hero_contents"`).
+		S(`DELETE FROM "landing_hero_content"`).
 		S(`RETURNING "id", "is_enabled", "title", "description", "tags_line", "button_label", "button_url", "image_id", "created_at", "updated_at", "deleted_at`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&landingHeroContent.Id, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.ImageId,
+		&landingHeroContent.Id, &landingHeroContent.IsEnabled, &landingHeroContent.Title, &landingHeroContent.Description, &landingHeroContent.TagsLine, &landingHeroContent.ButtonLabel, &landingHeroContent.ButtonUrl, &landingHeroContent.ImageId,
 		&landingHeroContent.CreatedAt, &landingHeroContent.UpdatedAt, &landingHeroContent.DeletedAt,
 	)
 
@@ -280,7 +280,7 @@ func NewLandingSinglePackageContentRepository(db DB) repository.LandingSinglePac
 
 func (r landingSinglePackageContentRepositoryPostgresql) Create(ctx context.Context, landingSinglePackageContent entity.LandingSinglePackageContent) (entity.LandingSinglePackageContent, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "landing_single_package_contents" ("is_enabled", "landing_section_header_id", "silver_landing_package_item_id", "gold_landing_package_item_id", "platinum_landing_package_item_id", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "landing_single_package_content" ("is_enabled", "landing_section_header_id", "silver_landing_package_item_id", "gold_landing_package_item_id", "platinum_landing_package_item_id", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)`, landingSinglePackageContent.IsEnabled, landingSinglePackageContent.LandingSectionHeaderId, landingSinglePackageContent.SilverLandingPackageItemId, landingSinglePackageContent.GoldLandingPackageItemId, landingSinglePackageContent.PlatinumLandingPackageItemId).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "silver_landing_package_item_id", "gold_landing_package_item_id", "platinum_landing_package_item_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -299,7 +299,7 @@ func (r landingSinglePackageContentRepositoryPostgresql) Find(ctx context.Contex
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "is_enabled", "landing_section_header_id", "silver_landing_package_item_id", "gold_landing_package_item_id", "platinum_landing_package_item_id", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_single_package_contents" WHERE "deleted_at" IS NULL`)
+		S(`FROM "landing_single_package_content" WHERE "deleted_at" IS NULL`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&landingSinglePackageContent.Id, &landingSinglePackageContent.IsEnabled, &landingSinglePackageContent.LandingSectionHeaderId,
@@ -313,7 +313,7 @@ func (r landingSinglePackageContentRepositoryPostgresql) Find(ctx context.Contex
 
 func (r landingSinglePackageContentRepositoryPostgresql) Update(ctx context.Context, landingSinglePackageContent entity.LandingSinglePackageContent) (entity.LandingSinglePackageContent, error) {
 	builder := sqlbuilder.New().
-		S(`UPDATE "landing_single_package_contents" SET "is_enabled" = $1, "landing_section_header_id" = $2, "silver_landing_package_item_id" = $3, "gold_landing_package_item_id" = $4, "platinum_landing_package_item_id" = $5, "updated_at" = NOW()`).
+		S(`UPDATE "landing_single_package_content" SET "is_enabled" = $1, "landing_section_header_id" = $2, "silver_landing_package_item_id" = $3, "gold_landing_package_item_id" = $4, "platinum_landing_package_item_id" = $5, "updated_at" = NOW()`).
 		S(`WHERE "id" = $6 AND "deleted_at" IS NULL`, landingSinglePackageContent.IsEnabled, landingSinglePackageContent.LandingSectionHeaderId, landingSinglePackageContent.SilverLandingPackageItemId, landingSinglePackageContent.GoldLandingPackageItemId, landingSinglePackageContent.PlatinumLandingPackageItemId, landingSinglePackageContent.Id).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "silver_landing_package_item_id", "gold_landing_package_item_id", "platinum_landing_package_item_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -331,7 +331,7 @@ func (r landingSinglePackageContentRepositoryPostgresql) Delete(ctx context.Cont
 	landingSinglePackageContent := entity.LandingSinglePackageContent{}
 
 	builder := sqlbuilder.New().
-		S(`DELETE FROM "landing_single_package_contents"`).
+		S(`DELETE FROM "landing_single_package_content"`).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "silver_landing_package_item_id", "gold_landing_package_item_id", "platinum_landing_package_item_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
@@ -548,7 +548,7 @@ func NewLandingPackagesContentRepository(db DB) repository.LandingPackagesConten
 
 func (r landingPackagesContentRepositoryPostgresql) Create(ctx context.Context, landingPackagesContent entity.LandingPackagesContent) (entity.LandingPackagesContent, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "landing_packages_contents" ("is_enabled", "silver_landing_package_detail_id", "gold_landing_package_detail_id", "platinum_landing_package_detail_id", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "landing_packages_content" ("is_enabled", "silver_landing_package_detail_id", "gold_landing_package_detail_id", "platinum_landing_package_detail_id", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, $3, $4, NOW(), NOW(), NULL)`, landingPackagesContent.IsEnabled, landingPackagesContent.SilverLandingPackageDetailId, landingPackagesContent.GoldLandingPackageDetailId, landingPackagesContent.PlatinumLandingPackageDetailId).
 		S(`RETURNING "id", "is_enabled", "silver_landing_package_detail_id", "gold_landing_package_detail_id", "platinum_landing_package_detail_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -566,7 +566,7 @@ func (r landingPackagesContentRepositoryPostgresql) Find(ctx context.Context) (e
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "is_enabled", "silver_landing_package_detail_id", "gold_landing_package_detail_id", "platinum_landing_package_detail_id", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_packages_contents" WHERE "deleted_at" IS NULL`)
+		S(`FROM "landing_packages_content" WHERE "deleted_at" IS NULL`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&landingPackagesContent.Id, &landingPackagesContent.IsEnabled, &landingPackagesContent.SilverLandingPackageDetailId,
@@ -579,7 +579,7 @@ func (r landingPackagesContentRepositoryPostgresql) Find(ctx context.Context) (e
 
 func (r landingPackagesContentRepositoryPostgresql) Update(ctx context.Context, landingPackagesContent entity.LandingPackagesContent) (entity.LandingPackagesContent, error) {
 	builder := sqlbuilder.New().
-		S(`UPDATE "landing_packages_contents" SET "is_enabled" = $1, "silver_landing_package_detail_id" = $2, "gold_landing_package_detail_id" = $3, "platinum_landing_package_detail_id" = $4, "updated_at" = NOW()`).
+		S(`UPDATE "landing_packages_content" SET "is_enabled" = $1, "silver_landing_package_detail_id" = $2, "gold_landing_package_detail_id" = $3, "platinum_landing_package_detail_id" = $4, "updated_at" = NOW()`).
 		S(`WHERE "id" = $5 AND "deleted_at" IS NULL`, landingPackagesContent.IsEnabled, landingPackagesContent.SilverLandingPackageDetailId, landingPackagesContent.GoldLandingPackageDetailId, landingPackagesContent.PlatinumLandingPackageDetailId, landingPackagesContent.Id).
 		S(`RETURNING "id", "is_enabled", "silver_landing_package_detail_id", "gold_landing_package_detail_id", "platinum_landing_package_detail_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -596,7 +596,7 @@ func (r landingPackagesContentRepositoryPostgresql) Delete(ctx context.Context) 
 	landingPackagesContent := entity.LandingPackagesContent{}
 
 	builder := sqlbuilder.New().
-		S(`DELETE FROM "landing_packages_contents"`).
+		S(`DELETE FROM "landing_packages_content"`).
 		S(`RETURNING "id", "is_enabled", "silver_landing_package_detail_id", "gold_landing_package_detail_id", "platinum_landing_package_detail_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
@@ -618,7 +618,7 @@ func NewLandingFeaturesContentRepository(db DB) repository.LandingFeaturesConten
 
 func (r landingFeaturesContentRepositoryPostgresql) Create(ctx context.Context, landingFeaturesContent entity.LandingFeaturesContent) (entity.LandingFeaturesContent, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "landing_features_contents" ("is_enabled", "landing_section_header_id", "footer_title", "button_about", "button_package", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "landing_features_content" ("is_enabled", "landing_section_header_id", "footer_title", "button_about", "button_package", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)`, landingFeaturesContent.IsEnabled, landingFeaturesContent.LandingSectionHeaderId, landingFeaturesContent.FooterTitle, landingFeaturesContent.ButtonAbout, landingFeaturesContent.ButtonPackage).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "footer_title", "button_about", "button_package", "created_at", "updated_at", "deleted_at"`)
 
@@ -636,7 +636,7 @@ func (r landingFeaturesContentRepositoryPostgresql) Find(ctx context.Context) (e
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "is_enabled", "landing_section_header_id", "footer_title", "button_about", "button_package", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_features_contents" WHERE "deleted_at" IS NULL`)
+		S(`FROM "landing_features_content" WHERE "deleted_at" IS NULL`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&landingFeaturesContent.Id, &landingFeaturesContent.IsEnabled, &landingFeaturesContent.LandingSectionHeaderId,
@@ -649,7 +649,7 @@ func (r landingFeaturesContentRepositoryPostgresql) Find(ctx context.Context) (e
 
 func (r landingFeaturesContentRepositoryPostgresql) Update(ctx context.Context, landingFeaturesContent entity.LandingFeaturesContent) (entity.LandingFeaturesContent, error) {
 	builder := sqlbuilder.New().
-		S(`UPDATE "landing_features_contents" SET "is_enabled" = $1, "landing_section_header_id" = $2, "footer_title" = $3, "button_about" = $4, "button_package" = $5, "updated_at" = NOW()`).
+		S(`UPDATE "landing_features_content" SET "is_enabled" = $1, "landing_section_header_id" = $2, "footer_title" = $3, "button_about" = $4, "button_package" = $5, "updated_at" = NOW()`).
 		S(`WHERE "id" = $6 AND "deleted_at" IS NULL`, landingFeaturesContent.IsEnabled, landingFeaturesContent.LandingSectionHeaderId, landingFeaturesContent.FooterTitle, landingFeaturesContent.ButtonAbout, landingFeaturesContent.ButtonPackage, landingFeaturesContent.Id).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "footer_title", "button_about", "button_package", "created_at", "updated_at", "deleted_at"`)
 
@@ -666,7 +666,7 @@ func (r landingFeaturesContentRepositoryPostgresql) Delete(ctx context.Context) 
 	landingFeaturesContent := entity.LandingFeaturesContent{}
 
 	builder := sqlbuilder.New().
-		S(`DELETE FROM "landing_features_contents"`).
+		S(`DELETE FROM "landing_features_content"`).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "footer_title", "button_about", "button_package", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
@@ -793,7 +793,7 @@ func NewLandingMomentsContentRepository(db DB) repository.LandingMomentsContentR
 
 func (r landingMomentsContentRepositoryPostgresql) Create(ctx context.Context, landingMomentsContent entity.LandingMomentsContent) (entity.LandingMomentsContent, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "landing_moments_contents" ("is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "landing_moments_content" ("is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, NOW(), NOW(), NULL)`, landingMomentsContent.IsEnabled, landingMomentsContent.LandingSectionHeaderId).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -810,7 +810,7 @@ func (r landingMomentsContentRepositoryPostgresql) Find(ctx context.Context) (en
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_moments_contents" WHERE "deleted_at" IS NULL`)
+		S(`FROM "landing_moments_content" WHERE "deleted_at" IS NULL`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&landingMomentsContent.Id, &landingMomentsContent.IsEnabled, &landingMomentsContent.LandingSectionHeaderId,
@@ -822,7 +822,7 @@ func (r landingMomentsContentRepositoryPostgresql) Find(ctx context.Context) (en
 
 func (r landingMomentsContentRepositoryPostgresql) Update(ctx context.Context, landingMomentsContent entity.LandingMomentsContent) (entity.LandingMomentsContent, error) {
 	builder := sqlbuilder.New().
-		S(`UPDATE "landing_moments_contents" SET "is_enabled" = $1, "landing_section_header_id" = $2, "updated_at" = NOW()`).
+		S(`UPDATE "landing_moments_content" SET "is_enabled" = $1, "landing_section_header_id" = $2, "updated_at" = NOW()`).
 		S(`WHERE "id" = $3 AND "deleted_at" IS NULL`, landingMomentsContent.IsEnabled, landingMomentsContent.LandingSectionHeaderId, landingMomentsContent.Id).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -838,7 +838,7 @@ func (r landingMomentsContentRepositoryPostgresql) Delete(ctx context.Context) (
 	landingMomentsContent := entity.LandingMomentsContent{}
 
 	builder := sqlbuilder.New().
-		S(`DELETE FROM "landing_moments_contents"`).
+		S(`DELETE FROM "landing_moments_content"`).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
@@ -955,7 +955,7 @@ func NewLandingAffiliatesContentRepository(db DB) repository.LandingAffiliatesCo
 
 func (r landingAffiliatesContentRepositoryPostgresql) Create(ctx context.Context, landingAffiliatesContent entity.LandingAffiliatesContent) (entity.LandingAffiliatesContent, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "landing_affiliates_contents" ("is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "landing_affiliates_content" ("is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, NOW(), NOW(), NULL)`, landingAffiliatesContent.IsEnabled, landingAffiliatesContent.LandingSectionHeaderId).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -972,7 +972,7 @@ func (r landingAffiliatesContentRepositoryPostgresql) Find(ctx context.Context) 
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_affiliates_contents" WHERE "deleted_at" IS NULL`)
+		S(`FROM "landing_affiliates_content" WHERE "deleted_at" IS NULL`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&landingAffiliatesContent.Id, &landingAffiliatesContent.IsEnabled, &landingAffiliatesContent.LandingSectionHeaderId,
@@ -984,7 +984,7 @@ func (r landingAffiliatesContentRepositoryPostgresql) Find(ctx context.Context) 
 
 func (r landingAffiliatesContentRepositoryPostgresql) Update(ctx context.Context, landingAffiliatesContent entity.LandingAffiliatesContent) (entity.LandingAffiliatesContent, error) {
 	builder := sqlbuilder.New().
-		S(`UPDATE "landing_affiliates_contents" SET "is_enabled" = $1, "landing_section_header_id" = $2, "updated_at" = NOW()`).
+		S(`UPDATE "landing_affiliates_content" SET "is_enabled" = $1, "landing_section_header_id" = $2, "updated_at" = NOW()`).
 		S(`WHERE "id" = $3 AND "deleted_at" IS NULL`, landingAffiliatesContent.IsEnabled, landingAffiliatesContent.LandingSectionHeaderId, landingAffiliatesContent.Id).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -1000,7 +1000,7 @@ func (r landingAffiliatesContentRepositoryPostgresql) Delete(ctx context.Context
 	landingAffiliatesContent := entity.LandingAffiliatesContent{}
 
 	builder := sqlbuilder.New().
-		S(`DELETE FROM "landing_affiliates_contents"`).
+		S(`DELETE FROM "landing_affiliates_content"`).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
@@ -1125,7 +1125,7 @@ func NewLandingFaqContentRepository(db DB) repository.LandingFaqContentRepositor
 
 func (r landingFaqContentRepositoryPostgresql) Create(ctx context.Context, landingFaqContent entity.LandingFaqContent) (entity.LandingFaqContent, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "landing_faq_contents" ("is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "landing_faq_content" ("is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, NOW(), NOW(), NULL)`, landingFaqContent.IsEnabled, landingFaqContent.LandingSectionHeaderId).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -1142,7 +1142,7 @@ func (r landingFaqContentRepositoryPostgresql) Find(ctx context.Context) (entity
 
 	builder := sqlbuilder.New().
 		S(`SELECT "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_faq_contents" WHERE "deleted_at" IS NULL`)
+		S(`FROM "landing_faq_content" WHERE "deleted_at" IS NULL`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&landingFaqContent.Id, &landingFaqContent.IsEnabled, &landingFaqContent.LandingSectionHeaderId,
@@ -1154,7 +1154,7 @@ func (r landingFaqContentRepositoryPostgresql) Find(ctx context.Context) (entity
 
 func (r landingFaqContentRepositoryPostgresql) Update(ctx context.Context, landingFaqContent entity.LandingFaqContent) (entity.LandingFaqContent, error) {
 	builder := sqlbuilder.New().
-		S(`UPDATE "landing_faq_contents" SET "is_enabled" = $1, "landing_section_header_id" = $2, "updated_at" = NOW()`).
+		S(`UPDATE "landing_faq_content" SET "is_enabled" = $1, "landing_section_header_id" = $2, "updated_at" = NOW()`).
 		S(`WHERE "id" = $3 AND "deleted_at" IS NULL`, landingFaqContent.IsEnabled, landingFaqContent.LandingSectionHeaderId, landingFaqContent.Id).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
@@ -1170,7 +1170,7 @@ func (r landingFaqContentRepositoryPostgresql) Delete(ctx context.Context) (enti
 	landingFaqContent := entity.LandingFaqContent{}
 
 	builder := sqlbuilder.New().
-		S(`DELETE FROM "landing_faq_contents"`).
+		S(`DELETE FROM "landing_faq_content"`).
 		S(`RETURNING "id", "is_enabled", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(

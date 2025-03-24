@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 
 	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
@@ -623,48 +624,56 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing hero content")
 
 	// Find landing single package content with repository
 	landingSinglePackageContent, err := s.landingSinglePackageContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing single package content")
 
 	// Find landing packages content with repository
 	landingPackagesContent, err := s.landingPackagesContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing packages content")
 
 	// Find landing features content with repository
 	landingFeaturesContent, err := s.landingFeaturesContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing features content")
 
 	// Find landing moments content with repository
 	landingMomentsContent, err := s.landingMomentsContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing moments content")
 
 	// Find landing affiliates content with repository
 	landingAffiliatesContent, err := s.landingAffiliatesContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing affiliates content")
 
 	// Find landing faq content with repository
 	landingFaqContent, err := s.landingFaqContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing faq content")
 
 	// Find landing menu with repository
 	landingMenus, err := s.landingMenuRepository.FindAll(ctx, repository.FindAllOptions{})
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
+	log.Println("Success get landing menus")
 
 	// Map entity into response
 	response, err := s.landingMapper.MapEntityToResponse(
