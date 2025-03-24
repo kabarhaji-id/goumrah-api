@@ -2715,7 +2715,10 @@ CREATE TABLE public.landing_menus (
     is_enabled boolean DEFAULT true NOT NULL,
     icon character varying(100) NOT NULL,
     label character varying(100) NOT NULL,
-    path character varying(100) NOT NULL
+    path character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
 );
 
 

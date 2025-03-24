@@ -740,6 +740,9 @@ CREATE TABLE IF NOT EXISTS "landing_menus" (
     "icon" VARCHAR(100) NOT NULL,
     "label" VARCHAR(100) NOT NULL,
     "path" VARCHAR(100) NOT NULL,
+    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP NULL DEFAULT NULL,
 
     CONSTRAINT "landing_menus_id_pkey" PRIMARY KEY ("id")
 );
