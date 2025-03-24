@@ -2,6 +2,7 @@ package validator
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/dto"
@@ -67,6 +68,12 @@ func (v HotelValidator) ValidateRequest(ctx context.Context, request dto.HotelRe
 	}
 	if locationLength > 100 {
 		return newError("Location", maxChars(100))
+	}
+
+	for i, image := range request.Images {
+		if image < 1 {
+			return newError(fmt.Sprintf("Images.%d", i), mustBeGte(1))
+		}
 	}
 
 	return nil

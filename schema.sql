@@ -71,6 +71,20 @@ CREATE TYPE public.skytrax_type AS ENUM (
 
 
 --
+-- Name: user_role; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.user_role AS ENUM (
+    'REGISTERED_USER',
+    'CUSTOMER',
+    'TRAVEL_AGENT',
+    'ADMINISTRATOR',
+    'CUSTOMER_SUPPORT',
+    'PARTNER'
+);
+
+
+--
 -- Name: delete_addon_on_category_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -144,6 +158,38 @@ CREATE FUNCTION public.delete_flight_route_on_flight_soft_deleted() RETURNS trig
 BEGIN
     IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
         UPDATE flight_routes SET deleted_at = NOW() WHERE flight_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_hotel_image_on_hotel_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_hotel_image_on_hotel_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE hotel_images SET deleted_at = NOW() WHERE hotel_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_hotel_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_hotel_image_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE hotel_images SET deleted_at = NOW() WHERE image_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -279,6 +325,70 @@ $$;
 
 
 --
+-- Name: delete_landing_moments_content_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_landing_moments_content_image_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        DELETE FROM landing_moments_content_images WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_landing_package_detail_item_on_landing_package_detail_so(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_landing_package_detail_item_on_landing_package_detail_so() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE landing_package_detail_items SET deleted_at = NOW() WHERE landing_package_detail_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_landing_package_detail_item_on_landing_package_item_soft(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_landing_package_detail_item_on_landing_package_item_soft() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE landing_package_detail_items SET deleted_at = NOW() WHERE landing_package_item_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_landing_package_item_on_package_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_landing_package_item_on_package_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE landing_package_items SET deleted_at = NOW() WHERE package_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: delete_package_image_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -386,6 +496,133 @@ BEGIN
         UPDATE package_sessions SET deleted_at = NOW() WHERE embarkation_id = OLD.id;
     END IF;
     RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_package_detail_if_landing_packages_conte(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_package_detail_if_landing_packages_conte() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_packages_content WHERE silver_landing_package_detail_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing package detail with existing landing packages content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_packages_content_silver_landing_package_detail_id_fkey';
+    END IF;
+    IF EXISTS (SELECT 1 FROM landing_packages_content WHERE gold_landing_package_detail_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing package detail with existing landing packages content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_packages_content_gold_landing_package_detail_id_fkey';
+    END IF;
+    IF EXISTS (SELECT 1 FROM landing_packages_content WHERE platinum_landing_package_detail_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing package detail with existing landing packages content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_packages_content_platinum_landing_package_detail_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_section_header_if_landing_affiliates_con(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_affiliates_con() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_affiliates_content WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing affiliates content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_affiliates_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_section_header_if_landing_faq_content_ex(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_faq_content_ex() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_faq_content WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing faq content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_faq_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_section_header_if_landing_features_conte(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_features_conte() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_features_content WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing features content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_features_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_section_header_if_landing_moments_conten(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_moments_conten() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_moments_content WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing moments content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_moments_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_section_header_if_landing_package_detail(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_package_detail() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_package_details WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing package detail'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_package_details_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_section_header_if_landing_single_package(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_single_package() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_single_package WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing single package content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_single_package_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
 END;
 $$;
 
@@ -526,6 +763,40 @@ BEGIN
             RAISE EXCEPTION 'Cannot insert guide with soft deleted avatar'
                 USING ERRCODE = '23503', CONSTRAINT = 'guides_avatar_id_fkey';
         END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_hotel_image_if_hotel_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_hotel_image_if_hotel_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM hotels WHERE id = NEW.hotel_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert hotel image with soft deleted hotel'
+            USING ERRCODE = '23503', CONSTRAINT = 'hotel_images_hotel_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_hotel_image_if_image_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_hotel_image_if_image_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert hotel image with soft deleted image'
+            USING ERRCODE = '23503', CONSTRAINT = 'hotel_images_image_id_fkey';
     END IF;
     RETURN NEW;
 END;
@@ -840,6 +1111,283 @@ $$;
 
 
 --
+-- Name: prevent_insert_landing_affiliates_content_affiliates_if_image_i(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_affiliates_content_affiliates_if_image_i() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.logo_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM images WHERE id = NEW.logo_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert landing affiliates content affiliates with soft deleted image'
+                USING ERRCODE = '23503', CONSTRAINT = 'landing_affiliates_content_affiliates_logo_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_affiliates_content_if_landing_section_he(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_affiliates_content_if_landing_section_he() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing affiliates content with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_affiliates_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_faq_content_if_landing_section_header_is(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_faq_content_if_landing_section_header_is() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing faq content with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_faq_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_features_content_benefits_if_image_is_so(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_features_content_benefits_if_image_is_so() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.logo_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM images WHERE id = NEW.logo_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert landing features content benefits with soft deleted image'
+                USING ERRCODE = '23503', CONSTRAINT = 'landing_features_content_benefits_logo_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_features_content_if_landing_section_head(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_features_content_if_landing_section_head() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing features content with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_features_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_hero_content_if_image_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_hero_content_if_image_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.image_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert landing hero content with soft deleted image'
+                USING ERRCODE = '23503', CONSTRAINT = 'landing_hero_content_image_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_moments_content_if_landing_section_heade(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_moments_content_if_landing_section_heade() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing moments content with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_moments_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_moments_content_image_if_image_is_soft_d(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_moments_content_image_if_image_is_soft_d() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing moments content image with soft deleted image'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_moments_content_images_image_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_package_detail_if_landing_section_header(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_package_detail_if_landing_section_header() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing package detail with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_package_details_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_package_detail_item_if_landing_package_d(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_package_detail_item_if_landing_package_d() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_package_details WHERE id = NEW.landing_package_detail_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing package detail item with soft deleted landing package detail'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_package_detail_items_landing_package_detail_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_package_detail_item_if_landing_package_i(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_package_detail_item_if_landing_package_i() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_package_items WHERE id = NEW.landing_package_item_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing package detail item with soft deleted landing package item'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_package_detail_items_landing_package_item_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_package_item_if_package_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_package_item_if_package_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM packages WHERE id = NEW.package_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing package item with soft deleted package'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_package_items_package_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_packages_content_if_landing_package_deta(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_packages_content_if_landing_package_deta() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_package_details WHERE id = NEW.silver_landing_package_detail_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing packages content with soft deleted silver landing package detail'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_packages_content_silver_landing_package_detail_id_fkey';
+    END IF;
+    IF (SELECT deleted_at FROM landing_package_details WHERE id = NEW.gold_landing_package_detail_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing packages content with soft deleted gold landing package detail'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_packages_content_gold_landing_package_detail_id_fkey';
+    END IF;
+    IF (SELECT deleted_at FROM landing_package_details WHERE id = NEW.platinum_landing_package_detail_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing packages content with soft deleted platinum landing package detail'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_packages_content_platinum_landing_package_detail_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_single_package_content_if_landing_packag(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_single_package_content_if_landing_packag() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_package_items WHERE id = NEW.silver_landing_package_item_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing single package content with soft deleted silver landing package item'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_single_package_silver_landing_package_item_id_fkey';
+    END IF;
+    IF (SELECT deleted_at FROM landing_package_items WHERE id = NEW.gold_landing_package_item_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing single package content with soft deleted gold landing package item'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_single_package_gold_landing_package_item_id_fkey';
+    END IF;
+    IF (SELECT deleted_at FROM landing_package_items WHERE id = NEW.platinum_landing_package_item_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing single package content with soft deleted platinum landing package item'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_single_package_platinum_landing_package_item_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_single_package_content_if_landing_sectio(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_single_package_content_if_landing_sectio() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing single package content with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_single_package_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_if_thumbnail_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1091,6 +1639,72 @@ CREATE FUNCTION public.set_information_id_null_on_information_soft_deleted() RET
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
         UPDATE itinerary_widgets SET information_id = NULL WHERE information_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_landing_affiliates_content_affiliates_logo_id_null_on_image(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_landing_affiliates_content_affiliates_logo_id_null_on_image() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE landing_affiliates_content_affiliates SET logo_id = NULL WHERE logo_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_landing_features_content_benefits_logo_id_null_on_image_sof(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_landing_features_content_benefits_logo_id_null_on_image_sof() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE landing_features_content_benefits SET logo_id = NULL WHERE logo_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_landing_hero_content_image_id_null_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_landing_hero_content_image_id_null_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE landing_hero_content SET image_id = NULL WHERE image_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_landing_single_package_content_landing_package_item_id_null(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_landing_single_package_content_landing_package_item_id_null() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NOT NULL THEN
+        UPDATE landing_single_package_content SET silver_landing_package_item_id = NULL WHERE silver_landing_package_item_id = OLD.id;
+        UPDATE landing_single_package_content SET gold_landing_package_item_id = NULL WHERE gold_landing_package_item_id = OLD.id;
+        UPDATE landing_single_package_content SET platinum_landing_package_item_id = NULL WHERE platinum_landing_package_item_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -1589,6 +2203,19 @@ ALTER TABLE public.guides ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: hotel_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.hotel_images (
+    hotel_id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: hotels; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1922,6 +2549,355 @@ ALTER TABLE public.itinerary_widgets ALTER COLUMN id ADD GENERATED ALWAYS AS IDE
 
 
 --
+-- Name: landing_affiliates_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_affiliates_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_affiliates_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_affiliates_content_affiliates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_affiliates_content_affiliates (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    name character varying(100) NOT NULL,
+    logo_id bigint,
+    width integer NOT NULL,
+    height integer NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_affiliates_content_affiliates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_affiliates_content_affiliates ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_affiliates_content_affiliates_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: landing_faq_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_faq_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_faq_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_faq_content_faqs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_faq_content_faqs (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    question character varying(100) NOT NULL,
+    answer character varying(500) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_faq_content_faqs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_faq_content_faqs ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_faq_content_faqs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: landing_features_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_features_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    footer_title character varying(100) NOT NULL,
+    button_about character varying(100) NOT NULL,
+    button_package character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_features_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_features_content_benefits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_features_content_benefits (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    title character varying(100) NOT NULL,
+    subtitle character varying(500) NOT NULL,
+    logo_id bigint,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_features_content_benefits_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_features_content_benefits ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_features_content_benefits_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: landing_hero_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_hero_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    title character varying(100) NOT NULL,
+    description character varying(500) NOT NULL,
+    tags_line character varying(50) NOT NULL,
+    button_label character varying(100) NOT NULL,
+    button_url text,
+    image_id integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_hero_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_menus; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_menus (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    icon character varying(100) NOT NULL,
+    label character varying(100) NOT NULL,
+    path character varying(100) NOT NULL
+);
+
+
+--
+-- Name: landing_menus_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_menus ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_menus_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: landing_moments_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_moments_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_moments_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_moments_content_images; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_moments_content_images (
+    is_enabled boolean DEFAULT true NOT NULL,
+    image_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_package_detail_items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_package_detail_items (
+    is_enabled boolean DEFAULT true NOT NULL,
+    landing_package_detail_id bigint NOT NULL,
+    landing_package_item_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_package_details; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_package_details (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_package_details_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_package_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_package_details_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: landing_package_items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_package_items (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    package_id bigint NOT NULL,
+    button_label character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_package_items_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_package_items ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_package_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: landing_packages_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_packages_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    silver_landing_package_detail_id bigint NOT NULL,
+    gold_landing_package_detail_id bigint NOT NULL,
+    platinum_landing_package_detail_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_packages_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_section_headers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_section_headers (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    title character varying(100) NOT NULL,
+    subtitle character varying(100) DEFAULT NULL::character varying,
+    tags_line character varying(50) DEFAULT NULL::character varying,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_section_headers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_section_headers ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_section_headers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: landing_single_package_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_single_package_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    silver_landing_package_item_id bigint,
+    gold_landing_package_item_id bigint,
+    platinum_landing_package_item_id bigint,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_single_package_content_id_check CHECK ((id = 1))
+);
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2024,6 +3000,42 @@ ALTER TABLE public.packages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.users (
+    id bigint NOT NULL,
+    first_name character varying(100) NOT NULL,
+    last_name character varying(100) NOT NULL,
+    phone_number character varying(20) NOT NULL,
+    is_phone_number_verified boolean DEFAULT false NOT NULL,
+    email character varying(256) DEFAULT NULL::character varying,
+    is_email_verified boolean,
+    avatar_id bigint,
+    password text,
+    role public.user_role NOT NULL,
+    otp character varying(6) DEFAULT NULL::character varying,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.users ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: addon_categories addon_categories_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2109,6 +3121,14 @@ ALTER TABLE ONLY public.flights
 
 ALTER TABLE ONLY public.guides
     ADD CONSTRAINT guides_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: hotel_images hotel_images_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotel_images
+    ADD CONSTRAINT hotel_images_id_pkey PRIMARY KEY (hotel_id, image_id);
 
 
 --
@@ -2216,6 +3236,134 @@ ALTER TABLE ONLY public.itinerary_widgets
 
 
 --
+-- Name: landing_affiliates_content_affiliates landing_affiliates_content_affiliates_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_affiliates_content_affiliates
+    ADD CONSTRAINT landing_affiliates_content_affiliates_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_affiliates_content landing_affiliates_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_affiliates_content
+    ADD CONSTRAINT landing_affiliates_content_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_faq_content_faqs landing_faq_content_faqs_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_faq_content_faqs
+    ADD CONSTRAINT landing_faq_content_faqs_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_faq_content landing_faq_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_faq_content
+    ADD CONSTRAINT landing_faq_content_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_features_content_benefits landing_features_content_benefits_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_features_content_benefits
+    ADD CONSTRAINT landing_features_content_benefits_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_features_content landing_features_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_features_content
+    ADD CONSTRAINT landing_features_content_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_hero_content landing_hero_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_hero_content
+    ADD CONSTRAINT landing_hero_content_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_menus landing_menus_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_menus
+    ADD CONSTRAINT landing_menus_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_moments_content landing_moments_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_moments_content
+    ADD CONSTRAINT landing_moments_content_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_moments_content_images landing_moments_content_images_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_moments_content_images
+    ADD CONSTRAINT landing_moments_content_images_pkey PRIMARY KEY (image_id);
+
+
+--
+-- Name: landing_package_detail_items landing_package_detail_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_package_detail_items
+    ADD CONSTRAINT landing_package_detail_items_pkey PRIMARY KEY (landing_package_detail_id, landing_package_item_id);
+
+
+--
+-- Name: landing_package_details landing_package_details_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_package_details
+    ADD CONSTRAINT landing_package_details_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_package_items landing_package_items_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_package_items
+    ADD CONSTRAINT landing_package_items_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_packages_content landing_packages_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_packages_content
+    ADD CONSTRAINT landing_packages_content_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_section_headers landing_section_headers_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_section_headers
+    ADD CONSTRAINT landing_section_headers_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_single_package_content landing_single_package_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_single_package_content
+    ADD CONSTRAINT landing_single_package_content_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2253,6 +3401,14 @@ ALTER TABLE ONLY public.package_sessions
 
 ALTER TABLE ONLY public.packages
     ADD CONSTRAINT packages_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_id_pkey PRIMARY KEY (id);
 
 
 --
@@ -2375,6 +3531,20 @@ CREATE UNIQUE INDEX packages_slug_unique ON public.packages USING btree (upper((
 
 
 --
+-- Name: users_email_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_email_unique ON public.users USING btree (upper((email)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: users_phone_number_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_phone_number_unique ON public.users USING btree (upper((phone_number)::text)) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: addon_categories delete_addon_on_category_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2407,6 +3577,20 @@ CREATE TRIGGER delete_flight_on_departure_airport_soft_deleted BEFORE UPDATE ON 
 --
 
 CREATE TRIGGER delete_flight_route_on_flight_soft_deleted BEFORE UPDATE ON public.flights FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_flight_route_on_flight_soft_deleted();
+
+
+--
+-- Name: hotels delete_hotel_image_on_hotel_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_hotel_image_on_hotel_soft_deleted BEFORE UPDATE ON public.hotels FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_hotel_image_on_hotel_soft_deleted();
+
+
+--
+-- Name: images delete_hotel_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_hotel_image_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_hotel_image_on_image_soft_deleted();
 
 
 --
@@ -2466,6 +3650,34 @@ CREATE TRIGGER delete_itinerary_widget_recommendation_image_on_itinerary_widge B
 
 
 --
+-- Name: images delete_landing_moments_content_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_landing_moments_content_image_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_landing_moments_content_image_on_image_soft_deleted();
+
+
+--
+-- Name: landing_package_details delete_landing_package_detail_item_on_landing_package_detail_so; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_landing_package_detail_item_on_landing_package_detail_so BEFORE UPDATE ON public.landing_package_details FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_landing_package_detail_item_on_landing_package_detail_so();
+
+
+--
+-- Name: landing_package_items delete_landing_package_detail_item_on_landing_package_item_soft; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_landing_package_detail_item_on_landing_package_item_soft BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_landing_package_detail_item_on_landing_package_item_soft();
+
+
+--
+-- Name: packages delete_landing_package_item_on_package_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_landing_package_item_on_package_soft_deleted BEFORE UPDATE ON public.packages FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_landing_package_item_on_package_soft_deleted();
+
+
+--
 -- Name: images delete_package_image_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2512,6 +3724,55 @@ CREATE TRIGGER delete_package_session_on_embarkation_soft_deleted BEFORE UPDATE 
 --
 
 CREATE TRIGGER delete_package_session_on_package_soft_deleted BEFORE UPDATE ON public.packages FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_package_session_on_package_soft_deleted();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_package_detail_if_landing_packages_conte; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_package_detail_if_landing_packages_conte BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_package_detail_if_landing_packages_conte();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_section_header_if_landing_affiliates_con; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_affiliates_con BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_affiliates_con();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_section_header_if_landing_faq_content_ex; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_faq_content_ex BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_faq_content_ex();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_section_header_if_landing_features_conte; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_features_conte BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_features_conte();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_section_header_if_landing_moments_conten; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_moments_conten BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_moments_conten();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_section_header_if_landing_package_detail; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_package_detail BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_package_detail();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_section_header_if_landing_single_package; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_single_package BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_single_package();
 
 
 --
@@ -2568,6 +3829,20 @@ CREATE TRIGGER prevent_insert_flight_route_if_next_is_soft_deleted BEFORE INSERT
 --
 
 CREATE TRIGGER prevent_insert_guide_if_avatar_is_soft_deleted BEFORE INSERT OR UPDATE ON public.guides FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_guide_if_avatar_is_soft_deleted();
+
+
+--
+-- Name: hotel_images prevent_insert_hotel_image_if_hotel_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_hotel_image_if_hotel_is_soft_deleted BEFORE INSERT OR UPDATE ON public.hotel_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_hotel_image_if_hotel_is_soft_deleted();
+
+
+--
+-- Name: hotel_images prevent_insert_hotel_image_if_image_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_hotel_image_if_image_is_soft_deleted BEFORE INSERT OR UPDATE ON public.hotel_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_hotel_image_if_image_is_soft_deleted();
 
 
 --
@@ -2690,6 +3965,111 @@ CREATE TRIGGER prevent_insert_itinerary_widget_recommendation_image_if_itinera B
 
 
 --
+-- Name: landing_affiliates_content_affiliates prevent_insert_landing_affiliates_content_affiliates_if_image_i; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_affiliates_content_affiliates_if_image_i BEFORE INSERT OR UPDATE ON public.landing_affiliates_content_affiliates FOR EACH ROW WHEN ((new.logo_id IS NOT NULL)) EXECUTE FUNCTION public.prevent_insert_landing_affiliates_content_affiliates_if_image_i();
+
+
+--
+-- Name: landing_affiliates_content prevent_insert_landing_affiliates_content_if_landing_section_he; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_affiliates_content_if_landing_section_he BEFORE INSERT OR UPDATE ON public.landing_affiliates_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_affiliates_content_if_landing_section_he();
+
+
+--
+-- Name: landing_faq_content prevent_insert_landing_faq_content_if_landing_section_header_is; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_faq_content_if_landing_section_header_is BEFORE INSERT OR UPDATE ON public.landing_faq_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_faq_content_if_landing_section_header_is();
+
+
+--
+-- Name: landing_features_content_benefits prevent_insert_landing_features_content_benefits_if_image_is_so; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_features_content_benefits_if_image_is_so BEFORE INSERT OR UPDATE ON public.landing_features_content_benefits FOR EACH ROW WHEN ((new.logo_id IS NOT NULL)) EXECUTE FUNCTION public.prevent_insert_landing_features_content_benefits_if_image_is_so();
+
+
+--
+-- Name: landing_features_content prevent_insert_landing_features_content_if_landing_section_head; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_features_content_if_landing_section_head BEFORE INSERT OR UPDATE ON public.landing_features_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_features_content_if_landing_section_head();
+
+
+--
+-- Name: landing_hero_content prevent_insert_landing_hero_content_if_image_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_hero_content_if_image_is_soft_deleted BEFORE INSERT OR UPDATE ON public.landing_hero_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_hero_content_if_image_is_soft_deleted();
+
+
+--
+-- Name: landing_moments_content prevent_insert_landing_moments_content_if_landing_section_heade; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_moments_content_if_landing_section_heade BEFORE INSERT OR UPDATE ON public.landing_moments_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_moments_content_if_landing_section_heade();
+
+
+--
+-- Name: landing_moments_content_images prevent_insert_landing_moments_content_image_if_image_is_soft_d; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_moments_content_image_if_image_is_soft_d BEFORE INSERT OR UPDATE ON public.landing_moments_content_images FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_moments_content_image_if_image_is_soft_d();
+
+
+--
+-- Name: landing_package_details prevent_insert_landing_package_detail_if_landing_section_header; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_package_detail_if_landing_section_header BEFORE INSERT OR UPDATE ON public.landing_package_details FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_package_detail_if_landing_section_header();
+
+
+--
+-- Name: landing_package_detail_items prevent_insert_landing_package_detail_item_if_landing_package_d; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_package_detail_item_if_landing_package_d BEFORE INSERT OR UPDATE ON public.landing_package_detail_items FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_package_detail_item_if_landing_package_d();
+
+
+--
+-- Name: landing_package_detail_items prevent_insert_landing_package_detail_item_if_landing_package_i; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_package_detail_item_if_landing_package_i BEFORE INSERT OR UPDATE ON public.landing_package_detail_items FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_package_detail_item_if_landing_package_i();
+
+
+--
+-- Name: landing_package_items prevent_insert_landing_package_item_if_package_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_package_item_if_package_is_soft_deleted BEFORE INSERT OR UPDATE ON public.landing_package_items FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_package_item_if_package_is_soft_deleted();
+
+
+--
+-- Name: landing_packages_content prevent_insert_landing_packages_content_if_landing_package_deta; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_packages_content_if_landing_package_deta BEFORE INSERT OR UPDATE ON public.landing_packages_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_packages_content_if_landing_package_deta();
+
+
+--
+-- Name: landing_single_package_content prevent_insert_landing_single_package_content_if_landing_packag; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_single_package_content_if_landing_packag BEFORE INSERT OR UPDATE ON public.landing_single_package_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_single_package_content_if_landing_packag();
+
+
+--
+-- Name: landing_single_package_content prevent_insert_landing_single_package_content_if_landing_sectio; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_single_package_content_if_landing_sectio BEFORE INSERT OR UPDATE ON public.landing_single_package_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_single_package_content_if_landing_sectio();
+
+
+--
 -- Name: packages prevent_insert_package_if_thumbnail_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2792,6 +4172,34 @@ CREATE TRIGGER set_hotel_id_null_on_hotel_soft_deleted BEFORE UPDATE ON public.i
 --
 
 CREATE TRIGGER set_information_id_null_on_information_soft_deleted BEFORE UPDATE ON public.itinerary_widget_informations FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_information_id_null_on_information_soft_deleted();
+
+
+--
+-- Name: images set_landing_affiliates_content_affiliates_logo_id_null_on_image; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_landing_affiliates_content_affiliates_logo_id_null_on_image BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_landing_affiliates_content_affiliates_logo_id_null_on_image();
+
+
+--
+-- Name: images set_landing_features_content_benefits_logo_id_null_on_image_sof; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_landing_features_content_benefits_logo_id_null_on_image_sof BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_landing_features_content_benefits_logo_id_null_on_image_sof();
+
+
+--
+-- Name: images set_landing_hero_content_image_id_null_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_landing_hero_content_image_id_null_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_landing_hero_content_image_id_null_on_image_soft_deleted();
+
+
+--
+-- Name: landing_package_items set_landing_single_package_content_landing_package_item_id_null; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_landing_single_package_content_landing_package_item_id_null BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_landing_single_package_content_landing_package_item_id_null();
 
 
 --
@@ -2926,6 +4334,22 @@ ALTER TABLE ONLY public.flights
 
 ALTER TABLE ONLY public.guides
     ADD CONSTRAINT guides_avatar_id_fkey FOREIGN KEY (avatar_id) REFERENCES public.images(id);
+
+
+--
+-- Name: hotel_images hotel_images_hotel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotel_images
+    ADD CONSTRAINT hotel_images_hotel_id_fkey FOREIGN KEY (hotel_id) REFERENCES public.hotels(id);
+
+
+--
+-- Name: hotel_images hotel_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.hotel_images
+    ADD CONSTRAINT hotel_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
 
 
 --
@@ -3065,6 +4489,158 @@ ALTER TABLE ONLY public.itinerary_widgets
 
 
 --
+-- Name: landing_affiliates_content_affiliates landing_affiliates_content_affiliates_logo_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_affiliates_content_affiliates
+    ADD CONSTRAINT landing_affiliates_content_affiliates_logo_id_fkey FOREIGN KEY (logo_id) REFERENCES public.images(id);
+
+
+--
+-- Name: landing_affiliates_content landing_affiliates_content_landing_section_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_affiliates_content
+    ADD CONSTRAINT landing_affiliates_content_landing_section_header_id_fkey FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
+-- Name: landing_faq_content landing_faq_content_landing_section_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_faq_content
+    ADD CONSTRAINT landing_faq_content_landing_section_header_id_fkey FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
+-- Name: landing_features_content_benefits landing_features_content_benefits_logo_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_features_content_benefits
+    ADD CONSTRAINT landing_features_content_benefits_logo_id_fkey FOREIGN KEY (logo_id) REFERENCES public.images(id);
+
+
+--
+-- Name: landing_features_content landing_features_content_landing_section_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_features_content
+    ADD CONSTRAINT landing_features_content_landing_section_header_id_fkey FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
+-- Name: landing_hero_content landing_hero_content_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_hero_content
+    ADD CONSTRAINT landing_hero_content_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: landing_moments_content_images landing_moments_content_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_moments_content_images
+    ADD CONSTRAINT landing_moments_content_images_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: landing_moments_content landing_moments_content_landing_section_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_moments_content
+    ADD CONSTRAINT landing_moments_content_landing_section_header_id_fkey FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
+-- Name: landing_package_detail_items landing_package_detail_items_landing_package_detail_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_package_detail_items
+    ADD CONSTRAINT landing_package_detail_items_landing_package_detail_id_fkey FOREIGN KEY (landing_package_detail_id) REFERENCES public.landing_package_details(id);
+
+
+--
+-- Name: landing_package_detail_items landing_package_detail_items_landing_package_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_package_detail_items
+    ADD CONSTRAINT landing_package_detail_items_landing_package_item_id_fkey FOREIGN KEY (landing_package_item_id) REFERENCES public.landing_package_items(id);
+
+
+--
+-- Name: landing_package_details landing_package_details_landing_section_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_package_details
+    ADD CONSTRAINT landing_package_details_landing_section_header_id_fkey FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
+-- Name: landing_package_items landing_package_items_package_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_package_items
+    ADD CONSTRAINT landing_package_items_package_id_fkey FOREIGN KEY (package_id) REFERENCES public.packages(id);
+
+
+--
+-- Name: landing_packages_content landing_packages_content_gold_landing_package_detail_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_packages_content
+    ADD CONSTRAINT landing_packages_content_gold_landing_package_detail_id_fkey FOREIGN KEY (gold_landing_package_detail_id) REFERENCES public.landing_package_details(id);
+
+
+--
+-- Name: landing_packages_content landing_packages_content_platinum_landing_package_detail_id_fke; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_packages_content
+    ADD CONSTRAINT landing_packages_content_platinum_landing_package_detail_id_fke FOREIGN KEY (platinum_landing_package_detail_id) REFERENCES public.landing_package_details(id);
+
+
+--
+-- Name: landing_packages_content landing_packages_content_silver_landing_package_detail_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_packages_content
+    ADD CONSTRAINT landing_packages_content_silver_landing_package_detail_id_fkey FOREIGN KEY (silver_landing_package_detail_id) REFERENCES public.landing_package_details(id);
+
+
+--
+-- Name: landing_single_package_content landing_single_package_content_gold_landing_package_item_id_fke; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_single_package_content
+    ADD CONSTRAINT landing_single_package_content_gold_landing_package_item_id_fke FOREIGN KEY (gold_landing_package_item_id) REFERENCES public.landing_package_items(id);
+
+
+--
+-- Name: landing_single_package_content landing_single_package_content_landing_section_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_single_package_content
+    ADD CONSTRAINT landing_single_package_content_landing_section_header_id_fkey FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
+-- Name: landing_single_package_content landing_single_package_content_platinum_landing_package_item_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_single_package_content
+    ADD CONSTRAINT landing_single_package_content_platinum_landing_package_item_id FOREIGN KEY (platinum_landing_package_item_id) REFERENCES public.landing_package_items(id);
+
+
+--
+-- Name: landing_single_package_content landing_single_package_content_silver_landing_package_item_id_f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_single_package_content
+    ADD CONSTRAINT landing_single_package_content_silver_landing_package_item_id_f FOREIGN KEY (silver_landing_package_item_id) REFERENCES public.landing_package_items(id);
+
+
+--
 -- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3180,4 +4756,8 @@ INSERT INTO public.migrations (version) VALUES
     ('20250303092458'),
     ('20250304061836'),
     ('20250305052727'),
-    ('20250305060747');
+    ('20250305060747'),
+    ('20250313123300'),
+    ('20250314090911'),
+    ('20250319163517'),
+    ('20250320052404');

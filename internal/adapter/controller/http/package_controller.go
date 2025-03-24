@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/adapter/controller/http/schema"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/dto"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/service"

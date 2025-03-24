@@ -5,7 +5,9 @@ import "fmt"
 const (
 	mustBeNotEmpty = "Must be not empty"
 
-	invalidUrl = "Invalid URL"
+	invalidUrl         = "Invalid URL"
+	invalidPhoneNumber = "Invalid phone number"
+	invalidEmail       = "Invalid email"
 )
 
 func invalidDate(format string) string {

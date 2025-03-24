@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/mapper"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/validator"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driven/repository"
@@ -15,17 +15,21 @@ type hotelServiceImpl struct {
 	hotelRepository repository.HotelRepository
 	hotelValidator  validator.HotelValidator
 	hotelMapper     mapper.HotelMapper
+
+	unitOfWork repository.UnitOfWork
 }
 
 func NewHotelService(
 	hotelRepository repository.HotelRepository,
 	hotelValidator validator.HotelValidator,
 	hotelMapper mapper.HotelMapper,
+	unitOfWork repository.UnitOfWork,
 ) serviceport.HotelService {
 	return hotelServiceImpl{
 		hotelRepository,
 		hotelValidator,
 		hotelMapper,
+		unitOfWork,
 	}
 }
 
@@ -38,14 +42,30 @@ func (s hotelServiceImpl) CreateHotel(ctx context.Context, request dto.HotelRequ
 	// Map request into entity
 	hotelEntity := s.hotelMapper.MapRequestToEntity(ctx, request)
 
-	// Create entity with repository
-	hotelEntity, err := s.hotelRepository.Create(ctx, hotelEntity)
-	if err != nil {
-		return dto.HotelResponse{}, err
-	}
+	// Create response
+	response := dto.HotelResponse{}
 
-	// Map entity into response
-	response := s.hotelMapper.MapEntityToResponse(ctx, hotelEntity)
+	// Start transaction with unit of work
+	err := s.unitOfWork.Do(ctx, func(ctx context.Context, factory repository.Factory) error {
+		// Create hotel repository
+		hotelRepository := factory.NewHotelRepository()
+
+		// Create entity with repository
+		hotelEntity, err := hotelRepository.Create(ctx, hotelEntity)
+		if err != nil {
+			return err
+		}
+
+		// Create images with repository
+		if _, err = hotelRepository.AttachImages(ctx, hotelEntity.Id, request.Images); err != nil {
+			return err
+		}
+
+		// Map entity into response
+		response, err = s.hotelMapper.MapEntityToResponse(ctx, hotelRepository, hotelEntity)
+
+		return err
+	})
 
 	return response, err
 }
@@ -63,7 +83,10 @@ func (s hotelServiceImpl) GetHotelById(ctx context.Context, id int64) (dto.Hotel
 	}
 
 	// Map entity into response
-	response := s.hotelMapper.MapEntityToResponse(ctx, hotelEntity)
+	response, err := s.hotelMapper.MapEntityToResponse(ctx, s.hotelRepository, hotelEntity)
+	if err != nil {
+		return dto.HotelResponse{}, err
+	}
 
 	return response, nil
 }
@@ -84,7 +107,10 @@ func (s hotelServiceImpl) GetAllHotel(ctx context.Context, request dto.GetAllHot
 	}
 
 	// Map entities into responses
-	responses := s.hotelMapper.MapEntitiesToResponses(ctx, hotelEntities)
+	responses, err := s.hotelMapper.MapEntitiesToResponses(ctx, s.hotelRepository, hotelEntities)
+	if err != nil {
+		return nil, err
+	}
 
 	return responses, nil
 }
@@ -103,14 +129,35 @@ func (s hotelServiceImpl) UpdateHotel(ctx context.Context, id int64, request dto
 	// Map request into entity
 	hotelEntity := s.hotelMapper.MapRequestToEntity(ctx, request)
 
-	// Update entity with repository
-	hotelEntity, err := s.hotelRepository.Update(ctx, id, hotelEntity)
-	if err != nil {
-		return dto.HotelResponse{}, err
-	}
+	// Create response
+	response := dto.HotelResponse{}
 
-	// Map entity into response
-	response := s.hotelMapper.MapEntityToResponse(ctx, hotelEntity)
+	// Start transaction with unit of work
+	err := s.unitOfWork.Do(ctx, func(ctx context.Context, factory repository.Factory) error {
+		// Create hotel repository
+		hotelRepository := factory.NewHotelRepository()
+
+		// Update entity with repository
+		hotelEntity, err := hotelRepository.Update(ctx, id, hotelEntity)
+		if err != nil {
+			return err
+		}
+
+		// Delete images with repository
+		if _, err := hotelRepository.DetachImages(ctx, hotelEntity.Id); err != nil {
+			return err
+		}
+
+		// Create images with repository
+		if _, err = hotelRepository.AttachImages(ctx, hotelEntity.Id, request.Images); err != nil {
+			return err
+		}
+
+		// Map entity into response
+		response, err = s.hotelMapper.MapEntityToResponse(ctx, hotelRepository, hotelEntity)
+
+		return err
+	})
 
 	return response, err
 }
@@ -128,7 +175,10 @@ func (s hotelServiceImpl) DeleteHotel(ctx context.Context, id int64) (dto.HotelR
 	}
 
 	// Map entity into response
-	response := s.hotelMapper.MapEntityToResponse(ctx, hotelEntity)
+	response, err := s.hotelMapper.MapEntityToResponse(ctx, s.hotelRepository, hotelEntity)
+	if err != nil {
+		return dto.HotelResponse{}, err
+	}
 
 	return response, err
 }

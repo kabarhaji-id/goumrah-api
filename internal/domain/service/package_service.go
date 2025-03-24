@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/mapper"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/validator"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driven/repository"
@@ -183,11 +183,8 @@ func (s packageServiceImpl) UpdatePackage(ctx context.Context, id int64, request
 			packageRepository,
 			packageEntity,
 		)
-		if err != nil {
-			return err
-		}
 
-		return nil
+		return err
 	})
 
 	return response, err

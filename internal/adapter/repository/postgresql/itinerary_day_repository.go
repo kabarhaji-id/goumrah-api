@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"context"
-	"log"
 
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driven/repository"
@@ -18,7 +17,6 @@ func NewItineraryDayRepository(db DB) repository.ItineraryDayRepository {
 }
 
 func (r itineraryDayRepositoryPostgresql) Create(ctx context.Context, itineraryDay entity.ItineraryDay) (entity.ItineraryDay, error) {
-	log.Println(itineraryDay)
 	builder := sqlbuilder.New().
 		S(`INSERT INTO "itinerary_days" ("title", "description", "widget_id", "next_id", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, $3, $4, NOW(), NOW(), NULL)`, itineraryDay.Title, itineraryDay.Description, itineraryDay.WidgetId, itineraryDay.NextId).

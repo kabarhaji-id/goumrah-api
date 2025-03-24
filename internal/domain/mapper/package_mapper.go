@@ -3,7 +3,7 @@ package mapper
 import (
 	"context"
 
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driven/repository"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/dto"

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/mapper"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/validator"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driven/repository"

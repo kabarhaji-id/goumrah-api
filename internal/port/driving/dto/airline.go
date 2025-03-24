@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
 )
 
