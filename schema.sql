@@ -2962,7 +2962,16 @@ CREATE TABLE public.package_sessions (
     departure_flight_route_id bigint,
     return_flight_route_id bigint,
     bus_id bigint,
-    itinerary_id bigint
+    itinerary_id bigint,
+    double_price numeric(10,2) DEFAULT 0 NOT NULL,
+    double_final_price numeric(10,2) DEFAULT NULL::numeric,
+    triple_price numeric(10,2) DEFAULT 0 NOT NULL,
+    triple_final_price numeric(10,2) DEFAULT NULL::numeric,
+    quad_price numeric(10,2) DEFAULT 0 NOT NULL,
+    quad_final_price numeric(10,2) DEFAULT NULL::numeric,
+    infant_price numeric(10,2) DEFAULT NULL::numeric,
+    infant_final_price numeric(10,2) DEFAULT NULL::numeric,
+    quota integer DEFAULT 0 NOT NULL
 );
 
 
@@ -4772,4 +4781,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250325065013'),
     ('20250325070426'),
     ('20250325070655'),
-    ('20250325071654');
+    ('20250325071654'),
+    ('20250325074422');

@@ -27,9 +27,18 @@ func (PackageSessionMapper) MapRequestToEntity(ctx context.Context, request dto.
 	departureDate, _ := time.Parse("02/01/2006", request.DepartureDate)
 
 	return entity.PackageSession{
-		EmbarkationId: request.Embarkation,
-		DepartureDate: departureDate,
-		BusId:         request.Bus,
+		EmbarkationId:    request.Embarkation,
+		DepartureDate:    departureDate,
+		Quota:            request.Quota,
+		DoublePrice:      request.DoublePrice,
+		DoubleFinalPrice: request.QuadFinalPrice,
+		TriplePrice:      request.TriplePrice,
+		TripleFinalPrice: request.TripleFinalPrice,
+		QuadPrice:        request.QuadPrice,
+		QuadFinalPrice:   request.QuadFinalPrice,
+		InfantPrice:      request.InfantPrice,
+		InfantFinalPrice: request.InfantFinalPrice,
+		BusId:            request.Bus,
 	}
 }
 
@@ -174,6 +183,15 @@ func (m PackageSessionMapper) MapEntityToResponse(
 		Package:          packageSessionEntity.PackageId,
 		Embarkation:      embarkationResponse,
 		DepartureDate:    packageSessionEntity.DepartureDate,
+		Quota:            packageSessionEntity.Quota,
+		DoublePrice:      packageSessionEntity.DoublePrice,
+		DoubleFinalPrice: packageSessionEntity.DoubleFinalPrice,
+		TriplePrice:      packageSessionEntity.TriplePrice,
+		TripleFinalPrice: packageSessionEntity.TripleFinalPrice,
+		QuadPrice:        packageSessionEntity.QuadPrice,
+		QuadFinalPrice:   packageSessionEntity.QuadFinalPrice,
+		InfantPrice:      packageSessionEntity.InfantPrice,
+		InfantFinalPrice: packageSessionEntity.InfantFinalPrice,
 		DepartureFlights: departureFlightResponses,
 		ReturnFlights:    returnFlightResponses,
 		Guides:           guideResponses,

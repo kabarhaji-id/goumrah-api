@@ -10,6 +10,15 @@ import (
 type PackageSessionRequest struct {
 	Embarkation      int64              `json:"embarkation"`
 	DepartureDate    string             `json:"departure_date"`
+	Quota            int                `json:"quota"`
+	DoublePrice      float64            `json:"double_price"`
+	DoubleFinalPrice null.Float         `json:"double_final_price"`
+	TriplePrice      float64            `json:"triple_price"`
+	TripleFinalPrice null.Float         `json:"triple_final_price"`
+	QuadPrice        float64            `json:"quad_price"`
+	QuadFinalPrice   null.Float         `json:"quad_final_price"`
+	InfantPrice      null.Float         `json:"infant_price"`
+	InfantFinalPrice null.Float         `json:"infant_final_price"`
 	DepartureFlights []int64            `json:"departure_flights"`
 	ReturnFlights    []int64            `json:"return_flights"`
 	Guides           []int64            `json:"guides"`
@@ -26,6 +35,15 @@ func (r PackageSessionRequest) ToDtoRequest() dto.PackageSessionRequest {
 	return dto.PackageSessionRequest{
 		Embarkation:      r.Embarkation,
 		DepartureDate:    r.DepartureDate,
+		Quota:            r.Quota,
+		DoublePrice:      r.DoublePrice,
+		DoubleFinalPrice: r.DoubleFinalPrice,
+		TriplePrice:      r.TriplePrice,
+		TripleFinalPrice: r.TripleFinalPrice,
+		QuadPrice:        r.QuadPrice,
+		QuadFinalPrice:   r.QuadFinalPrice,
+		InfantPrice:      r.InfantPrice,
+		InfantFinalPrice: r.InfantFinalPrice,
 		DepartureFlights: r.DepartureFlights,
 		ReturnFlights:    r.ReturnFlights,
 		Guides:           r.Guides,
@@ -48,6 +66,15 @@ type PackageSessionResponse struct {
 	Package          int64               `json:"package"`
 	Embarkation      EmbarkationResponse `json:"embarkation"`
 	DepartureDate    time.Time           `json:"departure_date"`
+	Quota            int                 `json:"quota"`
+	DoublePrice      float64             `json:"double_price"`
+	DoubleFinalPrice null.Float          `json:"double_final_price"`
+	TriplePrice      float64             `json:"triple_price"`
+	TripleFinalPrice null.Float          `json:"triple_final_price"`
+	QuadPrice        float64             `json:"quad_price"`
+	QuadFinalPrice   null.Float          `json:"quad_final_price"`
+	InfantPrice      null.Float          `json:"infant_price"`
+	InfantFinalPrice null.Float          `json:"infant_final_price"`
 	DepartureFlights []FlightResponse    `json:"departure_flights"`
 	ReturnFlights    []FlightResponse    `json:"return_flights"`
 	Guides           []GuideResponse     `json:"guides"`
@@ -71,6 +98,15 @@ func NewPackageSessionResponse(dtoResponse dto.PackageSessionResponse) PackageSe
 		Package:          dtoResponse.Id,
 		Embarkation:      embarkation,
 		DepartureDate:    dtoResponse.DepartureDate,
+		Quota:            dtoResponse.Quota,
+		DoublePrice:      dtoResponse.DoublePrice,
+		DoubleFinalPrice: dtoResponse.DoubleFinalPrice,
+		TriplePrice:      dtoResponse.TriplePrice,
+		TripleFinalPrice: dtoResponse.TripleFinalPrice,
+		QuadPrice:        dtoResponse.QuadPrice,
+		QuadFinalPrice:   dtoResponse.QuadFinalPrice,
+		InfantPrice:      dtoResponse.InfantPrice,
+		InfantFinalPrice: dtoResponse.InfantFinalPrice,
 		DepartureFlights: departureFlights,
 		ReturnFlights:    returnFlights,
 		Guides:           guides,
