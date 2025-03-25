@@ -2993,7 +2993,8 @@ CREATE TABLE public.packages (
     slug character varying(105) NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    fast_train boolean DEFAULT false
 );
 
 
@@ -4770,4 +4771,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250325063543'),
     ('20250325065013'),
     ('20250325070426'),
-    ('20250325070655');
+    ('20250325070655'),
+    ('20250325071654');

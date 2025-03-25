@@ -18,12 +18,12 @@ func NewPackageRepository(db DB) repository.PackageRepository {
 
 func (r packageRepositoryPostgresql) Create(ctx context.Context, pkg entity.Package) (entity.Package, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "packages" ("thumbnail_id", "name", "category", "type", "slug", "created_at", "updated_at", "deleted_at")`).
-		S(`VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)`, pkg.ThumbnailId, pkg.Name, pkg.Category, pkg.Type, pkg.Slug).
-		S(`RETURNING "id", "thumbnail_id", "name", "category", "type", "slug", "created_at", "updated_at", "deleted_at"`)
+		S(`INSERT INTO "packages" ("thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at")`).
+		S(`VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)`, pkg.ThumbnailId, pkg.Name, pkg.Category, pkg.Type, pkg.FastTrain, pkg.Slug).
+		S(`RETURNING "id", "thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.Slug,
+		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.FastTrain, &pkg.Slug,
 		&pkg.CreatedAt, &pkg.UpdatedAt, &pkg.DeletedAt,
 	)
 
@@ -34,11 +34,11 @@ func (r packageRepositoryPostgresql) FindById(ctx context.Context, id int64) (en
 	pkg := entity.Package{}
 
 	builder := sqlbuilder.New().
-		S(`SELECT "id", "thumbnail_id", "name", "category", "type", "slug", "created_at", "updated_at", "deleted_at"`).
+		S(`SELECT "id", "thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "packages" WHERE "id" = $1 AND "deleted_at" IS NULL`, id)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.Slug,
+		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.FastTrain, &pkg.Slug,
 		&pkg.CreatedAt, &pkg.UpdatedAt, &pkg.DeletedAt,
 	)
 
@@ -49,7 +49,7 @@ func (r packageRepositoryPostgresql) FindAll(ctx context.Context, opt repository
 	packages := []entity.Package{}
 
 	builder := sqlbuilder.New().
-		S(`SELECT "id", "thumbnail_id", "name", "category", "type", "slug", "created_at", "updated_at", "deleted_at"`).
+		S(`SELECT "id", "thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "packages" WHERE "deleted_at" IS NULL`).
 		S(`ORDER BY "id" ASC`)
 	if opt.Limit.Valid {
@@ -67,7 +67,7 @@ func (r packageRepositoryPostgresql) FindAll(ctx context.Context, opt repository
 	for rows.Next() {
 		pkg := entity.Package{}
 		err = rows.Scan(
-			&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.Slug,
+			&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.FastTrain, &pkg.Slug,
 			&pkg.CreatedAt, &pkg.UpdatedAt, &pkg.DeletedAt,
 		)
 		if err != nil {
@@ -83,14 +83,14 @@ func (r packageRepositoryPostgresql) FindAll(ctx context.Context, opt repository
 func (r packageRepositoryPostgresql) Update(ctx context.Context, id int64, pkg entity.Package) (entity.Package, error) {
 	builder := sqlbuilder.New().
 		S(
-			`UPDATE "packages" SET "thumbnail_id" = $1, "name" = $2, "category" = $3, "type" = $4, "slug" = $5, "updated_at" = NOW()`,
-			pkg.ThumbnailId, pkg.Name, pkg.Category, pkg.Type, pkg.Slug,
+			`UPDATE "packages" SET "thumbnail_id" = $1, "name" = $2, "category" = $3, "type" = $4, "fast_train" = $5, "slug" = $6, "updated_at" = NOW()`,
+			pkg.ThumbnailId, pkg.Name, pkg.Category, pkg.Type, pkg.FastTrain, pkg.Slug,
 		).
-		S(`WHERE "id" = $6 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "thumbnail_id", "name", "category", "type", "slug", "created_at", "updated_at", "deleted_at"`)
+		S(`WHERE "id" = $7 AND "deleted_at" IS NULL`, id).
+		S(`RETURNING "id", "thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.Slug,
+		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.FastTrain, &pkg.Slug,
 		&pkg.CreatedAt, &pkg.UpdatedAt, &pkg.DeletedAt,
 	)
 
@@ -103,10 +103,10 @@ func (r packageRepositoryPostgresql) Delete(ctx context.Context, id int64) (enti
 	builder := sqlbuilder.New().
 		S(`UPDATE "packages" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "thumbnail_id", "name", "category", "type", "slug", "created_at", "updated_at", "deleted_at"`)
+		S(`RETURNING "id", "thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.Slug,
+		&pkg.Id, &pkg.ThumbnailId, &pkg.Name, &pkg.Category, &pkg.Type, &pkg.FastTrain, &pkg.Slug,
 		&pkg.CreatedAt, &pkg.UpdatedAt, &pkg.DeletedAt,
 	)
 

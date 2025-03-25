@@ -12,6 +12,7 @@ type PackageRequest struct {
 	Name      string
 	Category  entity.PackageCategory
 	Type      entity.PackageType
+	FastTrain bool
 	Images    []int64
 }
 
@@ -26,6 +27,7 @@ type PackageResponse struct {
 	Name      string
 	Category  entity.PackageCategory
 	Type      entity.PackageType
+	FastTrain bool
 	Slug      string
 	Images    []ImageResponse
 
@@ -40,6 +42,7 @@ type PackageListResponse struct {
 	Name      string
 	Category  entity.PackageCategory
 	Type      entity.PackageType
+	FastTrain bool
 	Slug      string
 	Images    []int64
 

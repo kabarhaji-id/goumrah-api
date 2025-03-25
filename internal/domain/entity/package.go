@@ -28,6 +28,7 @@ type Package struct {
 	Name        string
 	Category    PackageCategory
 	Type        PackageType
+	FastTrain   bool
 	Slug        string
 
 	CreatedAt time.Time

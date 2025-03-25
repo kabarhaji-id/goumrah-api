@@ -28,6 +28,7 @@ func (PackageMapper) MapRequestToEntity(ctx context.Context, request dto.Package
 		Name:        request.Name,
 		Category:    request.Category,
 		Type:        request.Type,
+		FastTrain:   request.FastTrain,
 		Slug:        sluger.Slug(request.Name),
 	}
 }
@@ -60,6 +61,7 @@ func (m PackageMapper) MapEntityToResponse(
 		Name:      packageEntity.Name,
 		Category:  packageEntity.Category,
 		Type:      packageEntity.Type,
+		FastTrain: packageEntity.FastTrain,
 		Slug:      packageEntity.Slug,
 		Images:    imageResponses,
 		CreatedAt: packageEntity.CreatedAt,
@@ -95,6 +97,7 @@ func (m PackageMapper) MapEntityToListResponse(
 		Name:      packageEntity.Name,
 		Category:  packageEntity.Category,
 		Type:      packageEntity.Type,
+		FastTrain: packageEntity.FastTrain,
 		Slug:      packageEntity.Slug,
 		Images:    imageIds,
 		CreatedAt: packageEntity.CreatedAt,

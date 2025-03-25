@@ -41,6 +41,7 @@ type PackageResponse struct {
 	Name      string                    `json:"name"`
 	Category  string                    `json:"category"`
 	Type      string                    `json:"type"`
+	FastTrain bool                      `json:"fast_train"`
 	Slug      string                    `json:"slug"`
 	Images    []ImageResponse           `json:"images"`
 
@@ -65,6 +66,7 @@ func NewPackageResponse(dtoResponse dto.PackageResponse) PackageResponse {
 		Name:      dtoResponse.Name,
 		Category:  string(dtoResponse.Category),
 		Type:      string(dtoResponse.Type),
+		FastTrain: dtoResponse.FastTrain,
 		Slug:      dtoResponse.Slug,
 		Images:    images,
 		CreatedAt: dtoResponse.CreatedAt,
@@ -89,6 +91,7 @@ type PackageListResponse struct {
 	Name      string                    `json:"name"`
 	Category  string                    `json:"category"`
 	Type      string                    `json:"type"`
+	FastTrain bool                      `json:"fast_train"`
 	Slug      string                    `json:"slug"`
 	Images    []int64                   `json:"images"`
 
@@ -111,6 +114,7 @@ func NewPackageListResponse(dtoListResponse dto.PackageListResponse) PackageList
 		Name:      dtoListResponse.Name,
 		Category:  string(dtoListResponse.Category),
 		Type:      string(dtoListResponse.Type),
+		FastTrain: dtoListResponse.FastTrain,
 		Slug:      dtoListResponse.Slug,
 		Images:    dtoListResponse.Images,
 		CreatedAt: dtoListResponse.CreatedAt,
