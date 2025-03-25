@@ -18,12 +18,12 @@ func NewBusRepository(db DB) repository.BusRepository {
 
 func (r busRepositoryPostgresql) Create(ctx context.Context, bus entity.Bus) (entity.Bus, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "buses" ("name", "seat", "created_at", "updated_at", "deleted_at")`).
-		S(`VALUES ($1, $2, NOW(), NOW(), NULL)`, bus.Name, bus.Seat).
-		S(`RETURNING "id", "name", "seat", "created_at", "updated_at", "deleted_at"`)
+		S(`INSERT INTO "buses" ("name", "seat", "class", "created_at", "updated_at", "deleted_at")`).
+		S(`VALUES ($1, $2, $3, NOW(), NOW(), NULL)`, bus.Name, bus.Seat, bus.Class).
+		S(`RETURNING "id", "name", "seat", "class", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&bus.Id, &bus.Name, &bus.Seat,
+		&bus.Id, &bus.Name, &bus.Seat, &bus.Class,
 		&bus.CreatedAt, &bus.UpdatedAt, &bus.DeletedAt,
 	)
 
@@ -34,11 +34,11 @@ func (r busRepositoryPostgresql) FindById(ctx context.Context, id int64) (entity
 	bus := entity.Bus{}
 
 	builder := sqlbuilder.New().
-		S(`SELECT "id", "name", "seat", "created_at", "updated_at", "deleted_at"`).
+		S(`SELECT "id", "name", "seat", "class", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "buses" WHERE "id" = $1 AND "deleted_at" IS NULL`, id)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&bus.Id, &bus.Name, &bus.Seat,
+		&bus.Id, &bus.Name, &bus.Seat, &bus.Class,
 		&bus.CreatedAt, &bus.UpdatedAt, &bus.DeletedAt,
 	)
 
@@ -49,7 +49,7 @@ func (r busRepositoryPostgresql) FindAll(ctx context.Context, opt repository.Fin
 	buses := []entity.Bus{}
 
 	builder := sqlbuilder.New().
-		S(`SELECT "id", "name", "seat", "created_at", "updated_at", "deleted_at"`).
+		S(`SELECT "id", "name", "seat", "class", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "buses" WHERE "deleted_at" IS NULL`).
 		S(`ORDER BY "id" ASC`)
 	if opt.Limit.Valid {
@@ -67,7 +67,7 @@ func (r busRepositoryPostgresql) FindAll(ctx context.Context, opt repository.Fin
 	for rows.Next() {
 		bus := entity.Bus{}
 		err = rows.Scan(
-			&bus.Id, &bus.Name, &bus.Seat,
+			&bus.Id, &bus.Name, &bus.Seat, &bus.Class,
 			&bus.CreatedAt, &bus.UpdatedAt, &bus.DeletedAt,
 		)
 		if err != nil {
@@ -83,14 +83,14 @@ func (r busRepositoryPostgresql) FindAll(ctx context.Context, opt repository.Fin
 func (r busRepositoryPostgresql) Update(ctx context.Context, id int64, bus entity.Bus) (entity.Bus, error) {
 	builder := sqlbuilder.New().
 		S(
-			`UPDATE "buses" SET "name" = $1, "seat" = $2, "updated_at" = NOW()`,
-			bus.Name, bus.Seat,
+			`UPDATE "buses" SET "name" = $1, "seat" = $2, "class" = $3, "updated_at" = NOW()`,
+			bus.Name, bus.Seat, bus.Class,
 		).
-		S(`WHERE "id" = $3 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "seat", "created_at", "updated_at", "deleted_at"`)
+		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
+		S(`RETURNING "id", "name", "seat", "class", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&bus.Id, &bus.Name, &bus.Seat,
+		&bus.Id, &bus.Name, &bus.Seat, &bus.Class,
 		&bus.CreatedAt, &bus.UpdatedAt, &bus.DeletedAt,
 	)
 
@@ -103,10 +103,10 @@ func (r busRepositoryPostgresql) Delete(ctx context.Context, id int64) (entity.B
 	builder := sqlbuilder.New().
 		S(`UPDATE "buses" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "name", "seat", "created_at", "updated_at", "deleted_at"`)
+		S(`RETURNING "id", "name", "seat", "class", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&bus.Id, &bus.Name, &bus.Seat,
+		&bus.Id, &bus.Name, &bus.Seat, &bus.Class,
 		&bus.CreatedAt, &bus.UpdatedAt, &bus.DeletedAt,
 	)
 

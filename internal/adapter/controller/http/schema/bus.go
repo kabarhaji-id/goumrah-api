@@ -4,18 +4,21 @@ import (
 	"time"
 
 	"github.com/guregu/null/v6"
+	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/dto"
 )
 
 type BusRequest struct {
-	Name string `json:"name"`
-	Seat int    `json:"seat"`
+	Name  string `json:"name"`
+	Seat  int    `json:"seat"`
+	Class string `json:"class"`
 }
 
 func (r BusRequest) ToDtoRequest() dto.BusRequest {
 	return dto.BusRequest{
-		Name: r.Name,
-		Seat: r.Seat,
+		Name:  r.Name,
+		Seat:  r.Seat,
+		Class: entity.BusClass(r.Class),
 	}
 }
 
@@ -29,9 +32,10 @@ type BusParams struct {
 }
 
 type BusResponse struct {
-	Id   int64  `json:"id"`
-	Name string `json:"name"`
-	Seat int    `json:"seat"`
+	Id    int64  `json:"id"`
+	Name  string `json:"name"`
+	Seat  int    `json:"seat"`
+	Class string `json:"class"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -43,6 +47,7 @@ func NewBusResponse(dtoResponse dto.BusResponse) BusResponse {
 		Id:        dtoResponse.Id,
 		Name:      dtoResponse.Name,
 		Seat:      dtoResponse.Seat,
+		Class:     string(dtoResponse.Class),
 		CreatedAt: dtoResponse.CreatedAt,
 		UpdatedAt: dtoResponse.UpdatedAt,
 		DeletedAt: dtoResponse.DeletedAt,

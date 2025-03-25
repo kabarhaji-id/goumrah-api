@@ -10,6 +10,16 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: bus_class; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.bus_class AS ENUM (
+    'Economy',
+    'VIP'
+);
+
+
+--
 -- Name: flight_class; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -2000,7 +2010,8 @@ CREATE TABLE public.buses (
     seat integer NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    class public.bus_class DEFAULT 'Economy'::public.bus_class NOT NULL
 );
 
 
@@ -3444,10 +3455,10 @@ CREATE UNIQUE INDEX airports_name_unique ON public.airports USING btree (upper((
 
 
 --
--- Name: buses_name_unique; Type: INDEX; Schema: public; Owner: -
+-- Name: buses_name_class_unique; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX buses_name_unique ON public.buses USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+CREATE UNIQUE INDEX buses_name_class_unique ON public.buses USING btree (upper((name)::text), class) WHERE (deleted_at IS NULL);
 
 
 --
@@ -4757,4 +4768,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250313123300'),
     ('20250314090911'),
     ('20250319163517'),
-    ('20250320052404');
+    ('20250320052404'),
+    ('20250325063543');
