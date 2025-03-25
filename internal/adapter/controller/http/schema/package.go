@@ -13,6 +13,7 @@ type PackageRequest struct {
 	Name      string     `json:"name"`
 	Category  string     `json:"category"`
 	Type      string     `json:"type"`
+	FastTrain bool       `json:"fast_train"`
 	Images    []int64    `json:"images"`
 }
 
@@ -22,6 +23,7 @@ func (r PackageRequest) ToDtoRequest() dto.PackageRequest {
 		Name:      r.Name,
 		Category:  entity.PackageCategory(r.Category),
 		Type:      entity.PackageType(r.Type),
+		FastTrain: r.FastTrain,
 		Images:    r.Images,
 	}
 }
