@@ -57,9 +57,12 @@ func (m LandingMapper) mapPackageItemEntityToResponse(
 	}
 
 	packageSessionQuadEntity := packageSessionEntities[0]
-	// for _, packageSessionEntity := range packageSessionEntities[1:] {
-
-	// }
+	for _, packageSessionEntity := range packageSessionEntities[1:] {
+		if (packageSessionEntity.QuadFinalPrice.Valid && packageSessionQuadEntity.QuadFinalPrice.Valid && packageSessionEntity.QuadFinalPrice.Float64 < packageSessionQuadEntity.QuadFinalPrice.Float64) ||
+			(packageSessionEntity.QuadPrice < packageSessionQuadEntity.QuadPrice) {
+			packageSessionQuadEntity = packageSessionEntity
+		}
+	}
 
 	itineraryDayEntities := []entity.ItineraryDay{}
 	for itineraryId := null.NewInt(packageSessionQuadEntity.ItineraryId, true); itineraryId.Valid; {
@@ -172,7 +175,16 @@ func (m LandingMapper) mapPackageItemEntityToResponse(
 				Rating:  0,
 			},
 		},
-		Price:       dto.LandingPackageItemPriceResponse{},
+		Price: dto.LandingPackageItemPriceResponse{
+			DoublePrice:      packageSessionQuadEntity.DoublePrice,
+			DoubleFinalPrice: packageSessionQuadEntity.DoubleFinalPrice,
+			TriplePrice:      packageSessionQuadEntity.TriplePrice,
+			TripleFinalPrice: packageSessionQuadEntity.TripleFinalPrice,
+			QuadPrice:        packageSessionQuadEntity.QuadPrice,
+			QuadFinalPrice:   packageSessionQuadEntity.QuadFinalPrice,
+			InfantPrice:      packageSessionQuadEntity.InfantPrice,
+			InfantFinalPrice: packageSessionQuadEntity.InfantFinalPrice,
+		},
 		ButtonLabel: landingPackageItem.ButtonLabel,
 		Category:    packageEntity.Category,
 	}, nil
@@ -239,13 +251,13 @@ func (m LandingMapper) mapPackageDetailEntityToResponse(
 		return dto.LandingPackageDetailResponse{}, err
 	}
 	landingPackageItemEntities := make([]entity.LandingPackageItem, len(landingPackageDetailItemEntities))
-	for _, landingPackageDetailItemEntity := range landingPackageDetailItemEntities {
+	for index, landingPackageDetailItemEntity := range landingPackageDetailItemEntities {
 		landingPackageItemEntity, err := landingPackageItemRepository.FindById(ctx, landingPackageDetailItemEntity.LandingPackageItemId)
 		if err != nil {
 			return dto.LandingPackageDetailResponse{}, err
 		}
 
-		landingPackageItemEntities = append(landingPackageItemEntities, landingPackageItemEntity)
+		landingPackageItemEntities[index] = landingPackageItemEntity
 	}
 
 	landingPackageItemResponses, err := m.mapPackageItemEntitiesToResponses(
@@ -260,6 +272,9 @@ func (m LandingMapper) mapPackageDetailEntityToResponse(
 		airlineRepository,
 		landingPackageItemEntities,
 	)
+	if err != nil {
+		return dto.LandingPackageDetailResponse{}, err
+	}
 
 	return dto.LandingPackageDetailResponse{
 		IsEnabled: landingPackageDetail.IsEnabled,

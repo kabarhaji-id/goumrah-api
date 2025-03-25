@@ -438,25 +438,25 @@ func NewLandingPackageItemDetailResponses(dtos []dto.LandingPackageItemDetailRes
 }
 
 type LandingPackageItemPriceResponse struct {
-	QuadPrice        float64 `json:"quad_price"`
-	TriplePrice      float64 `json:"triple_price"`
-	DoublePrice      float64 `json:"double_price"`
-	InfantPrice      float64 `json:"infant_price"`
-	QuadFinalPrice   float64 `json:"quad_final_price"`
-	TripleFinalPrice float64 `json:"triple_final_price"`
-	DoubleFinalPrice float64 `json:"double_final_price"`
-	InfantFinalPrice float64 `json:"infant_final_price"`
+	DoublePrice      float64    `json:"double_price"`
+	DoubleFinalPrice null.Float `json:"double_final_price"`
+	TriplePrice      float64    `json:"triple_price"`
+	TripleFinalPrice null.Float `json:"triple_final_price"`
+	QuadPrice        float64    `json:"quad_price"`
+	QuadFinalPrice   null.Float `json:"quad_final_price"`
+	InfantPrice      null.Float `json:"infant_price"`
+	InfantFinalPrice null.Float `json:"infant_final_price"`
 }
 
 func NewLandingPackageItemPriceResponse(dto dto.LandingPackageItemPriceResponse) LandingPackageItemPriceResponse {
 	return LandingPackageItemPriceResponse{
-		QuadPrice:        dto.QuadPrice,
-		TriplePrice:      dto.TriplePrice,
 		DoublePrice:      dto.DoublePrice,
-		InfantPrice:      dto.InfantPrice,
-		QuadFinalPrice:   dto.QuadFinalPrice,
-		TripleFinalPrice: dto.TripleFinalPrice,
 		DoubleFinalPrice: dto.DoubleFinalPrice,
+		TriplePrice:      dto.TriplePrice,
+		TripleFinalPrice: dto.TripleFinalPrice,
+		QuadPrice:        dto.QuadPrice,
+		QuadFinalPrice:   dto.QuadFinalPrice,
+		InfantPrice:      dto.InfantPrice,
 		InfantFinalPrice: dto.InfantFinalPrice,
 	}
 }

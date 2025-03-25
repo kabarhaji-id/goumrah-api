@@ -158,14 +158,14 @@ type LandingPackageItemDetailResponse struct {
 }
 
 type LandingPackageItemPriceResponse struct {
-	QuadPrice        float64
-	TriplePrice      float64
 	DoublePrice      float64
-	InfantPrice      float64
-	QuadFinalPrice   float64
-	TripleFinalPrice float64
-	DoubleFinalPrice float64
-	InfantFinalPrice float64
+	DoubleFinalPrice null.Float
+	TriplePrice      float64
+	TripleFinalPrice null.Float
+	QuadPrice        float64
+	QuadFinalPrice   null.Float
+	InfantPrice      null.Float
+	InfantFinalPrice null.Float
 }
 
 type LandingPackageItemResponse struct {
