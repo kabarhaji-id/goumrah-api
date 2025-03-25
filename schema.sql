@@ -2988,12 +2988,9 @@ CREATE TABLE public.packages (
     id bigint NOT NULL,
     thumbnail_id bigint,
     name character varying(100) NOT NULL,
-    description character varying(500) NOT NULL,
-    is_active boolean DEFAULT false NOT NULL,
     category public.package_category NOT NULL,
     type public.package_type NOT NULL,
     slug character varying(105) NOT NULL,
-    is_recommended boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
     deleted_at timestamp without time zone
@@ -4772,4 +4769,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250320052404'),
     ('20250325063543'),
     ('20250325065013'),
-    ('20250325070426');
+    ('20250325070426'),
+    ('20250325070655');

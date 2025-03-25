@@ -8,14 +8,11 @@ import (
 )
 
 type PackageRequest struct {
-	Thumbnail     null.Int64
-	Name          string
-	Description   string
-	IsActive      bool
-	Category      entity.PackageCategory
-	Type          entity.PackageType
-	IsRecommended bool
-	Images        []int64
+	Thumbnail null.Int64
+	Name      string
+	Category  entity.PackageCategory
+	Type      entity.PackageType
+	Images    []int64
 }
 
 type GetAllPackageRequest struct {
@@ -24,16 +21,13 @@ type GetAllPackageRequest struct {
 }
 
 type PackageResponse struct {
-	Id            int64
-	Thumbnail     null.Value[ImageResponse]
-	Name          string
-	Description   string
-	IsActive      bool
-	Category      entity.PackageCategory
-	Type          entity.PackageType
-	Slug          string
-	IsRecommended bool
-	Images        []ImageResponse
+	Id        int64
+	Thumbnail null.Value[ImageResponse]
+	Name      string
+	Category  entity.PackageCategory
+	Type      entity.PackageType
+	Slug      string
+	Images    []ImageResponse
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -41,16 +35,13 @@ type PackageResponse struct {
 }
 
 type PackageListResponse struct {
-	Id            int64
-	Thumbnail     null.Value[ImageResponse]
-	Name          string
-	Description   string
-	IsActive      bool
-	Category      entity.PackageCategory
-	Type          entity.PackageType
-	Slug          string
-	IsRecommended bool
-	Images        []int64
+	Id        int64
+	Thumbnail null.Value[ImageResponse]
+	Name      string
+	Category  entity.PackageCategory
+	Type      entity.PackageType
+	Slug      string
+	Images    []int64
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
