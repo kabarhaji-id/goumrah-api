@@ -3008,16 +3008,10 @@ ALTER TABLE public.packages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 CREATE TABLE public.users (
     id bigint NOT NULL,
-    first_name character varying(100) NOT NULL,
-    last_name character varying(100) NOT NULL,
+    full_name character varying(100) NOT NULL,
     phone_number character varying(20) NOT NULL,
-    is_phone_number_verified boolean DEFAULT false NOT NULL,
-    email character varying(256) DEFAULT NULL::character varying,
-    is_email_verified boolean,
-    avatar_id bigint,
-    password text,
-    role public.user_role NOT NULL,
-    otp character varying(6) DEFAULT NULL::character varying,
+    email character varying(256) NOT NULL,
+    address character varying(500) NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
     deleted_at timestamp without time zone

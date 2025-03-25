@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
@@ -190,40 +189,55 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
-		landingSinglePackageContentSilverLandingPackageItem, err := landingPackageItemRepository.Create(
-			ctx,
-			entity.LandingPackageItem{
-				IsEnabled:   request.SinglePackageContent.Silver.IsEnabled,
-				ButtonLabel: request.SinglePackageContent.Silver.ButtonLabel,
-				PackageId:   request.SinglePackageContent.Silver.Package,
-			},
-		)
-		if err != nil {
-			return err
+		landingSinglePackageContentSilverLandingPackageItemId := null.NewInt(0, false)
+		if request.SinglePackageContent.Silver.Valid {
+			landingSinglePackageContentSilverLandingPackageItem, err := landingPackageItemRepository.Create(
+				ctx,
+				entity.LandingPackageItem{
+					IsEnabled:   request.SinglePackageContent.Silver.V.IsEnabled,
+					ButtonLabel: request.SinglePackageContent.Silver.V.ButtonLabel,
+					PackageId:   request.SinglePackageContent.Silver.V.Package,
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			landingSinglePackageContentSilverLandingPackageItemId = null.IntFrom(landingSinglePackageContentSilverLandingPackageItem.Id)
 		}
 
-		landingSinglePackageContentGoldLandingPackageItem, err := landingPackageItemRepository.Create(
-			ctx,
-			entity.LandingPackageItem{
-				IsEnabled:   request.SinglePackageContent.Gold.IsEnabled,
-				ButtonLabel: request.SinglePackageContent.Gold.ButtonLabel,
-				PackageId:   request.SinglePackageContent.Gold.Package,
-			},
-		)
-		if err != nil {
-			return err
+		landingSinglePackageContentGoldLandingPackageItemId := null.NewInt(0, false)
+		if request.SinglePackageContent.Gold.Valid {
+			landingSinglePackageContentGoldLandingPackageItem, err := landingPackageItemRepository.Create(
+				ctx,
+				entity.LandingPackageItem{
+					IsEnabled:   request.SinglePackageContent.Gold.V.IsEnabled,
+					ButtonLabel: request.SinglePackageContent.Gold.V.ButtonLabel,
+					PackageId:   request.SinglePackageContent.Gold.V.Package,
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			landingSinglePackageContentGoldLandingPackageItemId = null.IntFrom(landingSinglePackageContentGoldLandingPackageItem.Id)
 		}
 
-		landingSinglePackageContentPlatinumLandingPackageItem, err := landingPackageItemRepository.Create(
-			ctx,
-			entity.LandingPackageItem{
-				IsEnabled:   request.SinglePackageContent.Platinum.IsEnabled,
-				PackageId:   request.SinglePackageContent.Platinum.Package,
-				ButtonLabel: request.SinglePackageContent.Platinum.ButtonLabel,
-			},
-		)
-		if err != nil {
-			return err
+		landingSinglePackageContentPlatinumLandingPackageItemId := null.NewInt(0, false)
+		if request.SinglePackageContent.Platinum.Valid {
+			landingSinglePackageContentPlatinumLandingPackageItem, err := landingPackageItemRepository.Create(
+				ctx,
+				entity.LandingPackageItem{
+					IsEnabled:   request.SinglePackageContent.Platinum.V.IsEnabled,
+					ButtonLabel: request.SinglePackageContent.Platinum.V.ButtonLabel,
+					PackageId:   request.SinglePackageContent.Platinum.V.Package,
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			landingSinglePackageContentPlatinumLandingPackageItemId = null.IntFrom(landingSinglePackageContentPlatinumLandingPackageItem.Id)
 		}
 
 		landingSinglePackageContent, err := landingSinglePackageContentRepository.Create(
@@ -231,9 +245,9 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			entity.LandingSinglePackageContent{
 				IsEnabled:                    request.SinglePackageContent.IsEnabled,
 				LandingSectionHeaderId:       landingSinglePackageContentHeader.Id,
-				SilverLandingPackageItemId:   null.IntFrom(landingSinglePackageContentSilverLandingPackageItem.Id),
-				GoldLandingPackageItemId:     null.IntFrom(landingSinglePackageContentGoldLandingPackageItem.Id),
-				PlatinumLandingPackageItemId: null.IntFrom(landingSinglePackageContentPlatinumLandingPackageItem.Id),
+				SilverLandingPackageItemId:   landingSinglePackageContentSilverLandingPackageItemId,
+				GoldLandingPackageItemId:     landingSinglePackageContentGoldLandingPackageItemId,
+				PlatinumLandingPackageItemId: landingSinglePackageContentPlatinumLandingPackageItemId,
 			},
 		)
 		if err != nil {
@@ -404,9 +418,9 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingPackagesContent{
 				IsEnabled:                      request.PackagesContent.IsEnabled,
-				SilverLandingPackageDetailId:   null.IntFrom(landingPackagesContentSilverLandingPackageDetail.Id),
-				GoldLandingPackageDetailId:     null.IntFrom(landingPackagesContentGoldLandingPackageDetail.Id),
-				PlatinumLandingPackageDetailId: null.IntFrom(landingPackagesContentPlatinumLandingPackageDetail.Id),
+				SilverLandingPackageDetailId:   landingPackagesContentSilverLandingPackageDetail.Id,
+				GoldLandingPackageDetailId:     landingPackagesContentGoldLandingPackageDetail.Id,
+				PlatinumLandingPackageDetailId: landingPackagesContentPlatinumLandingPackageDetail.Id,
 			},
 		)
 		if err != nil {
@@ -624,56 +638,48 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing hero content")
 
 	// Find landing single package content with repository
 	landingSinglePackageContent, err := s.landingSinglePackageContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing single package content")
 
 	// Find landing packages content with repository
 	landingPackagesContent, err := s.landingPackagesContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing packages content")
 
 	// Find landing features content with repository
 	landingFeaturesContent, err := s.landingFeaturesContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing features content")
 
 	// Find landing moments content with repository
 	landingMomentsContent, err := s.landingMomentsContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing moments content")
 
 	// Find landing affiliates content with repository
 	landingAffiliatesContent, err := s.landingAffiliatesContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing affiliates content")
 
 	// Find landing faq content with repository
 	landingFaqContent, err := s.landingFaqContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing faq content")
 
 	// Find landing menu with repository
 	landingMenus, err := s.landingMenuRepository.FindAll(ctx, repository.FindAllOptions{})
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
-	log.Println("Success get landing menus")
 
 	// Map entity into response
 	response, err := s.landingMapper.MapEntityToResponse(
@@ -781,12 +787,121 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing single package content
-		landingSinglePackageContent, err := landingSinglePackageContentRepository.Update(
-			ctx,
-			entity.LandingSinglePackageContent{
-				IsEnabled: request.SinglePackageContent.IsEnabled,
-			},
-		)
+		landingSinglePackageContent, err := landingSinglePackageContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingSinglePackageContent.IsEnabled = request.SinglePackageContent.IsEnabled
+		if request.SinglePackageContent.Silver.Valid {
+			if landingSinglePackageContent.SilverLandingPackageItemId.Valid {
+				if _, err := landingPackageItemRepository.Update(
+					ctx,
+					landingSinglePackageContent.SilverLandingPackageItemId.Int64,
+					entity.LandingPackageItem{
+						IsEnabled:   request.SinglePackageContent.Silver.V.IsEnabled,
+						ButtonLabel: request.SinglePackageContent.Silver.V.ButtonLabel,
+						PackageId:   request.SinglePackageContent.Silver.V.Package,
+					},
+				); err != nil {
+					return err
+				}
+			} else {
+				landingSinglePackageContentSilverLandingPackageItem, err := landingPackageItemRepository.Create(
+					ctx,
+					entity.LandingPackageItem{
+						IsEnabled:   request.SinglePackageContent.Silver.V.IsEnabled,
+						ButtonLabel: request.SinglePackageContent.Silver.V.ButtonLabel,
+						PackageId:   request.SinglePackageContent.Silver.V.Package,
+					},
+				)
+				if err != nil {
+					return err
+				}
+
+				landingSinglePackageContent.SilverLandingPackageItemId = null.IntFrom(landingSinglePackageContentSilverLandingPackageItem.Id)
+			}
+		} else if landingSinglePackageContent.SilverLandingPackageItemId.Valid {
+			if _, err := landingPackageItemRepository.Delete(
+				ctx,
+				landingSinglePackageContent.SilverLandingPackageItemId.Int64,
+			); err != nil {
+				return err
+			}
+		}
+		if request.SinglePackageContent.Gold.Valid {
+			if landingSinglePackageContent.GoldLandingPackageItemId.Valid {
+				if _, err := landingPackageItemRepository.Update(
+					ctx,
+					landingSinglePackageContent.GoldLandingPackageItemId.Int64,
+					entity.LandingPackageItem{
+						IsEnabled:   request.SinglePackageContent.Gold.V.IsEnabled,
+						ButtonLabel: request.SinglePackageContent.Gold.V.ButtonLabel,
+						PackageId:   request.SinglePackageContent.Gold.V.Package,
+					},
+				); err != nil {
+					return err
+				}
+			} else {
+				landingSinglePackageContentGoldLandingPackageItem, err := landingPackageItemRepository.Create(
+					ctx,
+					entity.LandingPackageItem{
+						IsEnabled:   request.SinglePackageContent.Gold.V.IsEnabled,
+						ButtonLabel: request.SinglePackageContent.Gold.V.ButtonLabel,
+						PackageId:   request.SinglePackageContent.Gold.V.Package,
+					},
+				)
+				if err != nil {
+					return err
+				}
+
+				landingSinglePackageContent.GoldLandingPackageItemId = null.IntFrom(landingSinglePackageContentGoldLandingPackageItem.Id)
+			}
+		} else if landingSinglePackageContent.GoldLandingPackageItemId.Valid {
+			if _, err := landingPackageItemRepository.Delete(
+				ctx,
+				landingSinglePackageContent.GoldLandingPackageItemId.Int64,
+			); err != nil {
+				return err
+			}
+		}
+		if request.SinglePackageContent.Platinum.Valid {
+			if landingSinglePackageContent.PlatinumLandingPackageItemId.Valid {
+				if _, err := landingPackageItemRepository.Update(
+					ctx,
+					landingSinglePackageContent.PlatinumLandingPackageItemId.Int64,
+					entity.LandingPackageItem{
+						IsEnabled:   request.SinglePackageContent.Platinum.V.IsEnabled,
+						ButtonLabel: request.SinglePackageContent.Platinum.V.ButtonLabel,
+						PackageId:   request.SinglePackageContent.Platinum.V.Package,
+					},
+				); err != nil {
+					return err
+				}
+			} else {
+				landingSinglePackageContentPlatinumLandingPackageItem, err := landingPackageItemRepository.Create(
+					ctx,
+					entity.LandingPackageItem{
+						IsEnabled:   request.SinglePackageContent.Platinum.V.IsEnabled,
+						ButtonLabel: request.SinglePackageContent.Platinum.V.ButtonLabel,
+						PackageId:   request.SinglePackageContent.Platinum.V.Package,
+					},
+				)
+				if err != nil {
+					return err
+				}
+
+				landingSinglePackageContent.PlatinumLandingPackageItemId = null.IntFrom(landingSinglePackageContentPlatinumLandingPackageItem.Id)
+			}
+		} else if landingSinglePackageContent.PlatinumLandingPackageItemId.Valid {
+			if _, err := landingPackageItemRepository.Delete(
+				ctx,
+				landingSinglePackageContent.PlatinumLandingPackageItemId.Int64,
+			); err != nil {
+				return err
+			}
+		}
+
+		landingSinglePackageContent, err = landingSinglePackageContentRepository.Update(ctx, landingSinglePackageContent)
 		if err != nil {
 			return err
 		}
@@ -804,59 +919,31 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
-		if _, err := landingPackageItemRepository.Update(
-			ctx,
-			landingSinglePackageContent.SilverLandingPackageItemId.Int64,
-			entity.LandingPackageItem{
-				IsEnabled:   request.SinglePackageContent.Silver.IsEnabled,
-				ButtonLabel: request.SinglePackageContent.Silver.ButtonLabel,
-				PackageId:   request.SinglePackageContent.Silver.Package,
-			},
-		); err != nil {
-			return err
-		}
-
-		if _, err := landingPackageItemRepository.Update(
-			ctx,
-			landingSinglePackageContent.GoldLandingPackageItemId.Int64,
-			entity.LandingPackageItem{
-				IsEnabled:   request.SinglePackageContent.Gold.IsEnabled,
-				ButtonLabel: request.SinglePackageContent.Gold.ButtonLabel,
-				PackageId:   request.SinglePackageContent.Gold.Package,
-			},
-		); err != nil {
-			return err
-		}
-
-		if _, err := landingPackageItemRepository.Update(
-			ctx,
-			landingSinglePackageContent.PlatinumLandingPackageItemId.Int64,
-			entity.LandingPackageItem{
-				IsEnabled:   request.SinglePackageContent.Platinum.IsEnabled,
-				ButtonLabel: request.SinglePackageContent.Platinum.ButtonLabel,
-				PackageId:   request.SinglePackageContent.Platinum.Package,
-			},
-		); err != nil {
-			return err
-		}
-
 		// Update landing packages content
-		landingPackagesContent, err := landingPackagesContentRepository.Update(
-			ctx,
-			entity.LandingPackagesContent{
-				IsEnabled: request.PackagesContent.IsEnabled,
-			},
-		)
+		landingPackagesContent, err := landingPackagesContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingPackagesContent.IsEnabled = request.PackagesContent.IsEnabled
+
+		landingPackagesContent, err = landingPackagesContentRepository.Update(ctx, landingPackagesContent)
 		if err != nil {
 			return err
 		}
 
-		landingPackagesContentSilverLandingPackageDetail, err := landingPackageDetailRepository.Update(
+		landingPackagesContentSilverLandingPackageDetail, err := landingPackageDetailRepository.FindById(
 			ctx,
-			landingPackagesContent.SilverLandingPackageDetailId.Int64,
-			entity.LandingPackageDetail{
-				IsEnabled: request.PackagesContent.Silver.IsEnabled,
-			},
+			landingPackagesContent.SilverLandingPackageDetailId,
+		)
+		if err != nil {
+			return err
+		}
+		landingPackagesContentSilverLandingPackageDetail.IsEnabled = request.PackagesContent.Silver.IsEnabled
+
+		landingPackagesContentSilverLandingPackageDetail, err = landingPackageDetailRepository.Update(
+			ctx,
+			landingPackagesContentSilverLandingPackageDetail.Id,
+			landingPackagesContentSilverLandingPackageDetail,
 		)
 		if err != nil {
 			return err
@@ -910,19 +997,26 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 				LandingPackageItemId:   landingPackagesContentSilverLandingPackageItem.Id,
 			}
 		}
-		landingPackagesContentSilverLandingPackageDetailItems, err = landingPackageDetailItemRepository.CreateMany(
+		_, err = landingPackageDetailItemRepository.CreateMany(
 			ctx, landingPackagesContentSilverLandingPackageDetailItems,
 		)
 		if err != nil {
 			return err
 		}
 
-		landingPackagesContentGoldLandingPackageDetail, err := landingPackageDetailRepository.Update(
+		landingPackagesContentGoldLandingPackageDetail, err := landingPackageDetailRepository.FindById(
 			ctx,
-			landingPackagesContent.GoldLandingPackageDetailId.Int64,
-			entity.LandingPackageDetail{
-				IsEnabled: request.PackagesContent.Gold.IsEnabled,
-			},
+			landingPackagesContent.GoldLandingPackageDetailId,
+		)
+		if err != nil {
+			return err
+		}
+		landingPackagesContentGoldLandingPackageDetail.IsEnabled = request.PackagesContent.Gold.IsEnabled
+
+		landingPackagesContentGoldLandingPackageDetail, err = landingPackageDetailRepository.Update(
+			ctx,
+			landingPackagesContent.GoldLandingPackageDetailId,
+			landingPackagesContentGoldLandingPackageDetail,
 		)
 		if err != nil {
 			return err
@@ -976,19 +1070,26 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 				LandingPackageItemId:   landingPackagesContentGoldLandingPackageItem.Id,
 			}
 		}
-		landingPackagesContentGoldLandingPackageDetailItems, err = landingPackageDetailItemRepository.CreateMany(
+		_, err = landingPackageDetailItemRepository.CreateMany(
 			ctx, landingPackagesContentGoldLandingPackageDetailItems,
 		)
 		if err != nil {
 			return err
 		}
 
-		landingPackagesContentPlatinumLandingPackageDetail, err := landingPackageDetailRepository.Update(
+		landingPackagesContentPlatinumLandingPackageDetail, err := landingPackageDetailRepository.FindById(
 			ctx,
-			landingPackagesContent.PlatinumLandingPackageDetailId.Int64,
-			entity.LandingPackageDetail{
-				IsEnabled: request.PackagesContent.Platinum.IsEnabled,
-			},
+			landingPackagesContent.PlatinumLandingPackageDetailId,
+		)
+		if err != nil {
+			return err
+		}
+		landingPackagesContentPlatinumLandingPackageDetail.IsEnabled = request.PackagesContent.Platinum.IsEnabled
+
+		landingPackagesContentPlatinumLandingPackageDetail, err = landingPackageDetailRepository.Update(
+			ctx,
+			landingPackagesContent.PlatinumLandingPackageDetailId,
+			landingPackagesContentPlatinumLandingPackageDetail,
 		)
 		if err != nil {
 			return err
@@ -1042,7 +1143,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 				LandingPackageItemId:   landingPackagesContentPlatinumLandingPackageItem.Id,
 			}
 		}
-		landingPackagesContentPlatinumLandingPackageDetailItems, err = landingPackageDetailItemRepository.CreateMany(
+		_, err = landingPackageDetailItemRepository.CreateMany(
 			ctx, landingPackagesContentPlatinumLandingPackageDetailItems,
 		)
 		if err != nil {
@@ -1050,14 +1151,18 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing features content
-		landingFeaturesContent, err := landingFeaturesContentRepository.Update(
+		landingFeaturesContent, err := landingFeaturesContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingFeaturesContent.IsEnabled = request.FeaturesContent.IsEnabled
+		landingFeaturesContent.FooterTitle = request.FeaturesContent.FooterTitle
+		landingFeaturesContent.ButtonAbout = request.FeaturesContent.ButtonAbout
+		landingFeaturesContent.ButtonPackage = request.FeaturesContent.ButtonPackage
+
+		landingFeaturesContent, err = landingFeaturesContentRepository.Update(
 			ctx,
-			entity.LandingFeaturesContent{
-				IsEnabled:     request.FeaturesContent.IsEnabled,
-				FooterTitle:   request.FeaturesContent.FooterTitle,
-				ButtonAbout:   request.FeaturesContent.ButtonAbout,
-				ButtonPackage: request.FeaturesContent.ButtonPackage,
-			},
+			landingFeaturesContent,
 		)
 		if err != nil {
 			return err
@@ -1094,11 +1199,15 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing moments content with repository
-		landingMomentsContent, err := landingMomentsContentRepository.Update(
+		landingMomentsContent, err := landingMomentsContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingMomentsContent.IsEnabled = request.MomentsContent.IsEnabled
+
+		landingMomentsContent, err = landingMomentsContentRepository.Update(
 			ctx,
-			entity.LandingMomentsContent{
-				IsEnabled: request.MomentsContent.IsEnabled,
-			},
+			landingMomentsContent,
 		)
 		if err != nil {
 			return err
@@ -1138,11 +1247,15 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing affiliates content with repository
-		landingAffiliatesContent, err := landingAffiliatesContentRepository.Update(
+		landingAffiliatesContent, err := landingAffiliatesContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingAffiliatesContent.IsEnabled = request.AffiliatesContent.IsEnabled
+
+		landingAffiliatesContent, err = landingAffiliatesContentRepository.Update(
 			ctx,
-			entity.LandingAffiliatesContent{
-				IsEnabled: request.AffiliatesContent.IsEnabled,
-			},
+			landingAffiliatesContent,
 		)
 		if err != nil {
 			return err
@@ -1180,11 +1293,15 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing faq content with repository
-		landingFaqContent, err := landingFaqContentRepository.Update(
+		landingFaqContent, err := landingFaqContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingFaqContent.IsEnabled = request.FaqContent.IsEnabled
+
+		landingFaqContent, err = landingFaqContentRepository.Update(
 			ctx,
-			entity.LandingFaqContent{
-				IsEnabled: request.FaqContent.IsEnabled,
-			},
+			landingFaqContent,
 		)
 		if err != nil {
 			return err

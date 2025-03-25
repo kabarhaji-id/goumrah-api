@@ -298,7 +298,7 @@ func main() {
 	app.Route("/landing", func(router fiber.Router) {
 		router.Post("", landingController.CreateLanding)
 		router.Get("", landingController.GetLanding)
-		router.Put("/:id", landingController.UpdateLanding)
+		router.Put("", landingController.UpdateLanding)
 	})
 
 	if err := app.Listen(cfg.ServerAddress); err != nil {

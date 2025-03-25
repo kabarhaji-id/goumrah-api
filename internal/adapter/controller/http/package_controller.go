@@ -161,10 +161,9 @@ func (c PackageController) CreatePackageSession(ctx *fiber.Ctx) error {
 
 	// Create dto request
 	dtoRequest := schemaRequest.ToDtoRequest()
-	dtoRequest.Package = params.Id
 
 	// Create package session with service
-	dtoResponse, err := c.packageSessionService.CreatePackageSession(context.Background(), dtoRequest)
+	dtoResponse, err := c.packageSessionService.CreatePackageSession(context.Background(), params.Id, dtoRequest)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(schema.NewErrorResponse(err))
 	}

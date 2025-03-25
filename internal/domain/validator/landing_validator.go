@@ -229,25 +229,31 @@ func (v LandingValidator) validateSinglePackageContentRequest(
 		return err
 	}
 
-	if err := v.validatePackageItemRequest(
-		fmt.Sprintf("%s.Silver", prefix),
-		singlePackageContentRequest.Silver,
-	); err != nil {
-		return err
+	if singlePackageContentRequest.Silver.Valid {
+		if err := v.validatePackageItemRequest(
+			fmt.Sprintf("%s.Silver", prefix),
+			singlePackageContentRequest.Silver.V,
+		); err != nil {
+			return err
+		}
 	}
 
-	if err := v.validatePackageItemRequest(
-		fmt.Sprintf("%s.Gold", prefix),
-		singlePackageContentRequest.Gold,
-	); err != nil {
-		return err
+	if singlePackageContentRequest.Gold.Valid {
+		if err := v.validatePackageItemRequest(
+			fmt.Sprintf("%s.Gold", prefix),
+			singlePackageContentRequest.Gold.V,
+		); err != nil {
+			return err
+		}
 	}
 
-	if err := v.validatePackageItemRequest(
-		fmt.Sprintf("%s.Platinum", prefix),
-		singlePackageContentRequest.Platinum,
-	); err != nil {
-		return err
+	if singlePackageContentRequest.Platinum.Valid {
+		if err := v.validatePackageItemRequest(
+			fmt.Sprintf("%s.Platinum", prefix),
+			singlePackageContentRequest.Platinum.V,
+		); err != nil {
+			return err
+		}
 	}
 
 	return nil

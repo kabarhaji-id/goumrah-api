@@ -18,15 +18,15 @@ func NewPackageSessionRepository(db DB) repository.PackageSessionRepository {
 
 func (r packageSessionRepositoryPostgresql) Create(ctx context.Context, packageSession entity.PackageSession) (entity.PackageSession, error) {
 	builder := sqlbuilder.New().
-		S(`INSERT INTO "package_sessions" ("package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "created_at", "updated_at", "deleted_at")`).
+		S(`INSERT INTO "package_sessions" ("package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "itinerary_id", "created_at", "updated_at", "deleted_at")`).
 		S(
-			`VALUES ($1, $2, $3, $4, $5,$6, NOW(), NOW(), NULL)`,
-			packageSession.PackageId, packageSession.EmbarkationId, packageSession.DepartureDate, packageSession.DepartureFlightRouteId, packageSession.ReturnFlightRouteId, packageSession.BusId,
+			`VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), NULL)`,
+			packageSession.PackageId, packageSession.EmbarkationId, packageSession.DepartureDate, packageSession.DepartureFlightRouteId, packageSession.ReturnFlightRouteId, packageSession.BusId, packageSession.ItineraryId,
 		).
-		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "created_at", "updated_at", "deleted_at"`)
+		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "itinerary_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId,
+		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId, &packageSession.ItineraryId,
 		&packageSession.CreatedAt, &packageSession.UpdatedAt, &packageSession.DeletedAt,
 	)
 
@@ -37,11 +37,11 @@ func (r packageSessionRepositoryPostgresql) FindById(ctx context.Context, id int
 	packageSession := entity.PackageSession{}
 
 	builder := sqlbuilder.New().
-		S(`SELECT "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "created_at", "updated_at", "deleted_at"`).
+		S(`SELECT "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "itinerary_id", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "package_sessions" WHERE "id" = $1 AND "deleted_at" IS NULL`, id)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId,
+		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId, &packageSession.ItineraryId,
 		&packageSession.CreatedAt, &packageSession.UpdatedAt, &packageSession.DeletedAt,
 	)
 
@@ -52,7 +52,7 @@ func (r packageSessionRepositoryPostgresql) FindAll(ctx context.Context, opt rep
 	packageSessions := []entity.PackageSession{}
 
 	builder := sqlbuilder.New().
-		S(`SELECT "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "created_at", "updated_at", "deleted_at"`).
+		S(`SELECT "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "itinerary_id", "created_at", "updated_at", "deleted_at"`).
 		S(`FROM "package_sessions" WHERE "deleted_at" IS NULL`)
 	if packageId, ok := opt.Where["package_id"].(int64); ok {
 		builder.SA(`AND "package_id" = ?`, packageId)
@@ -73,7 +73,7 @@ func (r packageSessionRepositoryPostgresql) FindAll(ctx context.Context, opt rep
 	for rows.Next() {
 		packageSession := entity.PackageSession{}
 		err = rows.Scan(
-			&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId,
+			&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId, &packageSession.ItineraryId,
 			&packageSession.CreatedAt, &packageSession.UpdatedAt, &packageSession.DeletedAt,
 		)
 		if err != nil {
@@ -89,14 +89,14 @@ func (r packageSessionRepositoryPostgresql) FindAll(ctx context.Context, opt rep
 func (r packageSessionRepositoryPostgresql) Update(ctx context.Context, id int64, packageSession entity.PackageSession) (entity.PackageSession, error) {
 	builder := sqlbuilder.New().
 		S(
-			`UPDATE "package_sessions" SET "package_id" = $1, "embarkation_id" = $2, "departure_date" = $3, "departure_flight_route_id" = $4, "return_flight_route_id" = $5, "bus_id" = $6, "updated_at" = NOW()`,
-			packageSession.PackageId, packageSession.EmbarkationId, packageSession.DepartureDate, packageSession.DepartureFlightRouteId, packageSession.ReturnFlightRouteId, packageSession.BusId,
+			`UPDATE "package_sessions" SET "package_id" = $1, "embarkation_id" = $2, "departure_date" = $3, "departure_flight_route_id" = $4, "return_flight_route_id" = $5, "bus_id" = $6, "itinerary_id" = $7, "updated_at" = NOW()`,
+			packageSession.PackageId, packageSession.EmbarkationId, packageSession.DepartureDate, packageSession.DepartureFlightRouteId, packageSession.ReturnFlightRouteId, packageSession.BusId, packageSession.ItineraryId,
 		).
-		S(`WHERE "id" = $7 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "created_at", "updated_at", "deleted_at"`)
+		S(`WHERE "id" = $8 AND "deleted_at" IS NULL`, id).
+		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "itinerary_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId,
+		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId, &packageSession.ItineraryId,
 		&packageSession.CreatedAt, &packageSession.UpdatedAt, &packageSession.DeletedAt,
 	)
 
@@ -109,10 +109,10 @@ func (r packageSessionRepositoryPostgresql) Delete(ctx context.Context, id int64
 	builder := sqlbuilder.New().
 		S(`UPDATE "package_sessions" SET "deleted_at" = NOW()`).
 		S(`WHERE "id" = $1 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "created_at", "updated_at", "deleted_at"`)
+		S(`RETURNING "id", "package_id", "embarkation_id", "departure_date", "departure_flight_route_id", "return_flight_route_id", "bus_id", "itinerary_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
-		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId,
+		&packageSession.Id, &packageSession.PackageId, &packageSession.EmbarkationId, &packageSession.DepartureDate, &packageSession.DepartureFlightRouteId, &packageSession.ReturnFlightRouteId, &packageSession.BusId, &packageSession.ItineraryId,
 		&packageSession.CreatedAt, &packageSession.UpdatedAt, &packageSession.DeletedAt,
 	)
 

@@ -35,7 +35,7 @@ func mustBeLt(value int) string {
 }
 
 func mustBetween(min, max int) string {
-	return fmt.Sprintf("Must be %d-%d", min, max)
+	return fmt.Sprintf("Must between %d and %d", min, max)
 }
 
 func mustBeLte(value int) string {

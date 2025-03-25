@@ -15,11 +15,15 @@ func NewPackageSessionValidator() PackageSessionValidator {
 	return PackageSessionValidator{}
 }
 
-func (v PackageSessionValidator) ValidateRequest(ctx context.Context, request dto.PackageSessionRequest) error {
-	if request.Package < 1 {
-		return newError("Package", mustBeGte(1))
+func (v PackageSessionValidator) ValidatePackageId(ctx context.Context, packageId int64) error {
+	if packageId < 1 {
+		return newError("PackageId", mustBeGte(1))
 	}
 
+	return nil
+}
+
+func (v PackageSessionValidator) ValidateRequest(ctx context.Context, request dto.PackageSessionRequest) error {
 	if request.Embarkation < 1 {
 		return newError("Embarkation", mustBeGte(1))
 	}
