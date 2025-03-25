@@ -19,15 +19,16 @@ func NewHotelMapper(imageMapper ImageMapper) HotelMapper {
 
 func (HotelMapper) MapRequestToEntity(ctx context.Context, request dto.HotelRequest) entity.Hotel {
 	return entity.Hotel{
-		Name:        request.Name,
-		Rating:      request.Rating,
-		Map:         request.Map,
-		Address:     request.Address,
-		Distance:    request.Distance,
-		Review:      request.Review,
-		Description: request.Description,
-		Location:    request.Location,
-		Slug:        sluger.Slug(request.Name),
+		Name:             request.Name,
+		Rating:           request.Rating,
+		Map:              request.Map,
+		Address:          request.Address,
+		Distance:         request.Distance,
+		DistanceLandmark: request.DistanceLandmark,
+		Review:           request.Review,
+		Description:      request.Description,
+		Location:         request.Location,
+		Slug:             sluger.Slug(request.Name),
 	}
 }
 
@@ -43,20 +44,21 @@ func (m HotelMapper) MapEntityToResponse(
 	imageResponses := m.imageMapper.MapEntitiesToResponses(ctx, imageEntities)
 
 	return dto.HotelResponse{
-		Id:          hotelEntity.Id,
-		Name:        hotelEntity.Name,
-		Rating:      hotelEntity.Rating,
-		Map:         hotelEntity.Map,
-		Address:     hotelEntity.Address,
-		Distance:    hotelEntity.Distance,
-		Review:      hotelEntity.Review,
-		Description: hotelEntity.Description,
-		Location:    hotelEntity.Location,
-		Slug:        hotelEntity.Slug,
-		Images:      imageResponses,
-		CreatedAt:   hotelEntity.CreatedAt,
-		UpdatedAt:   hotelEntity.UpdatedAt,
-		DeletedAt:   hotelEntity.DeletedAt,
+		Id:               hotelEntity.Id,
+		Name:             hotelEntity.Name,
+		Rating:           hotelEntity.Rating,
+		Map:              hotelEntity.Map,
+		Address:          hotelEntity.Address,
+		Distance:         hotelEntity.Distance,
+		DistanceLandmark: hotelEntity.DistanceLandmark,
+		Review:           hotelEntity.Review,
+		Description:      hotelEntity.Description,
+		Location:         hotelEntity.Location,
+		Slug:             hotelEntity.Slug,
+		Images:           imageResponses,
+		CreatedAt:        hotelEntity.CreatedAt,
+		UpdatedAt:        hotelEntity.UpdatedAt,
+		DeletedAt:        hotelEntity.DeletedAt,
 	}, nil
 }
 

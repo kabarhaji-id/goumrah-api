@@ -2243,7 +2243,8 @@ CREATE TABLE public.hotels (
     slug character varying(105) NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    distance_landmark character varying(100) DEFAULT 'Masjidil Haram'::character varying NOT NULL
 );
 
 
@@ -4769,4 +4770,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250314090911'),
     ('20250319163517'),
     ('20250320052404'),
-    ('20250325063543');
+    ('20250325063543'),
+    ('20250325065013');

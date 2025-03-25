@@ -8,28 +8,30 @@ import (
 )
 
 type HotelRequest struct {
-	Name        string  `json:"name"`
-	Rating      int     `json:"rating"`
-	Map         string  `json:"map"`
-	Address     string  `json:"address"`
-	Distance    float64 `json:"distance"`
-	Review      string  `json:"review"`
-	Description string  `json:"description"`
-	Location    string  `json:"location"`
-	Images      []int64 `json:"images"`
+	Name             string  `json:"name"`
+	Rating           int     `json:"rating"`
+	Map              string  `json:"map"`
+	Address          string  `json:"address"`
+	Distance         float64 `json:"distance"`
+	DistanceLandmark string  `json:"distance_landmark"`
+	Review           string  `json:"review"`
+	Description      string  `json:"description"`
+	Location         string  `json:"location"`
+	Images           []int64 `json:"images"`
 }
 
 func (r HotelRequest) ToDtoRequest() dto.HotelRequest {
 	return dto.HotelRequest{
-		Name:        r.Name,
-		Rating:      r.Rating,
-		Map:         r.Map,
-		Address:     r.Address,
-		Distance:    r.Distance,
-		Review:      r.Review,
-		Description: r.Description,
-		Location:    r.Location,
-		Images:      r.Images,
+		Name:             r.Name,
+		Rating:           r.Rating,
+		Map:              r.Map,
+		Address:          r.Address,
+		Distance:         r.Distance,
+		DistanceLandmark: r.DistanceLandmark,
+		Review:           r.Review,
+		Description:      r.Description,
+		Location:         r.Location,
+		Images:           r.Images,
 	}
 }
 
@@ -43,16 +45,17 @@ type HotelParams struct {
 }
 
 type HotelResponse struct {
-	Id          int64           `json:"id"`
-	Name        string          `json:"name"`
-	Rating      int             `json:"rating"`
-	Map         string          `json:"map"`
-	Address     string          `json:"address"`
-	Distance    float64         `json:"distance"`
-	Review      string          `json:"review"`
-	Description string          `json:"description"`
-	Location    string          `json:"location"`
-	Images      []ImageResponse `json:"images"`
+	Id               int64           `json:"id"`
+	Name             string          `json:"name"`
+	Rating           int             `json:"rating"`
+	Map              string          `json:"map"`
+	Address          string          `json:"address"`
+	Distance         float64         `json:"distance"`
+	DistanceLandmark string          `json:"distance_landmark"`
+	Review           string          `json:"review"`
+	Description      string          `json:"description"`
+	Location         string          `json:"location"`
+	Images           []ImageResponse `json:"images"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -61,19 +64,20 @@ type HotelResponse struct {
 
 func NewHotelResponse(dtoResponse dto.HotelResponse) HotelResponse {
 	return HotelResponse{
-		Id:          dtoResponse.Id,
-		Name:        dtoResponse.Name,
-		Rating:      dtoResponse.Rating,
-		Map:         dtoResponse.Map,
-		Address:     dtoResponse.Address,
-		Distance:    dtoResponse.Distance,
-		Review:      dtoResponse.Review,
-		Description: dtoResponse.Description,
-		Location:    dtoResponse.Location,
-		Images:      NewImageResponses(dtoResponse.Images),
-		CreatedAt:   dtoResponse.CreatedAt,
-		UpdatedAt:   dtoResponse.UpdatedAt,
-		DeletedAt:   dtoResponse.DeletedAt,
+		Id:               dtoResponse.Id,
+		Name:             dtoResponse.Name,
+		Rating:           dtoResponse.Rating,
+		Map:              dtoResponse.Map,
+		Address:          dtoResponse.Address,
+		Distance:         dtoResponse.Distance,
+		DistanceLandmark: dtoResponse.DistanceLandmark,
+		Review:           dtoResponse.Review,
+		Description:      dtoResponse.Description,
+		Location:         dtoResponse.Location,
+		Images:           NewImageResponses(dtoResponse.Images),
+		CreatedAt:        dtoResponse.CreatedAt,
+		UpdatedAt:        dtoResponse.UpdatedAt,
+		DeletedAt:        dtoResponse.DeletedAt,
 	}
 }
 
