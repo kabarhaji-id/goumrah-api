@@ -16,8 +16,9 @@ func NewBusMapper() BusMapper {
 
 func (BusMapper) MapRequestToEntity(ctx context.Context, request dto.BusRequest) entity.Bus {
 	return entity.Bus{
-		Name: request.Name,
-		Seat: request.Seat,
+		Name:  request.Name,
+		Seat:  request.Seat,
+		Class: request.Class,
 	}
 }
 
@@ -26,6 +27,7 @@ func (m BusMapper) MapEntityToResponse(ctx context.Context, busEntity entity.Bus
 		Id:        busEntity.Id,
 		Name:      busEntity.Name,
 		Seat:      busEntity.Seat,
+		Class:     busEntity.Class,
 		CreatedAt: busEntity.CreatedAt,
 		UpdatedAt: busEntity.UpdatedAt,
 		DeletedAt: busEntity.DeletedAt,

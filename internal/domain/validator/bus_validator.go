@@ -3,6 +3,7 @@ package validator
 import (
 	"context"
 
+	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
 	"github.com/kabarhaji-id/goumrah-api/internal/port/driving/dto"
 )
 
@@ -24,6 +25,16 @@ func (v BusValidator) ValidateRequest(ctx context.Context, request dto.BusReques
 
 	if request.Seat < 1 {
 		return newError("Latitude", mustBeGte(1))
+	}
+
+	switch request.Class {
+	case entity.BusClassEconomy, entity.BusClassVIP:
+		break
+	default:
+		return newError("Class", mustBe(
+			string(entity.BusClassEconomy),
+			string(entity.BusClassVIP),
+		))
 	}
 
 	return nil

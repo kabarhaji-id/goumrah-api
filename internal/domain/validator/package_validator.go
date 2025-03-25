@@ -31,14 +31,6 @@ func (v PackageValidator) ValidateRequest(ctx context.Context, request dto.Packa
 		return newError("Name", maxChars(100))
 	}
 
-	descriptionLength := len(request.Description)
-	if descriptionLength < 1 {
-		return newError("Description", mustBeNotEmpty)
-	}
-	if descriptionLength > 500 {
-		return newError("Description", maxChars(500))
-	}
-
 	categoryLength := len(request.Category)
 	if categoryLength < 1 {
 		return newError("Category", mustBeNotEmpty)

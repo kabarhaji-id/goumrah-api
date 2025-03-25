@@ -23,15 +23,13 @@ const (
 )
 
 type Package struct {
-	Id            int64
-	ThumbnailId   null.Int64
-	Name          string
-	Description   string
-	IsActive      bool
-	Category      PackageCategory
-	Type          PackageType
-	Slug          string
-	IsRecommended bool
+	Id          int64
+	ThumbnailId null.Int64
+	Name        string
+	Category    PackageCategory
+	Type        PackageType
+	FastTrain   bool
+	Slug        string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -108,6 +108,13 @@ func (m LandingMapper) mapPackageItemEntityToResponse(
 		})
 	}
 
+	if packageEntity.FastTrain {
+		tags = append(tags, dto.LandingPackageItemTagResponse{
+			Icon:  "train",
+			Label: "Kereta Cepat",
+		})
+	}
+
 	departureFlightEntity, err := flightRepository.FindById(ctx, departureFlightRouteEntity.FlightId)
 	if err != nil {
 		return dto.LandingPackageItemResponse{}, err

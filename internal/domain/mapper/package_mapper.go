@@ -24,14 +24,12 @@ func NewPackageMapper(
 
 func (PackageMapper) MapRequestToEntity(ctx context.Context, request dto.PackageRequest) entity.Package {
 	return entity.Package{
-		ThumbnailId:   request.Thumbnail,
-		Name:          request.Name,
-		Description:   request.Description,
-		IsActive:      request.IsActive,
-		Category:      request.Category,
-		Type:          request.Type,
-		Slug:          sluger.Slug(request.Name),
-		IsRecommended: request.IsRecommended,
+		ThumbnailId: request.Thumbnail,
+		Name:        request.Name,
+		Category:    request.Category,
+		Type:        request.Type,
+		FastTrain:   request.FastTrain,
+		Slug:        sluger.Slug(request.Name),
 	}
 }
 
@@ -58,19 +56,17 @@ func (m PackageMapper) MapEntityToResponse(
 	imageResponses := m.imageMapper.MapEntitiesToResponses(ctx, imageEntities)
 
 	return dto.PackageResponse{
-		Id:            packageEntity.Id,
-		Thumbnail:     thumbnailResponse,
-		Name:          packageEntity.Name,
-		Description:   packageEntity.Description,
-		IsActive:      packageEntity.IsActive,
-		Category:      packageEntity.Category,
-		Type:          packageEntity.Type,
-		Slug:          packageEntity.Slug,
-		IsRecommended: packageEntity.IsRecommended,
-		Images:        imageResponses,
-		CreatedAt:     packageEntity.CreatedAt,
-		UpdatedAt:     packageEntity.UpdatedAt,
-		DeletedAt:     packageEntity.DeletedAt,
+		Id:        packageEntity.Id,
+		Thumbnail: thumbnailResponse,
+		Name:      packageEntity.Name,
+		Category:  packageEntity.Category,
+		Type:      packageEntity.Type,
+		FastTrain: packageEntity.FastTrain,
+		Slug:      packageEntity.Slug,
+		Images:    imageResponses,
+		CreatedAt: packageEntity.CreatedAt,
+		UpdatedAt: packageEntity.UpdatedAt,
+		DeletedAt: packageEntity.DeletedAt,
 	}, nil
 }
 
@@ -96,19 +92,17 @@ func (m PackageMapper) MapEntityToListResponse(
 	}
 
 	return dto.PackageListResponse{
-		Id:            packageEntity.Id,
-		Thumbnail:     thumbnailResponse,
-		Name:          packageEntity.Name,
-		Description:   packageEntity.Description,
-		IsActive:      packageEntity.IsActive,
-		Category:      packageEntity.Category,
-		Type:          packageEntity.Type,
-		Slug:          packageEntity.Slug,
-		IsRecommended: packageEntity.IsRecommended,
-		Images:        imageIds,
-		CreatedAt:     packageEntity.CreatedAt,
-		UpdatedAt:     packageEntity.UpdatedAt,
-		DeletedAt:     packageEntity.DeletedAt,
+		Id:        packageEntity.Id,
+		Thumbnail: thumbnailResponse,
+		Name:      packageEntity.Name,
+		Category:  packageEntity.Category,
+		Type:      packageEntity.Type,
+		FastTrain: packageEntity.FastTrain,
+		Slug:      packageEntity.Slug,
+		Images:    imageIds,
+		CreatedAt: packageEntity.CreatedAt,
+		UpdatedAt: packageEntity.UpdatedAt,
+		DeletedAt: packageEntity.DeletedAt,
 	}, nil
 }
 

@@ -47,6 +47,14 @@ func (v HotelValidator) ValidateRequest(ctx context.Context, request dto.HotelRe
 		return newError("Distance", mustBeGte(1))
 	}
 
+	distanceLandmarkLength := len(request.DistanceLandmark)
+	if distanceLandmarkLength < 1 {
+		return newError("DistanceLandmark", mustBeNotEmpty)
+	}
+	if distanceLandmarkLength > 100 {
+		return newError("DistanceLandmark", maxChars(100))
+	}
+
 	if len(request.Review) < 1 {
 		return newError("Review", mustBeNotEmpty)
 	}
@@ -58,8 +66,8 @@ func (v HotelValidator) ValidateRequest(ctx context.Context, request dto.HotelRe
 	if descriptionLength < 1 {
 		return newError("Description", mustBeNotEmpty)
 	}
-	if descriptionLength > 500 {
-		return newError("Description", maxChars(500))
+	if descriptionLength > 1000 {
+		return newError("Description", maxChars(1000))
 	}
 
 	locationLength := len(request.Location)
