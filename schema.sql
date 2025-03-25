@@ -2238,7 +2238,7 @@ CREATE TABLE public.hotels (
     address character varying(500) NOT NULL,
     distance numeric(6,2) NOT NULL,
     review text NOT NULL,
-    description character varying(500) NOT NULL,
+    description character varying(1000) NOT NULL,
     location character varying(100) NOT NULL,
     slug character varying(105) NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
@@ -4771,4 +4771,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250319163517'),
     ('20250320052404'),
     ('20250325063543'),
-    ('20250325065013');
+    ('20250325065013'),
+    ('20250325070426');

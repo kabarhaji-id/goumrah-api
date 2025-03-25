@@ -66,8 +66,8 @@ func (v HotelValidator) ValidateRequest(ctx context.Context, request dto.HotelRe
 	if descriptionLength < 1 {
 		return newError("Description", mustBeNotEmpty)
 	}
-	if descriptionLength > 500 {
-		return newError("Description", maxChars(500))
+	if descriptionLength > 1000 {
+		return newError("Description", maxChars(1000))
 	}
 
 	locationLength := len(request.Location)
