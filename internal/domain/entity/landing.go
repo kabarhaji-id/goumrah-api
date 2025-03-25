@@ -80,9 +80,9 @@ type LandingPackageDetailItem struct {
 type LandingPackagesContent struct {
 	Id                             int64
 	IsEnabled                      bool
-	SilverLandingPackageDetailId   null.Int64
-	GoldLandingPackageDetailId     null.Int64
-	PlatinumLandingPackageDetailId null.Int64
+	SilverLandingPackageDetailId   int64
+	GoldLandingPackageDetailId     int64
+	PlatinumLandingPackageDetailId int64
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

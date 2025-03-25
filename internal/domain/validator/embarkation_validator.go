@@ -22,7 +22,7 @@ func (v EmbarkationValidator) ValidateRequest(ctx context.Context, request dto.E
 		return newError("Name", maxChars(100))
 	}
 
-	if request.Latitude < -90 || request.Longitude > 90 {
+	if request.Latitude < -90 || request.Latitude > 90 {
 		return newError("Latitude", mustBetween(-90, 90))
 	}
 

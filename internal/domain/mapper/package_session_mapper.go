@@ -27,7 +27,6 @@ func (PackageSessionMapper) MapRequestToEntity(ctx context.Context, request dto.
 	departureDate, _ := time.Parse("02/01/2006", request.DepartureDate)
 
 	return entity.PackageSession{
-		PackageId:     request.Package,
 		EmbarkationId: request.Embarkation,
 		DepartureDate: departureDate,
 		BusId:         request.Bus,

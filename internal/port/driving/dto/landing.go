@@ -33,9 +33,9 @@ type LandingPackageItemRequest struct {
 type LandingSinglePackageContentRequest struct {
 	IsEnabled bool
 	Header    LandingSectionHeaderRequest
-	Silver    LandingPackageItemRequest
-	Gold      LandingPackageItemRequest
-	Platinum  LandingPackageItemRequest
+	Silver    null.Value[LandingPackageItemRequest]
+	Gold      null.Value[LandingPackageItemRequest]
+	Platinum  null.Value[LandingPackageItemRequest]
 }
 
 type LandingPackageDetailRequest struct {
@@ -197,9 +197,9 @@ type LandingPackageDetailResponse struct {
 
 type LandingPackagesContentResponse struct {
 	IsEnabled bool
-	Silver    null.Value[LandingPackageDetailResponse]
-	Gold      null.Value[LandingPackageDetailResponse]
-	Platinum  null.Value[LandingPackageDetailResponse]
+	Silver    LandingPackageDetailResponse
+	Gold      LandingPackageDetailResponse
+	Platinum  LandingPackageDetailResponse
 }
 
 type LandingFeaturesContentBenefitResponse struct {

@@ -7,7 +7,7 @@ import (
 )
 
 type PackageSessionService interface {
-	CreatePackageSession(ctx context.Context, request dto.PackageSessionRequest) (dto.PackageSessionResponse, error)
+	CreatePackageSession(ctx context.Context, packageId int64, request dto.PackageSessionRequest) (dto.PackageSessionResponse, error)
 	GetPackageSessionById(ctx context.Context, id int64) (dto.PackageSessionResponse, error)
 	GetAllPackageSession(ctx context.Context, request dto.GetAllPackageSessionRequest) ([]dto.PackageSessionListResponse, error)
 	UpdatePackageSession(ctx context.Context, id int64, request dto.PackageSessionRequest) (dto.PackageSessionResponse, error)

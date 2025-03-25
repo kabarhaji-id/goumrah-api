@@ -48,7 +48,7 @@ func (m LandingMapper) mapPackageItemEntityToResponse(
 	}
 
 	packageSessionEntities, err := packageSessionRepository.FindAll(ctx, repository.FindAllOptions{
-		Where: map[string]interface{}{
+		Where: map[string]any{
 			"package_id": packageEntity.Id,
 		},
 	})
@@ -61,14 +61,12 @@ func (m LandingMapper) mapPackageItemEntityToResponse(
 
 	// }
 
-	itineraryEntities := []entity.Itinerary{}
 	itineraryDayEntities := []entity.ItineraryDay{}
 	for itineraryId := null.NewInt(packageSessionQuadEntity.ItineraryId, true); itineraryId.Valid; {
 		itineraryEntity, err := itineraryRepository.FindById(ctx, itineraryId.Int64)
 		if err != nil {
 			return dto.LandingPackageItemResponse{}, err
 		}
-		itineraryEntities = append(itineraryEntities, itineraryEntity)
 
 		for itineraryDayId := null.NewInt(itineraryEntity.DayId, true); itineraryDayId.Valid; {
 			itineraryDayEntity, err := itineraryDayRepository.FindById(ctx, itineraryDayId.Int64)
@@ -388,91 +386,73 @@ func (m LandingMapper) MapEntityToResponse(
 		landingSinglePackageContentPlatinumResponse = null.ValueFrom(landingSinglePackageContentPlatinumResponseValue)
 	}
 
-	landingPackagesContentSilverResponse := null.NewValue(dto.LandingPackageDetailResponse{}, false)
-	if landingPackagesContentEntity.SilverLandingPackageDetailId.Valid {
-		landingPackagesContentSilverEntity, err := landingPackageDetailRepository.FindById(ctx, landingPackagesContentEntity.SilverLandingPackageDetailId.Int64)
-		if err != nil {
-			return dto.LandingResponse{}, err
-		}
-
-		landingPackagesContentSilverResponseValue, err := m.mapPackageDetailEntityToResponse(
-			ctx,
-			packageRepository,
-			imageRepository,
-			packageSessionRepository,
-			itineraryRepository,
-			itineraryDayRepository,
-			flightRouteRepository,
-			flightRepository,
-			airlineRepository,
-			landingSectionHeaderRepository,
-			landingPackageDetailItemRepository,
-			landingPackageItemRepository,
-			landingPackagesContentSilverEntity,
-		)
-		if err != nil {
-			return dto.LandingResponse{}, err
-		}
-
-		landingPackagesContentSilverResponse = null.ValueFrom(landingPackagesContentSilverResponseValue)
+	landingPackagesContentSilverEntity, err := landingPackageDetailRepository.FindById(ctx, landingPackagesContentEntity.SilverLandingPackageDetailId)
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+	landingPackagesContentSilverResponse, err := m.mapPackageDetailEntityToResponse(
+		ctx,
+		packageRepository,
+		imageRepository,
+		packageSessionRepository,
+		itineraryRepository,
+		itineraryDayRepository,
+		flightRouteRepository,
+		flightRepository,
+		airlineRepository,
+		landingSectionHeaderRepository,
+		landingPackageDetailItemRepository,
+		landingPackageItemRepository,
+		landingPackagesContentSilverEntity,
+	)
+	if err != nil {
+		return dto.LandingResponse{}, err
 	}
 
-	landingPackagesContentGoldResponse := null.NewValue(dto.LandingPackageDetailResponse{}, false)
-	if landingPackagesContentEntity.GoldLandingPackageDetailId.Valid {
-		landingPackagesContentGoldEntity, err := landingPackageDetailRepository.FindById(ctx, landingPackagesContentEntity.GoldLandingPackageDetailId.Int64)
-		if err != nil {
-			return dto.LandingResponse{}, err
-		}
-
-		landingPackagesContentGoldResponseValue, err := m.mapPackageDetailEntityToResponse(
-			ctx,
-			packageRepository,
-			imageRepository,
-			packageSessionRepository,
-			itineraryRepository,
-			itineraryDayRepository,
-			flightRouteRepository,
-			flightRepository,
-			airlineRepository,
-			landingSectionHeaderRepository,
-			landingPackageDetailItemRepository,
-			landingPackageItemRepository,
-			landingPackagesContentGoldEntity,
-		)
-		if err != nil {
-			return dto.LandingResponse{}, err
-		}
-
-		landingPackagesContentGoldResponse = null.ValueFrom(landingPackagesContentGoldResponseValue)
+	landingPackagesContentGoldEntity, err := landingPackageDetailRepository.FindById(ctx, landingPackagesContentEntity.GoldLandingPackageDetailId)
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+	landingPackagesContentGoldResponse, err := m.mapPackageDetailEntityToResponse(
+		ctx,
+		packageRepository,
+		imageRepository,
+		packageSessionRepository,
+		itineraryRepository,
+		itineraryDayRepository,
+		flightRouteRepository,
+		flightRepository,
+		airlineRepository,
+		landingSectionHeaderRepository,
+		landingPackageDetailItemRepository,
+		landingPackageItemRepository,
+		landingPackagesContentGoldEntity,
+	)
+	if err != nil {
+		return dto.LandingResponse{}, err
 	}
 
-	landingPackagesContentPlatinumResponse := null.NewValue(dto.LandingPackageDetailResponse{}, false)
-	if landingPackagesContentEntity.PlatinumLandingPackageDetailId.Valid {
-		landingPackagesContentPlatinumEntity, err := landingPackageDetailRepository.FindById(ctx, landingPackagesContentEntity.PlatinumLandingPackageDetailId.Int64)
-		if err != nil {
-			return dto.LandingResponse{}, err
-		}
-
-		landingPackagesContentPlatinumResponseValue, err := m.mapPackageDetailEntityToResponse(
-			ctx,
-			packageRepository,
-			imageRepository,
-			packageSessionRepository,
-			itineraryRepository,
-			itineraryDayRepository,
-			flightRouteRepository,
-			flightRepository,
-			airlineRepository,
-			landingSectionHeaderRepository,
-			landingPackageDetailItemRepository,
-			landingPackageItemRepository,
-			landingPackagesContentPlatinumEntity,
-		)
-		if err != nil {
-			return dto.LandingResponse{}, err
-		}
-
-		landingPackagesContentPlatinumResponse = null.ValueFrom(landingPackagesContentPlatinumResponseValue)
+	landingPackagesContentPlatinumEntity, err := landingPackageDetailRepository.FindById(ctx, landingPackagesContentEntity.PlatinumLandingPackageDetailId)
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+	landingPackagesContentPlatinumResponse, err := m.mapPackageDetailEntityToResponse(
+		ctx,
+		packageRepository,
+		imageRepository,
+		packageSessionRepository,
+		itineraryRepository,
+		itineraryDayRepository,
+		flightRouteRepository,
+		flightRepository,
+		airlineRepository,
+		landingSectionHeaderRepository,
+		landingPackageDetailItemRepository,
+		landingPackageItemRepository,
+		landingPackagesContentPlatinumEntity,
+	)
+	if err != nil {
+		return dto.LandingResponse{}, err
 	}
 
 	landingFeaturesContentHeaderEntity, err := landingSectionHeaderRepository.FindById(ctx, landingFeaturesContentEntity.LandingSectionHeaderId)

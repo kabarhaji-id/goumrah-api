@@ -405,7 +405,7 @@ func (r itineraryWidgetHotelRepositoryPostgresql) Update(ctx context.Context, id
 			itineraryWidgetHotel.HotelId,
 		).
 		S(`WHERE "id" = $2 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "title", "description", "created_at", "updated_at", "deleted_at"`)
+		S(`RETURNING "id", "hotel_id", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&itineraryWidgetHotel.Id, &itineraryWidgetHotel.HotelId,
@@ -548,7 +548,7 @@ func (r itineraryWidgetTransportRepositoryPostgresql) Create(ctx context.Context
 	builder := sqlbuilder.New().
 		S(`INSERT INTO "itinerary_widget_transports" ("transportation", "from", "to", "created_at", "updated_at", "deleted_at")`).
 		S(`VALUES ($1, $2, $3, NOW(), NOW(), NULL)`, itineraryWidgetTransport.Transportation, itineraryWidgetTransport.From, itineraryWidgetTransport.To).
-		S(`RETURNING "id", "description", "created_at", "updated_at", "deleted_at"`)
+		S(`RETURNING "id", "transportation", "from", "to", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&itineraryWidgetTransport.Id, &itineraryWidgetTransport.Transportation, &itineraryWidgetTransport.From, &itineraryWidgetTransport.To,
@@ -615,7 +615,7 @@ func (r itineraryWidgetTransportRepositoryPostgresql) Update(ctx context.Context
 			itineraryWidgetTransport.Transportation, itineraryWidgetTransport.From, itineraryWidgetTransport.To,
 		).
 		S(`WHERE "id" = $4 AND "deleted_at" IS NULL`, id).
-		S(`RETURNING "id", "title", "description", "created_at", "updated_at", "deleted_at"`)
+		S(`RETURNING "id", "transportation", "from", "to", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
 		&itineraryWidgetTransport.Id, &itineraryWidgetTransport.Transportation, &itineraryWidgetTransport.From, &itineraryWidgetTransport.To,

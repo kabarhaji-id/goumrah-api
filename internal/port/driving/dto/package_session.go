@@ -7,7 +7,6 @@ import (
 )
 
 type PackageSessionRequest struct {
-	Package          int64
 	Embarkation      int64
 	DepartureDate    string
 	DepartureFlights []int64

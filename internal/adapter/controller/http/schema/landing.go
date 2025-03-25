@@ -61,20 +61,35 @@ func (r LandingPackageItemRequest) ToDtoRequest() dto.LandingPackageItemRequest 
 }
 
 type LandingSinglePackageContentRequest struct {
-	IsEnabled bool                        `json:"is_enabled"`
-	Header    LandingSectionHeaderRequest `json:"header"`
-	Silver    LandingPackageItemRequest   `json:"silver"`
-	Gold      LandingPackageItemRequest   `json:"gold"`
-	Platinum  LandingPackageItemRequest   `json:"platinum"`
+	IsEnabled bool                                  `json:"is_enabled"`
+	Header    LandingSectionHeaderRequest           `json:"header"`
+	Silver    null.Value[LandingPackageItemRequest] `json:"silver"`
+	Gold      null.Value[LandingPackageItemRequest] `json:"gold"`
+	Platinum  null.Value[LandingPackageItemRequest] `json:"platinum"`
 }
 
 func (r LandingSinglePackageContentRequest) ToDtoRequest() dto.LandingSinglePackageContentRequest {
+	silver := null.NewValue(dto.LandingPackageItemRequest{}, false)
+	if r.Silver.Valid {
+		silver = null.ValueFrom(r.Silver.V.ToDtoRequest())
+	}
+
+	gold := null.NewValue(dto.LandingPackageItemRequest{}, false)
+	if r.Gold.Valid {
+		gold = null.ValueFrom(r.Gold.V.ToDtoRequest())
+	}
+
+	platinum := null.NewValue(dto.LandingPackageItemRequest{}, false)
+	if r.Platinum.Valid {
+		platinum = null.ValueFrom(r.Platinum.V.ToDtoRequest())
+	}
+
 	return dto.LandingSinglePackageContentRequest{
 		IsEnabled: r.IsEnabled,
 		Header:    r.Header.ToDtoRequest(),
-		Silver:    r.Silver.ToDtoRequest(),
-		Gold:      r.Gold.ToDtoRequest(),
-		Platinum:  r.Platinum.ToDtoRequest(),
+		Silver:    silver,
+		Gold:      gold,
+		Platinum:  platinum,
 	}
 }
 
@@ -521,12 +536,27 @@ type LandingSinglePackageContentResponse struct {
 }
 
 func NewLandingSinglePackageContentResponse(dto dto.LandingSinglePackageContentResponse) LandingSinglePackageContentResponse {
+	silver := null.NewValue(LandingPackageItemResponse{}, false)
+	if dto.Silver.Valid {
+		silver = null.ValueFrom(NewLandingPackageItemResponse(dto.Silver.V))
+	}
+
+	gold := null.NewValue(LandingPackageItemResponse{}, false)
+	if dto.Gold.Valid {
+		gold = null.ValueFrom(NewLandingPackageItemResponse(dto.Gold.V))
+	}
+
+	platinum := null.NewValue(LandingPackageItemResponse{}, false)
+	if dto.Platinum.Valid {
+		platinum = null.ValueFrom(NewLandingPackageItemResponse(dto.Platinum.V))
+	}
+
 	return LandingSinglePackageContentResponse{
 		IsEnabled: dto.IsEnabled,
 		Header:    NewLandingSectionHeaderResponse(dto.Header),
-		Silver:    null.ValueFrom(NewLandingPackageItemResponse(dto.Silver.V)),
-		Gold:      null.ValueFrom(NewLandingPackageItemResponse(dto.Gold.V)),
-		Platinum:  null.ValueFrom(NewLandingPackageItemResponse(dto.Platinum.V)),
+		Silver:    silver,
+		Gold:      gold,
+		Platinum:  platinum,
 	}
 }
 
@@ -565,18 +595,18 @@ func NewLandingPackageDetailResponses(dtos []dto.LandingPackageDetailResponse) [
 }
 
 type LandingPackagesContentResponse struct {
-	IsEnabled bool                                     `json:"is_enabled"`
-	Silver    null.Value[LandingPackageDetailResponse] `json:"silver"`
-	Gold      null.Value[LandingPackageDetailResponse] `json:"gold"`
-	Platinum  null.Value[LandingPackageDetailResponse] `json:"platinum"`
+	IsEnabled bool                         `json:"is_enabled"`
+	Silver    LandingPackageDetailResponse `json:"silver"`
+	Gold      LandingPackageDetailResponse `json:"gold"`
+	Platinum  LandingPackageDetailResponse `json:"platinum"`
 }
 
 func NewLandingPackagesContentResponse(dto dto.LandingPackagesContentResponse) LandingPackagesContentResponse {
 	return LandingPackagesContentResponse{
 		IsEnabled: dto.IsEnabled,
-		Silver:    null.ValueFrom(NewLandingPackageDetailResponse(dto.Silver.V)),
-		Gold:      null.ValueFrom(NewLandingPackageDetailResponse(dto.Gold.V)),
-		Platinum:  null.ValueFrom(NewLandingPackageDetailResponse(dto.Platinum.V)),
+		Silver:    NewLandingPackageDetailResponse(dto.Silver),
+		Gold:      NewLandingPackageDetailResponse(dto.Gold),
+		Platinum:  NewLandingPackageDetailResponse(dto.Platinum),
 	}
 }
 
@@ -596,11 +626,18 @@ type LandingFeaturesContentBenefitResponse struct {
 }
 
 func NewLandingFeaturesContentBenefitResponse(dto dto.LandingFeaturesContentBenefitResponse) LandingFeaturesContentBenefitResponse {
+	logo := null.NewValue(ImageResponse{}, false)
+	if dto.Logo.Valid {
+		imageResponse := NewImageResponse(dto.Logo.V)
+
+		logo = null.ValueFrom(imageResponse)
+	}
+
 	return LandingFeaturesContentBenefitResponse{
 		IsEnabled: dto.IsEnabled,
 		Title:     dto.Title,
 		Subtitle:  dto.Subtitle,
-		Logo:      null.ValueFrom(NewImageResponse(dto.Logo.V)),
+		Logo:      logo,
 	}
 }
 
@@ -699,10 +736,17 @@ type LandingAffiliatesContentAffiliateResponse struct {
 }
 
 func NewLandingAffiliatesContentAffiliateResponse(dto dto.LandingAffiliatesContentAffiliateResponse) LandingAffiliatesContentAffiliateResponse {
+	logo := null.NewValue(ImageResponse{}, false)
+	if dto.Logo.Valid {
+		imageResponse := NewImageResponse(dto.Logo.V)
+
+		logo = null.ValueFrom(imageResponse)
+	}
+
 	return LandingAffiliatesContentAffiliateResponse{
 		IsEnabled: dto.IsEnabled,
 		Name:      dto.Name,
-		Logo:      null.ValueFrom(NewImageResponse(dto.Logo.V)),
+		Logo:      logo,
 		Width:     dto.Width,
 		Height:    dto.Height,
 	}

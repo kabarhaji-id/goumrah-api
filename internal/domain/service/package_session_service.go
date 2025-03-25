@@ -103,7 +103,12 @@ func NewPackageSessionService(
 	}
 }
 
-func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, request dto.PackageSessionRequest) (dto.PackageSessionResponse, error) {
+func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, packageId int64, request dto.PackageSessionRequest) (dto.PackageSessionResponse, error) {
+	// Validate package id
+	if err := s.packageSessionValidator.ValidatePackageId(ctx, packageId); err != nil {
+		return dto.PackageSessionResponse{}, err
+	}
+
 	// Validate request
 	if err := s.packageSessionValidator.ValidateRequest(ctx, request); err != nil {
 		return dto.PackageSessionResponse{}, err
@@ -111,6 +116,7 @@ func (s packageSessionServiceImpl) CreatePackageSession(ctx context.Context, req
 
 	// Map request into entity
 	packageSessionEntity := s.packageSessionMapper.MapRequestToEntity(ctx, request)
+	packageSessionEntity.PackageId = packageId
 
 	// Create response
 	response := dto.PackageSessionResponse{}
@@ -538,8 +544,14 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		// Create itinerary widget recommendation repository
 		itineraryWidgetRecommendationRepository := factory.NewItineraryWidgetRecommendationRepository()
 
+		// Get old entity by id with repository
+		oldPackageSessionEntity, err := packageSessionRepository.FindById(ctx, id)
+		if err != nil {
+			return err
+		}
+
 		// Delete departure flight route
-		departureFlightRoute, err := flightRouteRepository.FindById(ctx, packageSessionEntity.DepartureFlightRouteId)
+		departureFlightRoute, err := flightRouteRepository.FindById(ctx, oldPackageSessionEntity.DepartureFlightRouteId)
 		if err != nil {
 			return err
 		}
@@ -566,7 +578,7 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		}
 
 		// Delete return flight route
-		returnFlightRoute, err := flightRouteRepository.FindById(ctx, packageSessionEntity.ReturnFlightRouteId)
+		returnFlightRoute, err := flightRouteRepository.FindById(ctx, oldPackageSessionEntity.ReturnFlightRouteId)
 		if err != nil {
 			return err
 		}
@@ -593,7 +605,7 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		}
 
 		// Delete itinerary
-		itinerary, err := itineraryRepository.FindById(ctx, packageSessionEntity.ItineraryId)
+		itinerary, err := itineraryRepository.FindById(ctx, oldPackageSessionEntity.ItineraryId)
 		if err != nil {
 			return err
 		}
@@ -754,7 +766,7 @@ func (s packageSessionServiceImpl) UpdatePackageSession(ctx context.Context, id 
 		}
 
 		// Update entity with repository
-		packageSessionEntity, err := packageSessionRepository.Update(ctx, id, packageSessionEntity)
+		packageSessionEntity, err = packageSessionRepository.Update(ctx, id, packageSessionEntity)
 		if err != nil {
 			return err
 		}
