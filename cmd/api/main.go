@@ -189,6 +189,7 @@ func main() {
 	landingController := httpcontroller.NewLandingController(landingService)
 
 	app := fiber.New()
+	app.Static("/", "public", fiber.Static{})
 	app.Route("/images", func(router fiber.Router) {
 		router.Post("", imageController.CreateImage)
 		router.Get("", imageController.GetAllImage)
@@ -296,7 +297,6 @@ func main() {
 		router.Delete("/:id", userController.DeleteUser)
 	})
 	app.Route("/landing", func(router fiber.Router) {
-		router.Post("", landingController.CreateLanding)
 		router.Get("", landingController.GetLanding)
 		router.Put("", landingController.UpdateLanding)
 	})

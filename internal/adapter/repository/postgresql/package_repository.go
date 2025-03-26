@@ -19,7 +19,7 @@ func NewPackageRepository(db DB) repository.PackageRepository {
 func (r packageRepositoryPostgresql) Create(ctx context.Context, pkg entity.Package) (entity.Package, error) {
 	builder := sqlbuilder.New().
 		S(`INSERT INTO "packages" ("thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at")`).
-		S(`VALUES ($1, $2, $3, $4, $5, NOW(), NOW(), NULL)`, pkg.ThumbnailId, pkg.Name, pkg.Category, pkg.Type, pkg.FastTrain, pkg.Slug).
+		S(`VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), NULL)`, pkg.ThumbnailId, pkg.Name, pkg.Category, pkg.Type, pkg.FastTrain, pkg.Slug).
 		S(`RETURNING "id", "thumbnail_id", "name", "category", "type", "fast_train", "slug", "created_at", "updated_at", "deleted_at"`)
 
 	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
