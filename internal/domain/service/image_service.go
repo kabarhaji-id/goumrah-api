@@ -58,12 +58,14 @@ func (s imageServiceImpl) CreateImage(ctx context.Context, request dto.ImageRequ
 			return err
 		}
 
-		// Write image file into public folder
-		if err := os.WriteFile(
-			filepath.Join("public", imageEntity.Src),
-			request.FileData,
-			0644,
-		); err != nil {
+		// Open and create image file
+		file, err := os.OpenFile(filepath.Join("public", imageEntity.Src), os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+
+		// Write image file
+		if _, err := file.Write(request.FileData); err != nil {
 			return err
 		}
 
@@ -143,12 +145,14 @@ func (s imageServiceImpl) UpdateImage(ctx context.Context, id int64, request dto
 			return err
 		}
 
-		// Write image file into public folder
-		if err := os.WriteFile(
-			filepath.Join("public", imageEntity.Src),
-			request.FileData,
-			0644,
-		); err != nil {
+		// Open and create image file
+		file, err := os.OpenFile(filepath.Join("public", imageEntity.Src), os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+
+		// Write image file
+		if _, err := file.Write(request.FileData); err != nil {
 			return err
 		}
 
