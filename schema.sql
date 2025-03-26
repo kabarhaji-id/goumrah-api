@@ -2571,6 +2571,8 @@ CREATE TABLE public.landing_affiliates_content (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
     CONSTRAINT landing_affiliates_content_id_check CHECK ((id = 1))
 );
 
@@ -2588,7 +2590,9 @@ CREATE TABLE public.landing_affiliates_content_affiliates (
     height integer NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2617,6 +2621,8 @@ CREATE TABLE public.landing_faq_content (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
     CONSTRAINT landing_faq_content_id_check CHECK ((id = 1))
 );
 
@@ -2632,7 +2638,9 @@ CREATE TABLE public.landing_faq_content_faqs (
     answer character varying(500) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2664,6 +2672,8 @@ CREATE TABLE public.landing_features_content (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
     CONSTRAINT landing_features_content_id_check CHECK ((id = 1))
 );
 
@@ -2680,7 +2690,9 @@ CREATE TABLE public.landing_features_content_benefits (
     logo_id bigint,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2714,6 +2726,8 @@ CREATE TABLE public.landing_hero_content (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
     CONSTRAINT landing_hero_content_id_check CHECK ((id = 1))
 );
 
@@ -2730,7 +2744,9 @@ CREATE TABLE public.landing_menus (
     path character varying(100) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2759,6 +2775,8 @@ CREATE TABLE public.landing_moments_content (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
     CONSTRAINT landing_moments_content_id_check CHECK ((id = 1))
 );
 
@@ -2772,7 +2790,9 @@ CREATE TABLE public.landing_moments_content_images (
     image_id bigint NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2786,7 +2806,9 @@ CREATE TABLE public.landing_package_detail_items (
     landing_package_item_id bigint NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2800,7 +2822,9 @@ CREATE TABLE public.landing_package_details (
     landing_section_header_id bigint NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2829,7 +2853,9 @@ CREATE TABLE public.landing_package_items (
     button_label character varying(100) NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2860,6 +2886,8 @@ CREATE TABLE public.landing_packages_content (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
     CONSTRAINT landing_packages_content_id_check CHECK ((id = 1))
 );
 
@@ -2876,7 +2904,9 @@ CREATE TABLE public.landing_section_headers (
     tags_line character varying(50) DEFAULT NULL::character varying,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL
 );
 
 
@@ -2908,6 +2938,8 @@ CREATE TABLE public.landing_single_package_content (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
     CONSTRAINT landing_single_package_content_id_check CHECK ((id = 1))
 );
 
@@ -4782,4 +4814,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250325070426'),
     ('20250325070655'),
     ('20250325071654'),
-    ('20250325074422');
+    ('20250325074422'),
+    ('20250325092604');

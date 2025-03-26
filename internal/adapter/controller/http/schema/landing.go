@@ -10,6 +10,8 @@ import (
 
 type LandingHeroContentRequest struct {
 	IsEnabled   bool       `json:"is_enabled"`
+	IsMobile    bool       `json:"is_mobile"`
+	IsDesktop   bool       `json:"is_desktop"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	TagsLine    string     `json:"tags_line"`
@@ -21,6 +23,8 @@ type LandingHeroContentRequest struct {
 func (r LandingHeroContentRequest) ToDtoRequest() dto.LandingHeroContentRequest {
 	return dto.LandingHeroContentRequest{
 		IsEnabled:   r.IsEnabled,
+		IsMobile:    r.IsMobile,
+		IsDesktop:   r.IsDesktop,
 		Title:       r.Title,
 		Description: r.Description,
 		TagsLine:    r.TagsLine,
@@ -32,6 +36,8 @@ func (r LandingHeroContentRequest) ToDtoRequest() dto.LandingHeroContentRequest 
 
 type LandingSectionHeaderRequest struct {
 	IsEnabled bool        `json:"is_enabled"`
+	IsMobile  bool        `json:"is_mobile"`
+	IsDesktop bool        `json:"is_desktop"`
 	Title     string      `json:"title"`
 	Subtitle  null.String `json:"subtitle"`
 	TagsLine  null.String `json:"tags_line"`
@@ -40,6 +46,8 @@ type LandingSectionHeaderRequest struct {
 func (r LandingSectionHeaderRequest) ToDtoRequest() dto.LandingSectionHeaderRequest {
 	return dto.LandingSectionHeaderRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Title:     r.Title,
 		Subtitle:  r.Subtitle,
 		TagsLine:  r.TagsLine,
@@ -48,6 +56,8 @@ func (r LandingSectionHeaderRequest) ToDtoRequest() dto.LandingSectionHeaderRequ
 
 type LandingPackageItemRequest struct {
 	IsEnabled   bool   `json:"is_enabled"`
+	IsMobile    bool   `json:"is_mobile"`
+	IsDesktop   bool   `json:"is_desktop"`
 	Package     int64  `json:"package"`
 	ButtonLabel string `json:"button_label"`
 }
@@ -55,6 +65,8 @@ type LandingPackageItemRequest struct {
 func (r LandingPackageItemRequest) ToDtoRequest() dto.LandingPackageItemRequest {
 	return dto.LandingPackageItemRequest{
 		IsEnabled:   r.IsEnabled,
+		IsMobile:    r.IsMobile,
+		IsDesktop:   r.IsDesktop,
 		Package:     r.Package,
 		ButtonLabel: r.ButtonLabel,
 	}
@@ -62,6 +74,8 @@ func (r LandingPackageItemRequest) ToDtoRequest() dto.LandingPackageItemRequest 
 
 type LandingSinglePackageContentRequest struct {
 	IsEnabled bool                                  `json:"is_enabled"`
+	IsMobile  bool                                  `json:"is_mobile"`
+	IsDesktop bool                                  `json:"is_desktop"`
 	Header    LandingSectionHeaderRequest           `json:"header"`
 	Silver    null.Value[LandingPackageItemRequest] `json:"silver"`
 	Gold      null.Value[LandingPackageItemRequest] `json:"gold"`
@@ -86,6 +100,8 @@ func (r LandingSinglePackageContentRequest) ToDtoRequest() dto.LandingSinglePack
 
 	return dto.LandingSinglePackageContentRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Header:    r.Header.ToDtoRequest(),
 		Silver:    silver,
 		Gold:      gold,
@@ -95,6 +111,8 @@ func (r LandingSinglePackageContentRequest) ToDtoRequest() dto.LandingSinglePack
 
 type LandingPackageDetailRequest struct {
 	IsEnabled bool                        `json:"is_enabled"`
+	IsMobile  bool                        `json:"is_mobile"`
+	IsDesktop bool                        `json:"is_desktop"`
 	Header    LandingSectionHeaderRequest `json:"header"`
 	Packages  []LandingPackageItemRequest `json:"packages"`
 }
@@ -106,6 +124,8 @@ func (r LandingPackageDetailRequest) ToDtoRequest() dto.LandingPackageDetailRequ
 	}
 	return dto.LandingPackageDetailRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Header:    r.Header.ToDtoRequest(),
 		Packages:  packages,
 	}
@@ -113,6 +133,8 @@ func (r LandingPackageDetailRequest) ToDtoRequest() dto.LandingPackageDetailRequ
 
 type LandingPackagesContentRequest struct {
 	IsEnabled bool                        `json:"is_enabled"`
+	IsMobile  bool                        `json:"is_mobile"`
+	IsDesktop bool                        `json:"is_desktop"`
 	Silver    LandingPackageDetailRequest `json:"silver"`
 	Gold      LandingPackageDetailRequest `json:"gold"`
 	Platinum  LandingPackageDetailRequest `json:"platinum"`
@@ -121,6 +143,8 @@ type LandingPackagesContentRequest struct {
 func (r LandingPackagesContentRequest) ToDtoRequest() dto.LandingPackagesContentRequest {
 	return dto.LandingPackagesContentRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Silver:    r.Silver.ToDtoRequest(),
 		Gold:      r.Gold.ToDtoRequest(),
 		Platinum:  r.Platinum.ToDtoRequest(),
@@ -129,6 +153,8 @@ func (r LandingPackagesContentRequest) ToDtoRequest() dto.LandingPackagesContent
 
 type LandingFeaturesContentBenefitRequest struct {
 	IsEnabled bool       `json:"is_enabled"`
+	IsMobile  bool       `json:"is_mobile"`
+	IsDesktop bool       `json:"is_desktop"`
 	Title     string     `json:"title"`
 	Subtitle  string     `json:"subtitle"`
 	Logo      null.Int64 `json:"logo"`
@@ -137,6 +163,8 @@ type LandingFeaturesContentBenefitRequest struct {
 func (r LandingFeaturesContentBenefitRequest) ToDtoRequest() dto.LandingFeaturesContentBenefitRequest {
 	return dto.LandingFeaturesContentBenefitRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Title:     r.Title,
 		Subtitle:  r.Subtitle,
 		Logo:      r.Logo,
@@ -145,6 +173,8 @@ func (r LandingFeaturesContentBenefitRequest) ToDtoRequest() dto.LandingFeatures
 
 type LandingFeaturesContentRequest struct {
 	IsEnabled     bool                                   `json:"is_enabled"`
+	IsMobile      bool                                   `json:"is_mobile"`
+	IsDesktop     bool                                   `json:"is_desktop"`
 	Header        LandingSectionHeaderRequest            `json:"header"`
 	Benefits      []LandingFeaturesContentBenefitRequest `json:"benefits"`
 	FooterTitle   string                                 `json:"footer_title"`
@@ -159,6 +189,8 @@ func (r LandingFeaturesContentRequest) ToDtoRequest() dto.LandingFeaturesContent
 	}
 	return dto.LandingFeaturesContentRequest{
 		IsEnabled:     r.IsEnabled,
+		IsMobile:      r.IsMobile,
+		IsDesktop:     r.IsDesktop,
 		Header:        r.Header.ToDtoRequest(),
 		Benefits:      benefits,
 		FooterTitle:   r.FooterTitle,
@@ -169,18 +201,24 @@ func (r LandingFeaturesContentRequest) ToDtoRequest() dto.LandingFeaturesContent
 
 type LandingMomentsContentImageRequest struct {
 	IsEnabled bool  `json:"is_enabled"`
+	IsMobile  bool  `json:"is_mobile"`
+	IsDesktop bool  `json:"is_desktop"`
 	Image     int64 `json:"image"`
 }
 
 func (r LandingMomentsContentImageRequest) ToDtoRequest() dto.LandingMomentsContentImageRequest {
 	return dto.LandingMomentsContentImageRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Image:     r.Image,
 	}
 }
 
 type LandingMomentsContentRequest struct {
 	IsEnabled bool                                `json:"is_enabled"`
+	IsMobile  bool                                `json:"is_mobile"`
+	IsDesktop bool                                `json:"is_desktop"`
 	Header    LandingSectionHeaderRequest         `json:"header"`
 	Images    []LandingMomentsContentImageRequest `json:"images"`
 }
@@ -192,6 +230,8 @@ func (r LandingMomentsContentRequest) ToDtoRequest() dto.LandingMomentsContentRe
 	}
 	return dto.LandingMomentsContentRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Header:    r.Header.ToDtoRequest(),
 		Images:    images,
 	}
@@ -199,6 +239,8 @@ func (r LandingMomentsContentRequest) ToDtoRequest() dto.LandingMomentsContentRe
 
 type LandingAffiliatesContentAffiliateRequest struct {
 	IsEnabled bool       `json:"is_enabled"`
+	IsMobile  bool       `json:"is_mobile"`
+	IsDesktop bool       `json:"is_desktop"`
 	Name      string     `json:"name"`
 	Logo      null.Int64 `json:"logo"`
 	Width     int        `json:"width"`
@@ -208,6 +250,8 @@ type LandingAffiliatesContentAffiliateRequest struct {
 func (r LandingAffiliatesContentAffiliateRequest) ToDtoRequest() dto.LandingAffiliatesContentAffiliateRequest {
 	return dto.LandingAffiliatesContentAffiliateRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Name:      r.Name,
 		Logo:      r.Logo,
 		Width:     r.Width,
@@ -217,6 +261,8 @@ func (r LandingAffiliatesContentAffiliateRequest) ToDtoRequest() dto.LandingAffi
 
 type LandingAffiliatesContentRequest struct {
 	IsEnabled  bool                                       `json:"is_enabled"`
+	IsMobile   bool                                       `json:"is_mobile"`
+	IsDesktop  bool                                       `json:"is_desktop"`
 	Header     LandingSectionHeaderRequest                `json:"header"`
 	Affiliates []LandingAffiliatesContentAffiliateRequest `json:"affiliates"`
 }
@@ -228,6 +274,8 @@ func (r LandingAffiliatesContentRequest) ToDtoRequest() dto.LandingAffiliatesCon
 	}
 	return dto.LandingAffiliatesContentRequest{
 		IsEnabled:  r.IsEnabled,
+		IsMobile:   r.IsMobile,
+		IsDesktop:  r.IsDesktop,
 		Header:     r.Header.ToDtoRequest(),
 		Affiliates: affiliates,
 	}
@@ -235,6 +283,8 @@ func (r LandingAffiliatesContentRequest) ToDtoRequest() dto.LandingAffiliatesCon
 
 type LandingFaqContentFaqRequest struct {
 	IsEnabled bool   `json:"is_enabled"`
+	IsMobile  bool   `json:"is_mobile"`
+	IsDesktop bool   `json:"is_desktop"`
 	Question  string `json:"question"`
 	Answer    string `json:"answer"`
 }
@@ -242,6 +292,8 @@ type LandingFaqContentFaqRequest struct {
 func (r LandingFaqContentFaqRequest) ToDtoRequest() dto.LandingFaqContentFaqRequest {
 	return dto.LandingFaqContentFaqRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Question:  r.Question,
 		Answer:    r.Answer,
 	}
@@ -249,6 +301,8 @@ func (r LandingFaqContentFaqRequest) ToDtoRequest() dto.LandingFaqContentFaqRequ
 
 type LandingFaqContentRequest struct {
 	IsEnabled bool                          `json:"is_enabled"`
+	IsMobile  bool                          `json:"is_mobile"`
+	IsDesktop bool                          `json:"is_desktop"`
 	Header    LandingSectionHeaderRequest   `json:"header"`
 	Faqs      []LandingFaqContentFaqRequest `json:"faqs"`
 }
@@ -260,6 +314,8 @@ func (r LandingFaqContentRequest) ToDtoRequest() dto.LandingFaqContentRequest {
 	}
 	return dto.LandingFaqContentRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Header:    r.Header.ToDtoRequest(),
 		Faqs:      faqs,
 	}
@@ -267,6 +323,8 @@ func (r LandingFaqContentRequest) ToDtoRequest() dto.LandingFaqContentRequest {
 
 type LandingMenuRequest struct {
 	IsEnabled bool   `json:"is_enabled"`
+	IsMobile  bool   `json:"is_mobile"`
+	IsDesktop bool   `json:"is_desktop"`
 	Icon      string `json:"icon"`
 	Label     string `json:"label"`
 	Path      string `json:"path"`
@@ -275,6 +333,8 @@ type LandingMenuRequest struct {
 func (r LandingMenuRequest) ToDtoRequest() dto.LandingMenuRequest {
 	return dto.LandingMenuRequest{
 		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
 		Icon:      r.Icon,
 		Label:     r.Label,
 		Path:      r.Path,
@@ -312,6 +372,8 @@ func (r LandingRequest) ToDtoRequest() dto.LandingRequest {
 
 type LandingHeroContentResponse struct {
 	IsEnabled   bool                      `json:"is_enabled"`
+	IsMobile    bool                      `json:"is_mobile"`
+	IsDesktop   bool                      `json:"is_desktop"`
 	Title       string                    `json:"title"`
 	Description string                    `json:"description"`
 	TagsLine    string                    `json:"tags_line"`
@@ -330,6 +392,8 @@ func NewLandingHeroContentResponse(dto dto.LandingHeroContentResponse) LandingHe
 
 	return LandingHeroContentResponse{
 		IsEnabled:   dto.IsEnabled,
+		IsMobile:    dto.IsMobile,
+		IsDesktop:   dto.IsDesktop,
 		Title:       dto.Title,
 		Description: dto.Description,
 		TagsLine:    dto.TagsLine,
@@ -349,6 +413,8 @@ func NewLandingHeroContentResponses(dtos []dto.LandingHeroContentResponse) []Lan
 
 type LandingSectionHeaderResponse struct {
 	IsEnabled bool        `json:"is_enabled"`
+	IsMobile  bool        `json:"is_mobile"`
+	IsDesktop bool        `json:"is_desktop"`
 	Title     string      `json:"title"`
 	Subtitle  null.String `json:"subtitle"`
 	TagsLine  null.String `json:"tags_line"`
@@ -357,6 +423,8 @@ type LandingSectionHeaderResponse struct {
 func NewLandingSectionHeaderResponse(dto dto.LandingSectionHeaderResponse) LandingSectionHeaderResponse {
 	return LandingSectionHeaderResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Title:     dto.Title,
 		Subtitle:  dto.Subtitle,
 		TagsLine:  dto.TagsLine,
@@ -471,6 +539,8 @@ func NewLandingPackageItemPriceResponses(dtos []dto.LandingPackageItemPriceRespo
 
 type LandingPackageItemResponse struct {
 	IsEnabled     bool                                      `json:"is_enabled"`
+	IsMobile      bool                                      `json:"is_mobile"`
+	IsDesktop     bool                                      `json:"is_desktop"`
 	Id            int64                                     `json:"id"`
 	Thumbnail     null.Value[ImageResponse]                 `json:"thumbnail"`
 	Tags          []LandingPackageItemTagResponse           `json:"tags"`
@@ -507,6 +577,8 @@ func NewLandingPackageItemResponse(dto dto.LandingPackageItemResponse) LandingPa
 
 	return LandingPackageItemResponse{
 		IsEnabled:     dto.IsEnabled,
+		IsMobile:      dto.IsMobile,
+		IsDesktop:     dto.IsDesktop,
 		Id:            dto.Id,
 		Thumbnail:     thumbnail,
 		Tags:          tags,
@@ -529,6 +601,8 @@ func NewLandingPackageItemResponses(dtos []dto.LandingPackageItemResponse) []Lan
 
 type LandingSinglePackageContentResponse struct {
 	IsEnabled bool                                   `json:"is_enabled"`
+	IsMobile  bool                                   `json:"is_mobile"`
+	IsDesktop bool                                   `json:"is_desktop"`
 	Header    LandingSectionHeaderResponse           `json:"header"`
 	Silver    null.Value[LandingPackageItemResponse] `json:"silver"`
 	Gold      null.Value[LandingPackageItemResponse] `json:"gold"`
@@ -553,6 +627,8 @@ func NewLandingSinglePackageContentResponse(dto dto.LandingSinglePackageContentR
 
 	return LandingSinglePackageContentResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Header:    NewLandingSectionHeaderResponse(dto.Header),
 		Silver:    silver,
 		Gold:      gold,
@@ -570,6 +646,8 @@ func NewLandingSinglePackageContentResponses(dtos []dto.LandingSinglePackageCont
 
 type LandingPackageDetailResponse struct {
 	IsEnabled bool                         `json:"is_enabled"`
+	IsMobile  bool                         `json:"is_mobile"`
+	IsDesktop bool                         `json:"is_desktop"`
 	Header    LandingSectionHeaderResponse `json:"header"`
 	Packages  []LandingPackageItemResponse `json:"packages"`
 }
@@ -581,6 +659,8 @@ func NewLandingPackageDetailResponse(dto dto.LandingPackageDetailResponse) Landi
 	}
 	return LandingPackageDetailResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Header:    NewLandingSectionHeaderResponse(dto.Header),
 		Packages:  packages,
 	}
@@ -596,6 +676,8 @@ func NewLandingPackageDetailResponses(dtos []dto.LandingPackageDetailResponse) [
 
 type LandingPackagesContentResponse struct {
 	IsEnabled bool                         `json:"is_enabled"`
+	IsMobile  bool                         `json:"is_mobile"`
+	IsDesktop bool                         `json:"is_desktop"`
 	Silver    LandingPackageDetailResponse `json:"silver"`
 	Gold      LandingPackageDetailResponse `json:"gold"`
 	Platinum  LandingPackageDetailResponse `json:"platinum"`
@@ -604,6 +686,8 @@ type LandingPackagesContentResponse struct {
 func NewLandingPackagesContentResponse(dto dto.LandingPackagesContentResponse) LandingPackagesContentResponse {
 	return LandingPackagesContentResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Silver:    NewLandingPackageDetailResponse(dto.Silver),
 		Gold:      NewLandingPackageDetailResponse(dto.Gold),
 		Platinum:  NewLandingPackageDetailResponse(dto.Platinum),
@@ -620,6 +704,8 @@ func NewLandingPackagesContentResponses(dtos []dto.LandingPackagesContentRespons
 
 type LandingFeaturesContentBenefitResponse struct {
 	IsEnabled bool                      `json:"is_enabled"`
+	IsMobile  bool                      `json:"is_mobile"`
+	IsDesktop bool                      `json:"is_desktop"`
 	Title     string                    `json:"title"`
 	Subtitle  string                    `json:"subtitle"`
 	Logo      null.Value[ImageResponse] `json:"logo"`
@@ -635,6 +721,8 @@ func NewLandingFeaturesContentBenefitResponse(dto dto.LandingFeaturesContentBene
 
 	return LandingFeaturesContentBenefitResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Title:     dto.Title,
 		Subtitle:  dto.Subtitle,
 		Logo:      logo,
@@ -651,6 +739,8 @@ func NewLandingFeaturesContentBenefitResponses(dtos []dto.LandingFeaturesContent
 
 type LandingFeaturesContentResponse struct {
 	IsEnabled     bool                                    `json:"is_enabled"`
+	IsMobile      bool                                    `json:"is_mobile"`
+	IsDesktop     bool                                    `json:"is_desktop"`
 	Header        LandingSectionHeaderResponse            `json:"header"`
 	Benefits      []LandingFeaturesContentBenefitResponse `json:"benefits"`
 	FooterTitle   string                                  `json:"footer_title"`
@@ -665,6 +755,8 @@ func NewLandingFeaturesContentResponse(dto dto.LandingFeaturesContentResponse) L
 	}
 	return LandingFeaturesContentResponse{
 		IsEnabled:     dto.IsEnabled,
+		IsMobile:      dto.IsMobile,
+		IsDesktop:     dto.IsDesktop,
 		Header:        NewLandingSectionHeaderResponse(dto.Header),
 		Benefits:      benefits,
 		FooterTitle:   dto.FooterTitle,
@@ -683,12 +775,16 @@ func NewLandingFeaturesContentResponses(dtos []dto.LandingFeaturesContentRespons
 
 type LandingMomentsContentImageResponse struct {
 	IsEnabled bool          `json:"is_enabled"`
+	IsMobile  bool          `json:"is_mobile"`
+	IsDesktop bool          `json:"is_desktop"`
 	Image     ImageResponse `json:"image"`
 }
 
 func NewLandingMomentsContentImageResponse(dto dto.LandingMomentsContentImageResponse) LandingMomentsContentImageResponse {
 	return LandingMomentsContentImageResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Image:     NewImageResponse(dto.Image),
 	}
 }
@@ -703,6 +799,8 @@ func NewLandingMomentsContentImageResponses(dtos []dto.LandingMomentsContentImag
 
 type LandingMomentsContentResponse struct {
 	IsEnabled bool                                 `json:"is_enabled"`
+	IsMobile  bool                                 `json:"is_mobile"`
+	IsDesktop bool                                 `json:"is_desktop"`
 	Header    LandingSectionHeaderResponse         `json:"header"`
 	Images    []LandingMomentsContentImageResponse `json:"images"`
 }
@@ -714,6 +812,8 @@ func NewLandingMomentsContentResponse(dto dto.LandingMomentsContentResponse) Lan
 	}
 	return LandingMomentsContentResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Header:    NewLandingSectionHeaderResponse(dto.Header),
 		Images:    images,
 	}
@@ -729,6 +829,8 @@ func NewLandingMomentsContentResponses(dtos []dto.LandingMomentsContentResponse)
 
 type LandingAffiliatesContentAffiliateResponse struct {
 	IsEnabled bool                      `json:"is_enabled"`
+	IsMobile  bool                      `json:"is_mobile"`
+	IsDesktop bool                      `json:"is_desktop"`
 	Name      string                    `json:"name"`
 	Logo      null.Value[ImageResponse] `json:"logo"`
 	Width     int                       `json:"width"`
@@ -745,6 +847,8 @@ func NewLandingAffiliatesContentAffiliateResponse(dto dto.LandingAffiliatesConte
 
 	return LandingAffiliatesContentAffiliateResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Name:      dto.Name,
 		Logo:      logo,
 		Width:     dto.Width,
@@ -762,6 +866,8 @@ func NewLandingAffiliatesContentAffiliateResponses(dtos []dto.LandingAffiliatesC
 
 type LandingAffiliatesContentResponse struct {
 	IsEnabled  bool                                        `json:"is_enabled"`
+	IsMobile   bool                                        `json:"is_mobile"`
+	IsDesktop  bool                                        `json:"is_desktop"`
 	Header     LandingSectionHeaderResponse                `json:"header"`
 	Affiliates []LandingAffiliatesContentAffiliateResponse `json:"affiliates"`
 }
@@ -773,6 +879,8 @@ func NewLandingAffiliatesContentResponse(dto dto.LandingAffiliatesContentRespons
 	}
 	return LandingAffiliatesContentResponse{
 		IsEnabled:  dto.IsEnabled,
+		IsMobile:   dto.IsMobile,
+		IsDesktop:  dto.IsDesktop,
 		Header:     NewLandingSectionHeaderResponse(dto.Header),
 		Affiliates: affiliates,
 	}
@@ -788,6 +896,8 @@ func NewLandingAffiliatesContentResponses(dtos []dto.LandingAffiliatesContentRes
 
 type LandingFaqContentFaqResponse struct {
 	IsEnabled bool   `json:"is_enabled"`
+	IsMobile  bool   `json:"is_mobile"`
+	IsDesktop bool   `json:"is_desktop"`
 	Question  string `json:"question"`
 	Answer    string `json:"answer"`
 }
@@ -795,6 +905,8 @@ type LandingFaqContentFaqResponse struct {
 func NewLandingFaqContentFaqResponse(dto dto.LandingFaqContentFaqResponse) LandingFaqContentFaqResponse {
 	return LandingFaqContentFaqResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Question:  dto.Question,
 		Answer:    dto.Answer,
 	}
@@ -810,6 +922,8 @@ func NewLandingFaqContentFaqResponses(dtos []dto.LandingFaqContentFaqResponse) [
 
 type LandingFaqContentResponse struct {
 	IsEnabled bool                           `json:"is_enabled"`
+	IsMobile  bool                           `json:"is_mobile"`
+	IsDesktop bool                           `json:"is_desktop"`
 	Header    LandingSectionHeaderResponse   `json:"header"`
 	Faqs      []LandingFaqContentFaqResponse `json:"faqs"`
 }
@@ -821,6 +935,8 @@ func NewLandingFaqContentResponse(dto dto.LandingFaqContentResponse) LandingFaqC
 	}
 	return LandingFaqContentResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Header:    NewLandingSectionHeaderResponse(dto.Header),
 		Faqs:      faqs,
 	}
@@ -836,6 +952,8 @@ func NewLandingFaqContentResponses(dtos []dto.LandingFaqContentResponse) []Landi
 
 type LandingMenuResponse struct {
 	IsEnabled bool   `json:"is_enabled"`
+	IsMobile  bool   `json:"is_mobile"`
+	IsDesktop bool   `json:"is_desktop"`
 	Icon      string `json:"icon"`
 	Label     string `json:"label"`
 	Path      string `json:"path"`
@@ -844,6 +962,8 @@ type LandingMenuResponse struct {
 func NewLandingMenuResponse(dto dto.LandingMenuResponse) LandingMenuResponse {
 	return LandingMenuResponse{
 		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
 		Icon:      dto.Icon,
 		Label:     dto.Label,
 		Path:      dto.Path,

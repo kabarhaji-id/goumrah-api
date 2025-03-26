@@ -147,6 +147,8 @@ func (m LandingMapper) mapPackageItemEntityToResponse(
 
 	return dto.LandingPackageItemResponse{
 		IsEnabled:     landingPackageItem.IsEnabled,
+		IsMobile:      landingPackageItem.IsMobile,
+		IsDesktop:     landingPackageItem.IsDesktop,
 		Id:            packageEntity.Id,
 		Thumbnail:     packageThumbnailResponse,
 		Tags:          tags,
@@ -278,8 +280,12 @@ func (m LandingMapper) mapPackageDetailEntityToResponse(
 
 	return dto.LandingPackageDetailResponse{
 		IsEnabled: landingPackageDetail.IsEnabled,
+		IsMobile:  landingPackageDetail.IsMobile,
+		IsDesktop: landingPackageDetail.IsDesktop,
 		Header: dto.LandingSectionHeaderResponse{
 			IsEnabled: landingSectionHeaderEntity.IsEnabled,
+			IsMobile:  landingSectionHeaderEntity.IsMobile,
+			IsDesktop: landingSectionHeaderEntity.IsDesktop,
 			Title:     landingSectionHeaderEntity.Title,
 			Subtitle:  landingSectionHeaderEntity.Subtitle,
 			TagsLine:  landingSectionHeaderEntity.TagsLine,
@@ -500,6 +506,8 @@ func (m LandingMapper) MapEntityToResponse(
 
 		landingFeaturesContentBenefitResponses[i] = dto.LandingFeaturesContentBenefitResponse{
 			IsEnabled: landingFeaturesContentBenefitEntity.IsEnabled,
+			IsMobile:  landingFeaturesContentBenefitEntity.IsMobile,
+			IsDesktop: landingFeaturesContentBenefitEntity.IsDesktop,
 			Title:     landingFeaturesContentBenefitEntity.Title,
 			Subtitle:  landingFeaturesContentBenefitEntity.Subtitle,
 			Logo:      logoResponse,
@@ -524,6 +532,8 @@ func (m LandingMapper) MapEntityToResponse(
 
 		landingMomentsContentImageResponses[i] = dto.LandingMomentsContentImageResponse{
 			IsEnabled: landingMomentsContentImageEntity.IsEnabled,
+			IsMobile:  landingMomentsContentImageEntity.IsMobile,
+			IsDesktop: landingMomentsContentImageEntity.IsDesktop,
 			Image:     m.imageMapper.MapEntityToResponse(ctx, imageEntity),
 		}
 	}
@@ -551,6 +561,8 @@ func (m LandingMapper) MapEntityToResponse(
 
 		landingAffiliatesContentAffiliateResponses[i] = dto.LandingAffiliatesContentAffiliateResponse{
 			IsEnabled: landingAffiliatesContentAffiliateEntity.IsEnabled,
+			IsMobile:  landingAffiliatesContentAffiliateEntity.IsMobile,
+			IsDesktop: landingAffiliatesContentAffiliateEntity.IsDesktop,
 			Name:      landingAffiliatesContentAffiliateEntity.Name,
 			Logo:      logoResponse,
 			Width:     landingAffiliatesContentAffiliateEntity.Width,
@@ -571,6 +583,8 @@ func (m LandingMapper) MapEntityToResponse(
 	for i, landingFaqContentFaqEntity := range landingFaqContentFaqEntities {
 		landingFaqContentFaqResponses[i] = dto.LandingFaqContentFaqResponse{
 			IsEnabled: landingFaqContentFaqEntity.IsEnabled,
+			IsMobile:  landingFaqContentFaqEntity.IsMobile,
+			IsDesktop: landingFaqContentFaqEntity.IsDesktop,
 			Question:  landingFaqContentFaqEntity.Question,
 			Answer:    landingFaqContentFaqEntity.Answer,
 		}
@@ -580,6 +594,8 @@ func (m LandingMapper) MapEntityToResponse(
 	for i, landingMenuEntity := range landingMenuEntities {
 		landingMenuResponses[i] = dto.LandingMenuResponse{
 			IsEnabled: landingMenuEntity.IsEnabled,
+			IsMobile:  landingMenuEntity.IsMobile,
+			IsDesktop: landingMenuEntity.IsDesktop,
 			Icon:      landingMenuEntity.Icon,
 			Label:     landingMenuEntity.Label,
 			Path:      landingMenuEntity.Path,
@@ -589,6 +605,8 @@ func (m LandingMapper) MapEntityToResponse(
 	return dto.LandingResponse{
 		HeroContent: dto.LandingHeroContentResponse{
 			IsEnabled:   landingHeroContentEntity.IsEnabled,
+			IsMobile:    landingHeroContentEntity.IsMobile,
+			IsDesktop:   landingHeroContentEntity.IsDesktop,
 			Title:       landingHeroContentEntity.Title,
 			Description: landingHeroContentEntity.Description,
 			TagsLine:    landingHeroContentEntity.TagsLine,
@@ -598,8 +616,12 @@ func (m LandingMapper) MapEntityToResponse(
 		},
 		SinglePackageContent: dto.LandingSinglePackageContentResponse{
 			IsEnabled: landingSinglePackageContentEntity.IsEnabled,
+			IsMobile:  landingSinglePackageContentEntity.IsMobile,
+			IsDesktop: landingSinglePackageContentEntity.IsDesktop,
 			Header: dto.LandingSectionHeaderResponse{
 				IsEnabled: landingSinglePackageContentHeaderEntity.IsEnabled,
+				IsMobile:  landingSinglePackageContentHeaderEntity.IsMobile,
+				IsDesktop: landingSinglePackageContentHeaderEntity.IsDesktop,
 				Title:     landingSinglePackageContentHeaderEntity.Title,
 				Subtitle:  landingSinglePackageContentHeaderEntity.Subtitle,
 				TagsLine:  landingSinglePackageContentHeaderEntity.TagsLine,
@@ -610,14 +632,20 @@ func (m LandingMapper) MapEntityToResponse(
 		},
 		PackagesContent: dto.LandingPackagesContentResponse{
 			IsEnabled: landingPackagesContentEntity.IsEnabled,
+			IsMobile:  landingPackagesContentEntity.IsMobile,
+			IsDesktop: landingPackagesContentEntity.IsDesktop,
 			Silver:    landingPackagesContentSilverResponse,
 			Gold:      landingPackagesContentGoldResponse,
 			Platinum:  landingPackagesContentPlatinumResponse,
 		},
 		FeaturesContent: dto.LandingFeaturesContentResponse{
 			IsEnabled: landingFeaturesContentEntity.IsEnabled,
+			IsMobile:  landingFeaturesContentEntity.IsMobile,
+			IsDesktop: landingFeaturesContentEntity.IsDesktop,
 			Header: dto.LandingSectionHeaderResponse{
 				IsEnabled: landingFeaturesContentHeaderEntity.IsEnabled,
+				IsMobile:  landingFeaturesContentHeaderEntity.IsMobile,
+				IsDesktop: landingFeaturesContentHeaderEntity.IsDesktop,
 				Title:     landingFeaturesContentHeaderEntity.Title,
 				Subtitle:  landingFeaturesContentHeaderEntity.Subtitle,
 				TagsLine:  landingFeaturesContentHeaderEntity.TagsLine,
@@ -629,8 +657,12 @@ func (m LandingMapper) MapEntityToResponse(
 		},
 		MomentsContent: dto.LandingMomentsContentResponse{
 			IsEnabled: landingMomentsContentEntity.IsEnabled,
+			IsMobile:  landingMomentsContentEntity.IsMobile,
+			IsDesktop: landingMomentsContentEntity.IsDesktop,
 			Header: dto.LandingSectionHeaderResponse{
 				IsEnabled: landingMomentsContentHeaderEntity.IsEnabled,
+				IsMobile:  landingMomentsContentHeaderEntity.IsMobile,
+				IsDesktop: landingMomentsContentHeaderEntity.IsDesktop,
 				Title:     landingMomentsContentHeaderEntity.Title,
 				Subtitle:  landingMomentsContentHeaderEntity.Subtitle,
 				TagsLine:  landingMomentsContentHeaderEntity.TagsLine,
@@ -639,8 +671,12 @@ func (m LandingMapper) MapEntityToResponse(
 		},
 		AffiliatesContent: dto.LandingAffiliatesContentResponse{
 			IsEnabled: landingAffiliatesContentEntity.IsEnabled,
+			IsMobile:  landingAffiliatesContentEntity.IsMobile,
+			IsDesktop: landingAffiliatesContentEntity.IsDesktop,
 			Header: dto.LandingSectionHeaderResponse{
 				IsEnabled: landingAffiliatesContentHeaderEntity.IsEnabled,
+				IsMobile:  landingAffiliatesContentHeaderEntity.IsMobile,
+				IsDesktop: landingAffiliatesContentHeaderEntity.IsDesktop,
 				Title:     landingAffiliatesContentHeaderEntity.Title,
 				Subtitle:  landingAffiliatesContentHeaderEntity.Subtitle,
 				TagsLine:  landingAffiliatesContentHeaderEntity.TagsLine,
@@ -649,8 +685,12 @@ func (m LandingMapper) MapEntityToResponse(
 		},
 		FaqContent: dto.LandingFaqContentResponse{
 			IsEnabled: landingFaqContentEntity.IsEnabled,
+			IsMobile:  landingFaqContentEntity.IsMobile,
+			IsDesktop: landingFaqContentEntity.IsDesktop,
 			Header: dto.LandingSectionHeaderResponse{
 				IsEnabled: landingFaqContentHeaderEntity.IsEnabled,
+				IsMobile:  landingFaqContentHeaderEntity.IsMobile,
+				IsDesktop: landingFaqContentHeaderEntity.IsDesktop,
 				Title:     landingFaqContentHeaderEntity.Title,
 				Subtitle:  landingFaqContentHeaderEntity.Subtitle,
 				TagsLine:  landingFaqContentHeaderEntity.TagsLine,
