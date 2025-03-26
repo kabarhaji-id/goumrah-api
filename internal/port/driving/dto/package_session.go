@@ -9,6 +9,15 @@ import (
 type PackageSessionRequest struct {
 	Embarkation      int64
 	DepartureDate    string
+	Quota            int
+	DoublePrice      float64
+	DoubleFinalPrice null.Float
+	TriplePrice      float64
+	TripleFinalPrice null.Float
+	QuadPrice        float64
+	QuadFinalPrice   null.Float
+	InfantPrice      null.Float
+	InfantFinalPrice null.Float
 	DepartureFlights []int64
 	ReturnFlights    []int64
 	Guides           []int64
@@ -27,6 +36,15 @@ type PackageSessionResponse struct {
 	Package          int64
 	Embarkation      EmbarkationResponse
 	DepartureDate    time.Time
+	Quota            int
+	DoublePrice      float64
+	DoubleFinalPrice null.Float
+	TriplePrice      float64
+	TripleFinalPrice null.Float
+	QuadPrice        float64
+	QuadFinalPrice   null.Float
+	InfantPrice      null.Float
+	InfantFinalPrice null.Float
 	DepartureFlights []FlightResponse
 	ReturnFlights    []FlightResponse
 	Guides           []GuideResponse

@@ -9,6 +9,8 @@ import (
 
 type LandingHeroContentRequest struct {
 	IsEnabled   bool
+	IsMobile    bool
+	IsDesktop   bool
 	Title       string
 	Description string
 	TagsLine    string
@@ -19,6 +21,8 @@ type LandingHeroContentRequest struct {
 
 type LandingSectionHeaderRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Title     string
 	Subtitle  null.String
 	TagsLine  null.String
@@ -26,12 +30,16 @@ type LandingSectionHeaderRequest struct {
 
 type LandingPackageItemRequest struct {
 	IsEnabled   bool
+	IsMobile    bool
+	IsDesktop   bool
 	Package     int64
 	ButtonLabel string
 }
 
 type LandingSinglePackageContentRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderRequest
 	Silver    null.Value[LandingPackageItemRequest]
 	Gold      null.Value[LandingPackageItemRequest]
@@ -40,12 +48,16 @@ type LandingSinglePackageContentRequest struct {
 
 type LandingPackageDetailRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderRequest
 	Packages  []LandingPackageItemRequest
 }
 
 type LandingPackagesContentRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Silver    LandingPackageDetailRequest
 	Gold      LandingPackageDetailRequest
 	Platinum  LandingPackageDetailRequest
@@ -53,6 +65,8 @@ type LandingPackagesContentRequest struct {
 
 type LandingFeaturesContentBenefitRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Title     string
 	Subtitle  string
 	Logo      null.Int64
@@ -60,6 +74,8 @@ type LandingFeaturesContentBenefitRequest struct {
 
 type LandingFeaturesContentRequest struct {
 	IsEnabled     bool
+	IsMobile      bool
+	IsDesktop     bool
 	Header        LandingSectionHeaderRequest
 	Benefits      []LandingFeaturesContentBenefitRequest
 	FooterTitle   string
@@ -69,17 +85,23 @@ type LandingFeaturesContentRequest struct {
 
 type LandingMomentsContentImageRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Image     int64
 }
 
 type LandingMomentsContentRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderRequest
 	Images    []LandingMomentsContentImageRequest
 }
 
 type LandingAffiliatesContentAffiliateRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Name      string
 	Logo      null.Int64
 	Width     int
@@ -88,24 +110,32 @@ type LandingAffiliatesContentAffiliateRequest struct {
 
 type LandingAffiliatesContentRequest struct {
 	IsEnabled  bool
+	IsMobile   bool
+	IsDesktop  bool
 	Header     LandingSectionHeaderRequest
 	Affiliates []LandingAffiliatesContentAffiliateRequest
 }
 
 type LandingFaqContentFaqRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Question  string
 	Answer    string
 }
 
 type LandingFaqContentRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderRequest
 	Faqs      []LandingFaqContentFaqRequest
 }
 
 type LandingMenuRequest struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Icon      string
 	Label     string
 	Path      string
@@ -124,6 +154,8 @@ type LandingRequest struct {
 
 type LandingHeroContentResponse struct {
 	IsEnabled   bool
+	IsMobile    bool
+	IsDesktop   bool
 	Title       string
 	Description string
 	TagsLine    string
@@ -134,6 +166,8 @@ type LandingHeroContentResponse struct {
 
 type LandingSectionHeaderResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Title     string
 	Subtitle  null.String
 	TagsLine  null.String
@@ -158,18 +192,20 @@ type LandingPackageItemDetailResponse struct {
 }
 
 type LandingPackageItemPriceResponse struct {
-	QuadPrice        float64
-	TriplePrice      float64
 	DoublePrice      float64
-	InfantPrice      float64
-	QuadFinalPrice   float64
-	TripleFinalPrice float64
-	DoubleFinalPrice float64
-	InfantFinalPrice float64
+	DoubleFinalPrice null.Float
+	TriplePrice      float64
+	TripleFinalPrice null.Float
+	QuadPrice        float64
+	QuadFinalPrice   null.Float
+	InfantPrice      null.Float
+	InfantFinalPrice null.Float
 }
 
 type LandingPackageItemResponse struct {
 	IsEnabled     bool
+	IsMobile      bool
+	IsDesktop     bool
 	Id            int64
 	Thumbnail     null.Value[ImageResponse]
 	Tags          []LandingPackageItemTagResponse
@@ -183,6 +219,8 @@ type LandingPackageItemResponse struct {
 
 type LandingSinglePackageContentResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderResponse
 	Silver    null.Value[LandingPackageItemResponse]
 	Gold      null.Value[LandingPackageItemResponse]
@@ -191,12 +229,16 @@ type LandingSinglePackageContentResponse struct {
 
 type LandingPackageDetailResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderResponse
 	Packages  []LandingPackageItemResponse
 }
 
 type LandingPackagesContentResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Silver    LandingPackageDetailResponse
 	Gold      LandingPackageDetailResponse
 	Platinum  LandingPackageDetailResponse
@@ -204,6 +246,8 @@ type LandingPackagesContentResponse struct {
 
 type LandingFeaturesContentBenefitResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Title     string
 	Subtitle  string
 	Logo      null.Value[ImageResponse]
@@ -211,6 +255,8 @@ type LandingFeaturesContentBenefitResponse struct {
 
 type LandingFeaturesContentResponse struct {
 	IsEnabled     bool
+	IsMobile      bool
+	IsDesktop     bool
 	Header        LandingSectionHeaderResponse
 	Benefits      []LandingFeaturesContentBenefitResponse
 	FooterTitle   string
@@ -220,17 +266,23 @@ type LandingFeaturesContentResponse struct {
 
 type LandingMomentsContentImageResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Image     ImageResponse
 }
 
 type LandingMomentsContentResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderResponse
 	Images    []LandingMomentsContentImageResponse
 }
 
 type LandingAffiliatesContentAffiliateResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Name      string
 	Logo      null.Value[ImageResponse]
 	Width     int
@@ -239,24 +291,32 @@ type LandingAffiliatesContentAffiliateResponse struct {
 
 type LandingAffiliatesContentResponse struct {
 	IsEnabled  bool
+	IsMobile   bool
+	IsDesktop  bool
 	Header     LandingSectionHeaderResponse
 	Affiliates []LandingAffiliatesContentAffiliateResponse
 }
 
 type LandingFaqContentFaqResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Question  string
 	Answer    string
 }
 
 type LandingFaqContentResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Header    LandingSectionHeaderResponse
 	Faqs      []LandingFaqContentFaqResponse
 }
 
 type LandingMenuResponse struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Icon      string
 	Label     string
 	Path      string

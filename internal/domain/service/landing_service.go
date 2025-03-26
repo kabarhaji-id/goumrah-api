@@ -163,6 +163,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingHeroContent{
 				IsEnabled:   request.HeroContent.IsEnabled,
+				IsMobile:    request.HeroContent.IsMobile,
+				IsDesktop:   request.HeroContent.IsDesktop,
 				Title:       request.HeroContent.Title,
 				Description: request.HeroContent.Description,
 				TagsLine:    request.HeroContent.TagsLine,
@@ -180,6 +182,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.SinglePackageContent.Header.IsEnabled,
+				IsMobile:  request.SinglePackageContent.Header.IsMobile,
+				IsDesktop: request.SinglePackageContent.Header.IsDesktop,
 				Title:     request.SinglePackageContent.Header.Title,
 				Subtitle:  request.SinglePackageContent.Header.Subtitle,
 				TagsLine:  request.SinglePackageContent.Header.TagsLine,
@@ -195,6 +199,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   request.SinglePackageContent.Silver.V.IsEnabled,
+					IsMobile:    request.SinglePackageContent.Silver.V.IsMobile,
+					IsDesktop:   request.SinglePackageContent.Silver.V.IsDesktop,
 					ButtonLabel: request.SinglePackageContent.Silver.V.ButtonLabel,
 					PackageId:   request.SinglePackageContent.Silver.V.Package,
 				},
@@ -212,6 +218,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   request.SinglePackageContent.Gold.V.IsEnabled,
+					IsMobile:    request.SinglePackageContent.Gold.V.IsMobile,
+					IsDesktop:   request.SinglePackageContent.Gold.V.IsDesktop,
 					ButtonLabel: request.SinglePackageContent.Gold.V.ButtonLabel,
 					PackageId:   request.SinglePackageContent.Gold.V.Package,
 				},
@@ -229,6 +237,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   request.SinglePackageContent.Platinum.V.IsEnabled,
+					IsMobile:    request.SinglePackageContent.Platinum.V.IsMobile,
+					IsDesktop:   request.SinglePackageContent.Platinum.V.IsDesktop,
 					ButtonLabel: request.SinglePackageContent.Platinum.V.ButtonLabel,
 					PackageId:   request.SinglePackageContent.Platinum.V.Package,
 				},
@@ -244,6 +254,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSinglePackageContent{
 				IsEnabled:                    request.SinglePackageContent.IsEnabled,
+				IsMobile:                     request.SinglePackageContent.IsMobile,
+				IsDesktop:                    request.SinglePackageContent.IsDesktop,
 				LandingSectionHeaderId:       landingSinglePackageContentHeader.Id,
 				SilverLandingPackageItemId:   landingSinglePackageContentSilverLandingPackageItemId,
 				GoldLandingPackageItemId:     landingSinglePackageContentGoldLandingPackageItemId,
@@ -259,6 +271,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.PackagesContent.Silver.Header.IsEnabled,
+				IsMobile:  request.PackagesContent.Silver.Header.IsMobile,
+				IsDesktop: request.PackagesContent.Silver.Header.IsDesktop,
 				Title:     request.PackagesContent.Silver.Header.Title,
 				Subtitle:  request.PackagesContent.Silver.Header.Subtitle,
 				TagsLine:  request.PackagesContent.Silver.Header.TagsLine,
@@ -272,6 +286,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingPackageDetail{
 				IsEnabled:              request.PackagesContent.Silver.IsEnabled,
+				IsMobile:               request.PackagesContent.Silver.IsMobile,
+				IsDesktop:              request.PackagesContent.Silver.IsDesktop,
 				LandingSectionHeaderId: landingPackagesContentSilverLandingPackageDetailLandingSectionHeader.Id,
 			},
 		)
@@ -287,6 +303,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   packageItem.IsEnabled,
+					IsMobile:    packageItem.IsMobile,
+					IsDesktop:   packageItem.IsDesktop,
 					PackageId:   packageItem.Package,
 					ButtonLabel: packageItem.ButtonLabel,
 				},
@@ -297,6 +315,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 
 			landingPackagesContentSilverLandingPackageDetailItems[i] = entity.LandingPackageDetailItem{
 				IsEnabled:              packageItem.IsEnabled,
+				IsMobile:               packageItem.IsMobile,
+				IsDesktop:              packageItem.IsDesktop,
 				LandingPackageDetailId: landingPackagesContentSilverLandingPackageDetail.Id,
 				LandingPackageItemId:   landingPackagesContentSilverLandingPackageItem.Id,
 			}
@@ -312,6 +332,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.PackagesContent.Gold.Header.IsEnabled,
+				IsMobile:  request.PackagesContent.Gold.Header.IsMobile,
+				IsDesktop: request.PackagesContent.Gold.Header.IsDesktop,
 				Title:     request.PackagesContent.Gold.Header.Title,
 				Subtitle:  request.PackagesContent.Gold.Header.Subtitle,
 				TagsLine:  request.PackagesContent.Gold.Header.TagsLine,
@@ -325,6 +347,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingPackageDetail{
 				IsEnabled:              request.PackagesContent.Gold.IsEnabled,
+				IsMobile:               request.PackagesContent.Gold.IsMobile,
+				IsDesktop:              request.PackagesContent.Gold.IsDesktop,
 				LandingSectionHeaderId: landingPackagesContentGoldLandingPackageDetailLandingSectionHeader.Id,
 			},
 		)
@@ -340,6 +364,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   packageItem.IsEnabled,
+					IsMobile:    packageItem.IsMobile,
+					IsDesktop:   packageItem.IsDesktop,
 					PackageId:   packageItem.Package,
 					ButtonLabel: packageItem.ButtonLabel,
 				},
@@ -350,6 +376,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 
 			landingPackagesContentGoldLandingPackageDetailItems[i] = entity.LandingPackageDetailItem{
 				IsEnabled:              packageItem.IsEnabled,
+				IsMobile:               packageItem.IsMobile,
+				IsDesktop:              packageItem.IsDesktop,
 				LandingPackageDetailId: landingPackagesContentGoldLandingPackageDetail.Id,
 				LandingPackageItemId:   landingPackagesContentGoldLandingPackageItem.Id,
 			}
@@ -365,6 +393,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.PackagesContent.Platinum.Header.IsEnabled,
+				IsMobile:  request.PackagesContent.Platinum.Header.IsMobile,
+				IsDesktop: request.PackagesContent.Platinum.Header.IsDesktop,
 				Title:     request.PackagesContent.Platinum.Header.Title,
 				Subtitle:  request.PackagesContent.Platinum.Header.Subtitle,
 				TagsLine:  request.PackagesContent.Platinum.Header.TagsLine,
@@ -378,6 +408,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingPackageDetail{
 				IsEnabled:              request.PackagesContent.Platinum.IsEnabled,
+				IsMobile:               request.PackagesContent.Platinum.IsMobile,
+				IsDesktop:              request.PackagesContent.Platinum.IsDesktop,
 				LandingSectionHeaderId: landingPackagesContentPlatinumLandingPackageDetailLandingSectionHeader.Id,
 			},
 		)
@@ -393,6 +425,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   packageItem.IsEnabled,
+					IsMobile:    packageItem.IsMobile,
+					IsDesktop:   packageItem.IsDesktop,
 					PackageId:   packageItem.Package,
 					ButtonLabel: packageItem.ButtonLabel,
 				},
@@ -403,6 +437,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 
 			landingPackagesContentPlatinumLandingPackageDetailItems[i] = entity.LandingPackageDetailItem{
 				IsEnabled:              packageItem.IsEnabled,
+				IsMobile:               packageItem.IsMobile,
+				IsDesktop:              packageItem.IsDesktop,
 				LandingPackageDetailId: landingPackagesContentPlatinumLandingPackageDetail.Id,
 				LandingPackageItemId:   landingPackagesContentPlatinumLandingPackageItem.Id,
 			}
@@ -418,6 +454,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingPackagesContent{
 				IsEnabled:                      request.PackagesContent.IsEnabled,
+				IsMobile:                       request.PackagesContent.IsMobile,
+				IsDesktop:                      request.PackagesContent.IsDesktop,
 				SilverLandingPackageDetailId:   landingPackagesContentSilverLandingPackageDetail.Id,
 				GoldLandingPackageDetailId:     landingPackagesContentGoldLandingPackageDetail.Id,
 				PlatinumLandingPackageDetailId: landingPackagesContentPlatinumLandingPackageDetail.Id,
@@ -432,6 +470,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.FeaturesContent.Header.IsEnabled,
+				IsMobile:  request.FeaturesContent.Header.IsMobile,
+				IsDesktop: request.FeaturesContent.Header.IsDesktop,
 				Title:     request.FeaturesContent.Header.Title,
 				Subtitle:  request.FeaturesContent.Header.Subtitle,
 				TagsLine:  request.FeaturesContent.Header.TagsLine,
@@ -445,6 +485,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 		for index, benefit := range request.FeaturesContent.Benefits {
 			benefits[index] = entity.LandingFeaturesContentBenefit{
 				IsEnabled: benefit.IsEnabled,
+				IsMobile:  benefit.IsMobile,
+				IsDesktop: benefit.IsDesktop,
 				Title:     benefit.Title,
 				Subtitle:  benefit.Subtitle,
 				LogoId:    benefit.Logo,
@@ -458,6 +500,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingFeaturesContent{
 				IsEnabled:              request.FeaturesContent.IsEnabled,
+				IsMobile:               request.FeaturesContent.IsMobile,
+				IsDesktop:              request.FeaturesContent.IsDesktop,
 				LandingSectionHeaderId: landingFeaturesContentHeader.Id,
 				FooterTitle:            request.FeaturesContent.FooterTitle,
 				ButtonAbout:            request.FeaturesContent.ButtonAbout,
@@ -473,6 +517,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.MomentsContent.Header.IsEnabled,
+				IsMobile:  request.MomentsContent.Header.IsMobile,
+				IsDesktop: request.MomentsContent.Header.IsDesktop,
 				Title:     request.MomentsContent.Header.Title,
 				Subtitle:  request.MomentsContent.Header.Subtitle,
 				TagsLine:  request.MomentsContent.Header.TagsLine,
@@ -486,6 +532,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 		for index, image := range request.MomentsContent.Images {
 			landingMomentsContentImages[index] = entity.LandingMomentsContentImage{
 				IsEnabled: image.IsEnabled,
+				IsMobile:  image.IsMobile,
+				IsDesktop: image.IsDesktop,
 				ImageId:   image.Image,
 			}
 		}
@@ -500,6 +548,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingMomentsContent{
 				IsEnabled:              request.MomentsContent.IsEnabled,
+				IsMobile:               request.MomentsContent.IsMobile,
+				IsDesktop:              request.MomentsContent.IsDesktop,
 				LandingSectionHeaderId: landingMomentsContentHeader.Id,
 			},
 		)
@@ -512,6 +562,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.AffiliatesContent.Header.IsEnabled,
+				IsMobile:  request.AffiliatesContent.Header.IsMobile,
+				IsDesktop: request.AffiliatesContent.Header.IsDesktop,
 				Title:     request.AffiliatesContent.Header.Title,
 				Subtitle:  request.AffiliatesContent.Header.Subtitle,
 				TagsLine:  request.AffiliatesContent.Header.TagsLine,
@@ -525,6 +577,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 		for index, affiliate := range request.AffiliatesContent.Affiliates {
 			affiliates[index] = entity.LandingAffiliatesContentAffiliate{
 				IsEnabled: affiliate.IsEnabled,
+				IsMobile:  affiliate.IsMobile,
+				IsDesktop: affiliate.IsDesktop,
 				Name:      affiliate.Name,
 				LogoId:    affiliate.Logo,
 				Width:     affiliate.Width,
@@ -539,6 +593,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingAffiliatesContent{
 				IsEnabled:              request.AffiliatesContent.IsEnabled,
+				IsMobile:               request.AffiliatesContent.IsMobile,
+				IsDesktop:              request.AffiliatesContent.IsDesktop,
 				LandingSectionHeaderId: landingAffiliatesContentHeader.Id,
 			},
 		)
@@ -551,6 +607,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingSectionHeader{
 				IsEnabled: request.FaqContent.Header.IsEnabled,
+				IsMobile:  request.FaqContent.Header.IsMobile,
+				IsDesktop: request.FaqContent.Header.IsDesktop,
 				Title:     request.FaqContent.Header.Title,
 				Subtitle:  request.FaqContent.Header.Subtitle,
 				TagsLine:  request.FaqContent.Header.TagsLine,
@@ -564,6 +622,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 		for index, faq := range request.FaqContent.Faqs {
 			faqs[index] = entity.LandingFaqContentFaq{
 				IsEnabled: faq.IsEnabled,
+				IsMobile:  faq.IsMobile,
+				IsDesktop: faq.IsDesktop,
 				Question:  faq.Question,
 				Answer:    faq.Answer,
 			}
@@ -576,6 +636,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingFaqContent{
 				IsEnabled:              request.FaqContent.IsEnabled,
+				IsMobile:               request.FaqContent.IsMobile,
+				IsDesktop:              request.FaqContent.IsDesktop,
 				LandingSectionHeaderId: landingFaqContentHeader.Id,
 			},
 		)
@@ -588,6 +650,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 		for index, menu := range request.Menus {
 			landingMenus[index] = entity.LandingMenu{
 				IsEnabled: menu.IsEnabled,
+				IsMobile:  menu.IsMobile,
+				IsDesktop: menu.IsDesktop,
 				Icon:      menu.Icon,
 				Label:     menu.Label,
 				Path:      menu.Path,
@@ -774,6 +838,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			ctx,
 			entity.LandingHeroContent{
 				IsEnabled:   request.HeroContent.IsEnabled,
+				IsMobile:    request.HeroContent.IsMobile,
+				IsDesktop:   request.HeroContent.IsDesktop,
 				Title:       request.HeroContent.Title,
 				Description: request.HeroContent.Description,
 				TagsLine:    request.HeroContent.TagsLine,
@@ -792,6 +858,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingSinglePackageContent.IsEnabled = request.SinglePackageContent.IsEnabled
+		landingSinglePackageContent.IsMobile = request.SinglePackageContent.IsMobile
+		landingSinglePackageContent.IsDesktop = request.SinglePackageContent.IsDesktop
 		if request.SinglePackageContent.Silver.Valid {
 			if landingSinglePackageContent.SilverLandingPackageItemId.Valid {
 				if _, err := landingPackageItemRepository.Update(
@@ -799,6 +867,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 					landingSinglePackageContent.SilverLandingPackageItemId.Int64,
 					entity.LandingPackageItem{
 						IsEnabled:   request.SinglePackageContent.Silver.V.IsEnabled,
+						IsMobile:    request.SinglePackageContent.Silver.V.IsMobile,
+						IsDesktop:   request.SinglePackageContent.Silver.V.IsDesktop,
 						ButtonLabel: request.SinglePackageContent.Silver.V.ButtonLabel,
 						PackageId:   request.SinglePackageContent.Silver.V.Package,
 					},
@@ -810,6 +880,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 					ctx,
 					entity.LandingPackageItem{
 						IsEnabled:   request.SinglePackageContent.Silver.V.IsEnabled,
+						IsMobile:    request.SinglePackageContent.Silver.V.IsMobile,
+						IsDesktop:   request.SinglePackageContent.Silver.V.IsDesktop,
 						ButtonLabel: request.SinglePackageContent.Silver.V.ButtonLabel,
 						PackageId:   request.SinglePackageContent.Silver.V.Package,
 					},
@@ -835,6 +907,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 					landingSinglePackageContent.GoldLandingPackageItemId.Int64,
 					entity.LandingPackageItem{
 						IsEnabled:   request.SinglePackageContent.Gold.V.IsEnabled,
+						IsMobile:    request.SinglePackageContent.Gold.V.IsMobile,
+						IsDesktop:   request.SinglePackageContent.Gold.V.IsDesktop,
 						ButtonLabel: request.SinglePackageContent.Gold.V.ButtonLabel,
 						PackageId:   request.SinglePackageContent.Gold.V.Package,
 					},
@@ -846,6 +920,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 					ctx,
 					entity.LandingPackageItem{
 						IsEnabled:   request.SinglePackageContent.Gold.V.IsEnabled,
+						IsMobile:    request.SinglePackageContent.Gold.V.IsMobile,
+						IsDesktop:   request.SinglePackageContent.Gold.V.IsDesktop,
 						ButtonLabel: request.SinglePackageContent.Gold.V.ButtonLabel,
 						PackageId:   request.SinglePackageContent.Gold.V.Package,
 					},
@@ -871,6 +947,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 					landingSinglePackageContent.PlatinumLandingPackageItemId.Int64,
 					entity.LandingPackageItem{
 						IsEnabled:   request.SinglePackageContent.Platinum.V.IsEnabled,
+						IsMobile:    request.SinglePackageContent.Platinum.V.IsMobile,
+						IsDesktop:   request.SinglePackageContent.Platinum.V.IsDesktop,
 						ButtonLabel: request.SinglePackageContent.Platinum.V.ButtonLabel,
 						PackageId:   request.SinglePackageContent.Platinum.V.Package,
 					},
@@ -882,6 +960,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 					ctx,
 					entity.LandingPackageItem{
 						IsEnabled:   request.SinglePackageContent.Platinum.V.IsEnabled,
+						IsMobile:    request.SinglePackageContent.Platinum.V.IsMobile,
+						IsDesktop:   request.SinglePackageContent.Platinum.V.IsDesktop,
 						ButtonLabel: request.SinglePackageContent.Platinum.V.ButtonLabel,
 						PackageId:   request.SinglePackageContent.Platinum.V.Package,
 					},
@@ -911,6 +991,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingSinglePackageContent.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.SinglePackageContent.Header.IsEnabled,
+				IsMobile:  request.SinglePackageContent.Header.IsMobile,
+				IsDesktop: request.SinglePackageContent.Header.IsDesktop,
 				Title:     request.SinglePackageContent.Header.Title,
 				Subtitle:  request.SinglePackageContent.Header.Subtitle,
 				TagsLine:  request.SinglePackageContent.Header.TagsLine,
@@ -925,6 +1007,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingPackagesContent.IsEnabled = request.PackagesContent.IsEnabled
+		landingPackagesContent.IsMobile = request.PackagesContent.IsMobile
+		landingPackagesContent.IsDesktop = request.PackagesContent.IsDesktop
 
 		landingPackagesContent, err = landingPackagesContentRepository.Update(ctx, landingPackagesContent)
 		if err != nil {
@@ -939,6 +1023,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingPackagesContentSilverLandingPackageDetail.IsEnabled = request.PackagesContent.Silver.IsEnabled
+		landingPackagesContentSilverLandingPackageDetail.IsMobile = request.PackagesContent.Silver.IsMobile
+		landingPackagesContentSilverLandingPackageDetail.IsDesktop = request.PackagesContent.Silver.IsDesktop
 
 		landingPackagesContentSilverLandingPackageDetail, err = landingPackageDetailRepository.Update(
 			ctx,
@@ -954,6 +1040,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingPackagesContentSilverLandingPackageDetail.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.PackagesContent.Silver.Header.IsEnabled,
+				IsMobile:  request.PackagesContent.Silver.Header.IsMobile,
+				IsDesktop: request.PackagesContent.Silver.Header.IsDesktop,
 				Title:     request.PackagesContent.Silver.Header.Title,
 				Subtitle:  request.PackagesContent.Silver.Header.Subtitle,
 				TagsLine:  request.PackagesContent.Silver.Header.TagsLine,
@@ -983,6 +1071,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   packageItem.IsEnabled,
+					IsMobile:    packageItem.IsMobile,
+					IsDesktop:   packageItem.IsDesktop,
 					PackageId:   packageItem.Package,
 					ButtonLabel: packageItem.ButtonLabel,
 				},
@@ -993,6 +1083,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 
 			landingPackagesContentSilverLandingPackageDetailItems[i] = entity.LandingPackageDetailItem{
 				IsEnabled:              packageItem.IsEnabled,
+				IsMobile:               packageItem.IsMobile,
+				IsDesktop:              packageItem.IsDesktop,
 				LandingPackageDetailId: landingPackagesContentSilverLandingPackageDetail.Id,
 				LandingPackageItemId:   landingPackagesContentSilverLandingPackageItem.Id,
 			}
@@ -1012,6 +1104,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingPackagesContentGoldLandingPackageDetail.IsEnabled = request.PackagesContent.Gold.IsEnabled
+		landingPackagesContentGoldLandingPackageDetail.IsMobile = request.PackagesContent.Gold.IsMobile
+		landingPackagesContentGoldLandingPackageDetail.IsDesktop = request.PackagesContent.Gold.IsDesktop
 
 		landingPackagesContentGoldLandingPackageDetail, err = landingPackageDetailRepository.Update(
 			ctx,
@@ -1027,6 +1121,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingPackagesContentGoldLandingPackageDetail.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.PackagesContent.Gold.Header.IsEnabled,
+				IsMobile:  request.PackagesContent.Gold.Header.IsMobile,
+				IsDesktop: request.PackagesContent.Gold.Header.IsDesktop,
 				Title:     request.PackagesContent.Gold.Header.Title,
 				Subtitle:  request.PackagesContent.Gold.Header.Subtitle,
 				TagsLine:  request.PackagesContent.Gold.Header.TagsLine,
@@ -1056,6 +1152,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   packageItem.IsEnabled,
+					IsMobile:    packageItem.IsMobile,
+					IsDesktop:   packageItem.IsDesktop,
 					PackageId:   packageItem.Package,
 					ButtonLabel: packageItem.ButtonLabel,
 				},
@@ -1066,6 +1164,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 
 			landingPackagesContentGoldLandingPackageDetailItems[i] = entity.LandingPackageDetailItem{
 				IsEnabled:              packageItem.IsEnabled,
+				IsMobile:               packageItem.IsMobile,
+				IsDesktop:              packageItem.IsDesktop,
 				LandingPackageDetailId: landingPackagesContentGoldLandingPackageDetail.Id,
 				LandingPackageItemId:   landingPackagesContentGoldLandingPackageItem.Id,
 			}
@@ -1085,6 +1185,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingPackagesContentPlatinumLandingPackageDetail.IsEnabled = request.PackagesContent.Platinum.IsEnabled
+		landingPackagesContentPlatinumLandingPackageDetail.IsMobile = request.PackagesContent.Platinum.IsMobile
+		landingPackagesContentPlatinumLandingPackageDetail.IsDesktop = request.PackagesContent.Platinum.IsDesktop
 
 		landingPackagesContentPlatinumLandingPackageDetail, err = landingPackageDetailRepository.Update(
 			ctx,
@@ -1100,6 +1202,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingPackagesContentPlatinumLandingPackageDetail.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.PackagesContent.Platinum.Header.IsEnabled,
+				IsMobile:  request.PackagesContent.Platinum.Header.IsMobile,
+				IsDesktop: request.PackagesContent.Platinum.Header.IsDesktop,
 				Title:     request.PackagesContent.Platinum.Header.Title,
 				Subtitle:  request.PackagesContent.Platinum.Header.Subtitle,
 				TagsLine:  request.PackagesContent.Platinum.Header.TagsLine,
@@ -1129,6 +1233,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 				ctx,
 				entity.LandingPackageItem{
 					IsEnabled:   packageItem.IsEnabled,
+					IsMobile:    packageItem.IsMobile,
+					IsDesktop:   packageItem.IsDesktop,
 					PackageId:   packageItem.Package,
 					ButtonLabel: packageItem.ButtonLabel,
 				},
@@ -1139,6 +1245,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 
 			landingPackagesContentPlatinumLandingPackageDetailItems[index] = entity.LandingPackageDetailItem{
 				IsEnabled:              packageItem.IsEnabled,
+				IsMobile:               packageItem.IsMobile,
+				IsDesktop:              packageItem.IsDesktop,
 				LandingPackageDetailId: landingPackagesContentPlatinumLandingPackageDetail.Id,
 				LandingPackageItemId:   landingPackagesContentPlatinumLandingPackageItem.Id,
 			}
@@ -1156,6 +1264,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingFeaturesContent.IsEnabled = request.FeaturesContent.IsEnabled
+		landingFeaturesContent.IsMobile = request.FeaturesContent.IsMobile
+		landingFeaturesContent.IsDesktop = request.FeaturesContent.IsDesktop
 		landingFeaturesContent.FooterTitle = request.FeaturesContent.FooterTitle
 		landingFeaturesContent.ButtonAbout = request.FeaturesContent.ButtonAbout
 		landingFeaturesContent.ButtonPackage = request.FeaturesContent.ButtonPackage
@@ -1173,6 +1283,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingFeaturesContent.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.FeaturesContent.Header.IsEnabled,
+				IsMobile:  request.FeaturesContent.Header.IsMobile,
+				IsDesktop: request.FeaturesContent.Header.IsDesktop,
 				Title:     request.FeaturesContent.Header.Title,
 				Subtitle:  request.FeaturesContent.Header.Subtitle,
 				TagsLine:  request.FeaturesContent.Header.TagsLine,
@@ -1189,6 +1301,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		for index, benefit := range request.FeaturesContent.Benefits {
 			benefits[index] = entity.LandingFeaturesContentBenefit{
 				IsEnabled: benefit.IsEnabled,
+				IsMobile:  benefit.IsMobile,
+				IsDesktop: benefit.IsDesktop,
 				Title:     benefit.Title,
 				Subtitle:  benefit.Subtitle,
 				LogoId:    benefit.Logo,
@@ -1204,6 +1318,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingMomentsContent.IsEnabled = request.MomentsContent.IsEnabled
+		landingMomentsContent.IsMobile = request.MomentsContent.IsMobile
+		landingMomentsContent.IsDesktop = request.MomentsContent.IsDesktop
 
 		landingMomentsContent, err = landingMomentsContentRepository.Update(
 			ctx,
@@ -1218,6 +1334,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingMomentsContent.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.MomentsContent.Header.IsEnabled,
+				IsMobile:  request.MomentsContent.Header.IsMobile,
+				IsDesktop: request.MomentsContent.Header.IsDesktop,
 				Title:     request.MomentsContent.Header.Title,
 				Subtitle:  request.MomentsContent.Header.Subtitle,
 				TagsLine:  request.MomentsContent.Header.TagsLine,
@@ -1236,6 +1354,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		for index, image := range request.MomentsContent.Images {
 			landingMomentsContentImages[index] = entity.LandingMomentsContentImage{
 				IsEnabled: image.IsEnabled,
+				IsMobile:  image.IsMobile,
+				IsDesktop: image.IsDesktop,
 				ImageId:   image.Image,
 			}
 		}
@@ -1252,6 +1372,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingAffiliatesContent.IsEnabled = request.AffiliatesContent.IsEnabled
+		landingAffiliatesContent.IsMobile = request.AffiliatesContent.IsMobile
+		landingAffiliatesContent.IsDesktop = request.AffiliatesContent.IsDesktop
 
 		landingAffiliatesContent, err = landingAffiliatesContentRepository.Update(
 			ctx,
@@ -1266,6 +1388,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingAffiliatesContent.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.AffiliatesContent.Header.IsEnabled,
+				IsMobile:  request.AffiliatesContent.Header.IsMobile,
+				IsDesktop: request.AffiliatesContent.Header.IsDesktop,
 				Title:     request.AffiliatesContent.Header.Title,
 				Subtitle:  request.AffiliatesContent.Header.Subtitle,
 				TagsLine:  request.AffiliatesContent.Header.TagsLine,
@@ -1282,6 +1406,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		for index, affiliate := range request.AffiliatesContent.Affiliates {
 			affiliates[index] = entity.LandingAffiliatesContentAffiliate{
 				IsEnabled: affiliate.IsEnabled,
+				IsMobile:  affiliate.IsMobile,
+				IsDesktop: affiliate.IsDesktop,
 				Name:      affiliate.Name,
 				LogoId:    affiliate.Logo,
 				Width:     affiliate.Width,
@@ -1298,6 +1424,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 		landingFaqContent.IsEnabled = request.FaqContent.IsEnabled
+		landingFaqContent.IsMobile = request.FaqContent.IsMobile
+		landingFaqContent.IsDesktop = request.FaqContent.IsDesktop
 
 		landingFaqContent, err = landingFaqContentRepository.Update(
 			ctx,
@@ -1312,6 +1440,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingFaqContent.LandingSectionHeaderId,
 			entity.LandingSectionHeader{
 				IsEnabled: request.FaqContent.Header.IsEnabled,
+				IsMobile:  request.FaqContent.Header.IsMobile,
+				IsDesktop: request.FaqContent.Header.IsDesktop,
 				Title:     request.FaqContent.Header.Title,
 				Subtitle:  request.FaqContent.Header.Subtitle,
 				TagsLine:  request.FaqContent.Header.TagsLine,
@@ -1328,6 +1458,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		for index, faq := range request.FaqContent.Faqs {
 			faqs[index] = entity.LandingFaqContentFaq{
 				IsEnabled: faq.IsEnabled,
+				IsMobile:  faq.IsMobile,
+				IsDesktop: faq.IsDesktop,
 				Question:  faq.Question,
 				Answer:    faq.Answer,
 			}
@@ -1345,6 +1477,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		for index, menu := range request.Menus {
 			landingMenus[index] = entity.LandingMenu{
 				IsEnabled: menu.IsEnabled,
+				IsMobile:  menu.IsMobile,
+				IsDesktop: menu.IsDesktop,
 				Icon:      menu.Icon,
 				Label:     menu.Label,
 				Path:      menu.Path,

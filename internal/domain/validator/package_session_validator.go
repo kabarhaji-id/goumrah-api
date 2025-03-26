@@ -35,6 +35,52 @@ func (v PackageSessionValidator) ValidateRequest(ctx context.Context, request dt
 		return newError("DepartureDate", invalidDate("DD/MM/YYYY"))
 	}
 
+	if request.Quota < 1 {
+		return newError("Quota", mustBeGte(1))
+	}
+
+	if request.DoublePrice < 1 {
+		return newError("DoublePrice", mustBeGte(1))
+	}
+
+	if request.DoubleFinalPrice.Valid {
+		if request.DoubleFinalPrice.Float64 < 1 {
+			return newError("DoubleFinalPrice", mustBeGte(1))
+		}
+	}
+
+	if request.TriplePrice < 1 {
+		return newError("TriplePrice", mustBeGte(1))
+	}
+
+	if request.TripleFinalPrice.Valid {
+		if request.TripleFinalPrice.Float64 < 1 {
+			return newError("TripleFinalPrice", mustBeGte(1))
+		}
+	}
+
+	if request.QuadPrice < 1 {
+		return newError("QuadPrice", mustBeGte(1))
+	}
+
+	if request.QuadFinalPrice.Valid {
+		if request.QuadFinalPrice.Float64 < 1 {
+			return newError("QuadFinalPrice", mustBeGte(1))
+		}
+	}
+
+	if request.InfantPrice.Valid {
+		if request.InfantPrice.Float64 < 1 {
+			return newError("InfantPrice", mustBeGte(1))
+		}
+	}
+
+	if request.InfantFinalPrice.Valid {
+		if request.InfantFinalPrice.Float64 < 1 {
+			return newError("InfantFinalPrice", mustBeGte(1))
+		}
+	}
+
 	for i, departureFlight := range request.DepartureFlights {
 		if departureFlight < 1 {
 			return newError(fmt.Sprintf("DepartureFlights.%d", i), mustBeGte(1))

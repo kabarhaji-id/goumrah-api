@@ -9,6 +9,8 @@ import (
 type LandingHeroContent struct {
 	Id          int64
 	IsEnabled   bool
+	IsMobile    bool
+	IsDesktop   bool
 	Title       string
 	Description string
 	TagsLine    string
@@ -24,6 +26,8 @@ type LandingHeroContent struct {
 type LandingSectionHeader struct {
 	Id        int64
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Title     string
 	Subtitle  null.String
 	TagsLine  null.String
@@ -36,6 +40,8 @@ type LandingSectionHeader struct {
 type LandingPackageItem struct {
 	Id          int64
 	IsEnabled   bool
+	IsMobile    bool
+	IsDesktop   bool
 	PackageId   int64
 	ButtonLabel string
 
@@ -47,6 +53,8 @@ type LandingPackageItem struct {
 type LandingSinglePackageContent struct {
 	Id                           int64
 	IsEnabled                    bool
+	IsMobile                     bool
+	IsDesktop                    bool
 	LandingSectionHeaderId       int64
 	SilverLandingPackageItemId   null.Int64
 	GoldLandingPackageItemId     null.Int64
@@ -60,6 +68,8 @@ type LandingSinglePackageContent struct {
 type LandingPackageDetail struct {
 	Id                     int64
 	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
 	LandingSectionHeaderId int64
 
 	CreatedAt time.Time
@@ -69,6 +79,8 @@ type LandingPackageDetail struct {
 
 type LandingPackageDetailItem struct {
 	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
 	LandingPackageDetailId int64
 	LandingPackageItemId   int64
 
@@ -80,6 +92,8 @@ type LandingPackageDetailItem struct {
 type LandingPackagesContent struct {
 	Id                             int64
 	IsEnabled                      bool
+	IsMobile                       bool
+	IsDesktop                      bool
 	SilverLandingPackageDetailId   int64
 	GoldLandingPackageDetailId     int64
 	PlatinumLandingPackageDetailId int64
@@ -92,6 +106,8 @@ type LandingPackagesContent struct {
 type LandingFeaturesContent struct {
 	Id                     int64
 	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
 	LandingSectionHeaderId int64
 	FooterTitle            string
 	ButtonAbout            string
@@ -105,6 +121,8 @@ type LandingFeaturesContent struct {
 type LandingFeaturesContentBenefit struct {
 	Id        int64
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Title     string
 	Subtitle  string
 	LogoId    null.Int64
@@ -117,6 +135,8 @@ type LandingFeaturesContentBenefit struct {
 type LandingMomentsContent struct {
 	Id                     int64
 	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
 	LandingSectionHeaderId int64
 
 	CreatedAt time.Time
@@ -126,6 +146,8 @@ type LandingMomentsContent struct {
 
 type LandingMomentsContentImage struct {
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	ImageId   int64
 
 	CreatedAt time.Time
@@ -136,6 +158,8 @@ type LandingMomentsContentImage struct {
 type LandingAffiliatesContent struct {
 	Id                     int64
 	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
 	LandingSectionHeaderId int64
 
 	CreatedAt time.Time
@@ -146,6 +170,8 @@ type LandingAffiliatesContent struct {
 type LandingAffiliatesContentAffiliate struct {
 	Id        int64
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Name      string
 	LogoId    null.Int64
 	Width     int
@@ -159,6 +185,8 @@ type LandingAffiliatesContentAffiliate struct {
 type LandingFaqContent struct {
 	Id                     int64
 	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
 	LandingSectionHeaderId int64
 
 	CreatedAt time.Time
@@ -169,6 +197,8 @@ type LandingFaqContent struct {
 type LandingFaqContentFaq struct {
 	Id        int64
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Question  string
 	Answer    string
 
@@ -180,6 +210,8 @@ type LandingFaqContentFaq struct {
 type LandingMenu struct {
 	Id        int64
 	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
 	Icon      string
 	Label     string
 	Path      string
