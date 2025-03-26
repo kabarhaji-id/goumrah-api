@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/guregu/null/v6"
 	"github.com/kabarhaji-id/goumrah-api/internal/domain/entity"
@@ -835,7 +834,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		airlineRepository := factory.NewAirlineRepository()
 
 		// Update landing hero content
-		log.Println("Update landing hero content")
 		landingHeroContent, err := landingHeroContentRepository.Update(
 			ctx,
 			entity.LandingHeroContent{
@@ -855,7 +853,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing single package content
-		log.Println("Update landing single package content")
 		landingSinglePackageContent, err := landingSinglePackageContentRepository.Find(ctx)
 		if err != nil {
 			return err
@@ -1005,7 +1002,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing packages content
-		log.Println("Update landing packages content")
 		landingPackagesContent, err := landingPackagesContentRepository.Find(ctx)
 		if err != nil {
 			return err
@@ -1263,7 +1259,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing features content
-		log.Println("Update landing features content")
 		landingFeaturesContent, err := landingFeaturesContentRepository.Find(ctx)
 		if err != nil {
 			return err
@@ -1318,7 +1313,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing moments content with repository
-		log.Println("Update landing moments content with repository")
 		landingMomentsContent, err := landingMomentsContentRepository.Find(ctx)
 		if err != nil {
 			return err
@@ -1373,7 +1367,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing affiliates content with repository
-		log.Println("Update landing affiliates content with repository")
 		landingAffiliatesContent, err := landingAffiliatesContentRepository.Find(ctx)
 		if err != nil {
 			return err
@@ -1426,7 +1419,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing faq content with repository
-		log.Println("Update landing faq content with repository")
 		landingFaqContent, err := landingFaqContentRepository.Find(ctx)
 		if err != nil {
 			return err
@@ -1477,7 +1469,6 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		}
 
 		// Update landing menu with repository
-		log.Println("Update landing menu with repository")
 		if _, err = landingMenuRepository.DeleteMany(ctx); err != nil {
 			return err
 		}
