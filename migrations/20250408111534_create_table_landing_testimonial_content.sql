@@ -67,6 +67,30 @@ CREATE TABLE IF NOT EXISTS "landing_testimonial_content_reviews" (
     CONSTRAINT "landing_testimonial_content_testimonials_id_pkey" PRIMARY KEY ("id")
 );
 
+INSERT INTO "landing_section_headers" (
+    "title", "subtitle", "tags_line"
+) VALUES
+    ('Testimoni jama''ah', 'Apa yang para Jama''ah katakan tentang kami', NULL);
+
+INSERT INTO "landing_testimonial_content" (
+    "id", "is_enabled", "is_mobile", "is_desktop", "landing_section_header_id"
+) VALUES
+    (1, TRUE, TRUE, TRUE, 9);
+
+INSERT INTO "landing_testimonial_content_reviews" (
+    "is_enabled", "is_mobile", "is_desktop", "reviewer", "age", "address", "rating", "review"
+) VALUES
+    (TRUE, TRUE, TRUE, 'Ahmad Ali', 45, 'Jakarta, Indonesia', 5.0, 'Paket umrah ini benar-benar luar biasa. Akomodasi sangat nyaman, dan pemandu sangat berpengalaman serta membantu. Sangat direkomendasikan!'),
+    (TRUE, TRUE, TRUE, 'Fatimah Noor', 38, 'Bandung, Indonesia', 4.0, 'Secara keseluruhan pengalaman yang sangat baik. Transportasi lancar dan staf sangat ramah. Namun, pilihan makanannya bisa lebih ditingkatkan.'),
+    (TRUE, TRUE, TRUE, 'Yusuf Rahman', 50, 'Surabaya, Indonesia', 5.0, 'Perjalanan spiritual yang benar-benar luar biasa dan bebas stres berkat paket ini. Semua diatur dengan sempurna dari awal hingga akhir.'),
+    (TRUE, TRUE, TRUE, 'Aisyah Malik', 30, 'Medan, Indonesia', 4.5, 'Pelayanan luar biasa! Pemimpin grup sangat membantu dan memastikan semua jamaah memiliki pengalaman yang lancar. Sangat saya rekomendasikan.'),
+    (TRUE, TRUE, TRUE, 'Muhammad Hasan', 60, 'Makassar, Indonesia', 5.0, 'Layanan yang sangat baik! Mulai dari pengurusan visa hingga akomodasi, semuanya ditangani dengan sangat profesional.'),
+    (TRUE, TRUE, TRUE, 'Siti Amina', 42, 'Yogyakarta, Indonesia', 4.5, 'Paket ini sangat cocok untuk keluarga. Fasilitasnya bersih, dan pemandu sangat ramah. Jadwalnya juga tidak terlalu padat, sehingga cukup fleksibel.'),
+    (TRUE, TRUE, TRUE, 'Ali Fauzan', 55, 'Balikpapan, Indonesia', 5.0, 'Saya sangat puas dengan layanan ini. Semua kebutuhan saya selama umrah terpenuhi dengan baik. Terima kasih telah membuat perjalanan ini begitu berkesan.'),
+    (TRUE, TRUE, TRUE, 'Nurul Hidayah', 36, 'Palembang, Indonesia', 4.7, 'Layanan yang sangat profesional. Timnya sangat responsif dan cepat membantu jika ada kebutuhan mendadak. Sungguh pengalaman yang tak terlupakan.'),
+    (TRUE, TRUE, TRUE, 'Rizki Aditya', 29, 'Denpasar, Indonesia', 4.8, 'Sebagai jamaah muda, saya merasa sangat terbantu dengan panduan dan fleksibilitas jadwal yang diberikan. Pengalaman spiritual yang sangat luar biasa.'),
+    (TRUE, TRUE, TRUE, 'Zahra Putri', 47, 'Banda Aceh, Indonesia', 5.0, 'Sangat puas! Dari mulai keberangkatan hingga pulang, semuanya diurus dengan sangat rapi. Hotelnya nyaman, dan lokasi strategis dekat Haram.');
+
 -- migrate:down
 
 DROP TABLE IF EXISTS "landing_testimonial_content_reviews";
