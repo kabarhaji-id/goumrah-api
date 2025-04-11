@@ -63,6 +63,8 @@ func main() {
 	landingMomentsContentImageRepository := postgresqlrepository.NewLandingMomentsContentImageRepository(db)
 	landingAffiliatesContentRepository := postgresqlrepository.NewLandingAffiliatesContentRepository(db)
 	landingAffiliatesContentAffiliateRepository := postgresqlrepository.NewLandingAffiliatesContentAffiliateRepository(db)
+	landingTestimonialContentRepository := postgresqlrepository.NewLandingTestimonialContentRepository(db)
+	landingTestimonialContentReviewRepository := postgresqlrepository.NewLandingTestimonialContentReviewRepository(db)
 	landingFaqContentRepository := postgresqlrepository.NewLandingFaqContentRepository(db)
 	landingFaqContentFaqRepository := postgresqlrepository.NewLandingFaqContentFaqRepository(db)
 	landingMenuRepository := postgresqlrepository.NewLandingMenuRepository(db)
@@ -155,6 +157,8 @@ func main() {
 		landingMomentsContentImageRepository,
 		landingAffiliatesContentRepository,
 		landingAffiliatesContentAffiliateRepository,
+		landingTestimonialContentRepository,
+		landingTestimonialContentReviewRepository,
 		landingFaqContentRepository,
 		landingFaqContentFaqRepository,
 		landingMenuRepository,

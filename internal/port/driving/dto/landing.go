@@ -116,6 +116,25 @@ type LandingAffiliatesContentRequest struct {
 	Affiliates []LandingAffiliatesContentAffiliateRequest
 }
 
+type LandingTestimonialContentReviewRequest struct {
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	Reviewer  string
+	Age       int
+	Address   string
+	Rating    float32
+	Review    string
+}
+
+type LandingTestimonialContentRequest struct {
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	Header    LandingSectionHeaderRequest
+	Reviews   []LandingTestimonialContentReviewRequest
+}
+
 type LandingFaqContentFaqRequest struct {
 	IsEnabled bool
 	IsMobile  bool
@@ -148,6 +167,7 @@ type LandingRequest struct {
 	FeaturesContent      LandingFeaturesContentRequest
 	MomentsContent       LandingMomentsContentRequest
 	AffiliatesContent    LandingAffiliatesContentRequest
+	TestimonialContent   LandingTestimonialContentRequest
 	FaqContent           LandingFaqContentRequest
 	Menus                []LandingMenuRequest
 }
@@ -297,6 +317,25 @@ type LandingAffiliatesContentResponse struct {
 	Affiliates []LandingAffiliatesContentAffiliateResponse
 }
 
+type LandingTestimonialContentReviewResponse struct {
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	Reviewer  string
+	Age       int
+	Address   string
+	Rating    float32
+	Review    string
+}
+
+type LandingTestimonialContentResponse struct {
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	Header    LandingSectionHeaderResponse
+	Reviews   []LandingTestimonialContentReviewResponse
+}
+
 type LandingFaqContentFaqResponse struct {
 	IsEnabled bool
 	IsMobile  bool
@@ -329,6 +368,7 @@ type LandingResponse struct {
 	FeaturesContent      LandingFeaturesContentResponse
 	MomentsContent       LandingMomentsContentResponse
 	AffiliatesContent    LandingAffiliatesContentResponse
+	TestimonialContent   LandingTestimonialContentResponse
 	FaqContent           LandingFaqContentResponse
 	Menus                []LandingMenuResponse
 }
