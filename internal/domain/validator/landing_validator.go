@@ -142,6 +142,41 @@ func (v LandingValidator) validateAffiliatesContentAffiliateRequest(
 	return nil
 }
 
+func (v LandingValidator) validateTestimonialContentReviewRequest(
+	prefix string,
+	testimonialContentReviewRequest dto.LandingTestimonialContentReviewRequest,
+) error {
+	reviewerLength := len(testimonialContentReviewRequest.Reviewer)
+	if reviewerLength < 1 {
+		return newError(fmt.Sprintf("%s.Reviewer", prefix), mustBeNotEmpty)
+	}
+	if reviewerLength > 100 {
+		return newError(fmt.Sprintf("%s.Reviewer", prefix), maxChars(100))
+	}
+
+	if testimonialContentReviewRequest.Age < 1 {
+		return newError(fmt.Sprintf("%s.Age", prefix), mustBeGte(1))
+	}
+
+	addressLength := len(testimonialContentReviewRequest.Address)
+	if addressLength < 1 {
+		return newError(fmt.Sprintf("%s.Address", prefix), mustBeNotEmpty)
+	}
+	if addressLength > 500 {
+		return newError(fmt.Sprintf("%s.Address", prefix), maxChars(500))
+	}
+
+	if testimonialContentReviewRequest.Rating < 1 || testimonialContentReviewRequest.Rating > 5 {
+		return newError(fmt.Sprintf("%s.Rating", prefix), mustBetween(1, 5))
+	}
+
+	if len(testimonialContentReviewRequest.Review) < 1 {
+		return newError(fmt.Sprintf("%s.Review", prefix), mustBeNotEmpty)
+	}
+
+	return nil
+}
+
 func (v LandingValidator) validateFaqContentFaqRequest(
 	prefix string,
 	faqContentFaqRequest dto.LandingFaqContentFaqRequest,
@@ -377,6 +412,29 @@ func (v LandingValidator) validateAffiliatesContentRequest(
 	return nil
 }
 
+func (v LandingValidator) validateTestimonialContentRequest(
+	prefix string,
+	testimonialContentRequest dto.LandingTestimonialContentRequest,
+) error {
+	if err := v.validateSectionHeaderRequest(
+		fmt.Sprintf("%s.Header", prefix),
+		testimonialContentRequest.Header,
+	); err != nil {
+		return err
+	}
+
+	for i, testimonialRequest := range testimonialContentRequest.Reviews {
+		if err := v.validateTestimonialContentReviewRequest(
+			fmt.Sprintf("%s.Reviews.%d", prefix, i),
+			testimonialRequest,
+		); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (v LandingValidator) validateFaqContentRequest(
 	prefix string,
 	faqContentRequest dto.LandingFaqContentRequest,
@@ -453,6 +511,10 @@ func (v LandingValidator) ValidateRequest(request dto.LandingRequest) error {
 	}
 
 	if err := v.validateAffiliatesContentRequest("AffiliatesContent", request.AffiliatesContent); err != nil {
+		return err
+	}
+
+	if err := v.validateTestimonialContentRequest("TestimonialContent", request.TestimonialContent); err != nil {
 		return err
 	}
 

@@ -20,6 +20,14 @@ CREATE TYPE public.bus_class AS ENUM (
 
 
 --
+-- Name: decimal_rating; Type: DOMAIN; Schema: public; Owner: -
+--
+
+CREATE DOMAIN public.decimal_rating AS numeric NOT NULL
+	CONSTRAINT decimal_rating_check CHECK (((VALUE >= (1)::numeric) AND (VALUE <= (5)::numeric)));
+
+
+--
 -- Name: flight_class; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -91,6 +99,17 @@ CREATE TYPE public.user_role AS ENUM (
     'ADMINISTRATOR',
     'CUSTOMER_SUPPORT',
     'PARTNER'
+);
+
+
+--
+-- Name: user_verification_type; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.user_verification_type AS ENUM (
+    'PHONE_NUMBER',
+    'EMAIL',
+    'LOGIN'
 );
 
 
@@ -511,6 +530,54 @@ $$;
 
 
 --
+-- Name: delete_role_permission_on_permission_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_role_permission_on_permission_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE role_permissions SET deleted_at = NOW() WHERE permission_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_role_permission_on_role_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_role_permission_on_role_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE role_permissions SET deleted_at = NOW() WHERE role_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: delete_user_verification_on_user_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.delete_user_verification_on_user_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
+        UPDATE user_verifications SET deleted_at = NOW() WHERE user_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_delete_landing_package_detail_if_landing_packages_conte(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -631,6 +698,40 @@ BEGIN
     IF EXISTS (SELECT 1 FROM landing_single_package WHERE landing_section_header_id = OLD.id) THEN
         RAISE EXCEPTION 'Cannot delete landing section header with existing landing single package content'
             USING ERRCODE = '23503', CONSTRAINT = 'landing_single_package_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_landing_section_header_if_landing_testimonial_co(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_testimonial_co() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_testimonial_content WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing testimonial content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_testimonial_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
+-- Name: prevent_delete_role_if_user_has_role(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_role_if_user_has_role() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM "users" WHERE role_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete role that has been assigned to user'
+            USING ERRCODE = '23503', CONSTRAINT = 'users_role_id_fkey';
     END IF;
     RETURN OLD;
 END;
@@ -1398,6 +1499,23 @@ $$;
 
 
 --
+-- Name: prevent_insert_landing_testimonial_content_if_landing_section_h(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_testimonial_content_if_landing_section_h() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing testimonial content with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_testimonial_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_if_thumbnail_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1569,6 +1687,76 @@ BEGIN
             RAISE EXCEPTION 'Cannot insert package session with soft deleted return flight route'
                 USING ERRCODE = '23503', CONSTRAINT = 'package_sessions_return_flight_route_id_fkey';
         END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_role_permission_if_permission_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_role_permission_if_permission_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM permissions WHERE id = NEW.permission_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert role permission with soft deleted permission'
+            USING ERRCODE = '23503', CONSTRAINT = 'role_permissions_permission_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_role_permission_if_role_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_role_permission_if_role_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM roles WHERE id = NEW.role_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert role permission with soft deleted role'
+            USING ERRCODE = '23503', CONSTRAINT = 'role_permissions_role_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_user_if_avatar_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_user_if_avatar_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.avatar_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM images WHERE id = NEW.avatar_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert user with soft deleted avatar'
+                USING ERRCODE = '23503', CONSTRAINT = 'users_avatar_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_user_verification_if_user_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_user_verification_if_user_is_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM "users" WHERE id = NEW.user_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert user verification with soft deleted user'
+            USING ERRCODE = '23503', CONSTRAINT = 'user_verifications_user_id_fkey';
     END IF;
     RETURN NEW;
 END;
@@ -1859,6 +2047,22 @@ CREATE FUNCTION public.set_transport_id_null_on_transport_soft_deleted() RETURNS
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
         UPDATE itinerary_widgets SET transport_id = NULL WHERE transport_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_user_avatar_id_null_on_image_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_user_avatar_id_null_on_image_soft_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE "users" SET avatar_id = NULL WHERE avatar_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -2945,6 +3149,57 @@ CREATE TABLE public.landing_single_package_content (
 
 
 --
+-- Name: landing_testimonial_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_testimonial_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_testimonial_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_testimonial_content_reviews; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_testimonial_content_reviews (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
+    reviewer character varying(100) NOT NULL,
+    age integer NOT NULL,
+    address character varying(500) NOT NULL,
+    rating public.decimal_rating NOT NULL,
+    review text NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_testimonial_content_reviews_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_testimonial_content_reviews ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_testimonial_content_reviews_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3054,15 +3309,120 @@ ALTER TABLE public.packages ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: permissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.permissions (
+    id bigint NOT NULL,
+    name character varying(50) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: permissions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.permissions ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.permissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: role_permissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.role_permissions (
+    role_id bigint NOT NULL,
+    permission_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: roles; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.roles (
+    id bigint NOT NULL,
+    name character varying(50) NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.roles ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.roles_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: user_verifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.user_verifications (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    otp character varying(6) NOT NULL,
+    type public.user_verification_type NOT NULL,
+    expired_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: user_verifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.user_verifications ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.user_verifications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.users (
     id bigint NOT NULL,
-    full_name character varying(100) NOT NULL,
+    first_name character varying(50) NOT NULL,
+    last_name character varying(50) NOT NULL,
+    username character varying(50) NOT NULL,
     phone_number character varying(20) NOT NULL,
-    email character varying(256) NOT NULL,
-    address character varying(500) NOT NULL,
+    phone_number_verified_at timestamp without time zone,
+    email text,
+    email_verified_at timestamp without time zone,
+    password text,
+    token text,
+    address text NOT NULL,
+    avatar_id bigint,
+    role_id bigint NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
     deleted_at timestamp without time zone
@@ -3412,6 +3772,22 @@ ALTER TABLE ONLY public.landing_single_package_content
 
 
 --
+-- Name: landing_testimonial_content landing_testimonial_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_testimonial_content
+    ADD CONSTRAINT landing_testimonial_content_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_testimonial_content_reviews landing_testimonial_content_testimonials_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_testimonial_content_reviews
+    ADD CONSTRAINT landing_testimonial_content_testimonials_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3449,6 +3825,38 @@ ALTER TABLE ONLY public.package_sessions
 
 ALTER TABLE ONLY public.packages
     ADD CONSTRAINT packages_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: permissions permissions_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.permissions
+    ADD CONSTRAINT permissions_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: role_permissions role_permissions_role_id_permission_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.role_permissions
+    ADD CONSTRAINT role_permissions_role_id_permission_id_pkey PRIMARY KEY (role_id, permission_id);
+
+
+--
+-- Name: roles roles_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.roles
+    ADD CONSTRAINT roles_id_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_verifications user_verifications_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_verifications
+    ADD CONSTRAINT user_verifications_id_pkey PRIMARY KEY (id);
 
 
 --
@@ -3579,10 +3987,38 @@ CREATE UNIQUE INDEX packages_slug_unique ON public.packages USING btree (upper((
 
 
 --
+-- Name: permissions_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX permissions_name_unique ON public.permissions USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: roles_name_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX roles_name_unique ON public.roles USING btree (upper((name)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: user_verifications_otp_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX user_verifications_otp_unique ON public.user_verifications USING btree (otp) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: user_verifications_user_id_type_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX user_verifications_user_id_type_unique ON public.user_verifications USING btree (user_id, type) WHERE (deleted_at IS NULL);
+
+
+--
 -- Name: users_email_unique; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX users_email_unique ON public.users USING btree (upper((email)::text)) WHERE (deleted_at IS NULL);
+CREATE UNIQUE INDEX users_email_unique ON public.users USING btree (upper(email)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -3590,6 +4026,13 @@ CREATE UNIQUE INDEX users_email_unique ON public.users USING btree (upper((email
 --
 
 CREATE UNIQUE INDEX users_phone_number_unique ON public.users USING btree (upper((phone_number)::text)) WHERE (deleted_at IS NULL);
+
+
+--
+-- Name: users_username_unique; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_username_unique ON public.users USING btree (upper((username)::text)) WHERE (deleted_at IS NULL);
 
 
 --
@@ -3775,6 +4218,27 @@ CREATE TRIGGER delete_package_session_on_package_soft_deleted BEFORE UPDATE ON p
 
 
 --
+-- Name: permissions delete_role_permission_on_permission_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_role_permission_on_permission_soft_deleted BEFORE UPDATE ON public.permissions FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_role_permission_on_permission_soft_deleted();
+
+
+--
+-- Name: roles delete_role_permission_on_role_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_role_permission_on_role_soft_deleted BEFORE UPDATE ON public.roles FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_role_permission_on_role_soft_deleted();
+
+
+--
+-- Name: users delete_user_verification_on_user_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER delete_user_verification_on_user_soft_deleted BEFORE UPDATE ON public.users FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.delete_user_verification_on_user_soft_deleted();
+
+
+--
 -- Name: landing_package_items prevent_delete_landing_package_detail_if_landing_packages_conte; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -3821,6 +4285,20 @@ CREATE TRIGGER prevent_delete_landing_section_header_if_landing_package_detail B
 --
 
 CREATE TRIGGER prevent_delete_landing_section_header_if_landing_single_package BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_single_package();
+
+
+--
+-- Name: landing_package_items prevent_delete_landing_section_header_if_landing_testimonial_co; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_testimonial_co BEFORE UPDATE ON public.landing_package_items FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_testimonial_co();
+
+
+--
+-- Name: roles prevent_delete_role_if_user_has_role; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_role_if_user_has_role BEFORE UPDATE ON public.roles FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_role_if_user_has_role();
 
 
 --
@@ -4118,6 +4596,13 @@ CREATE TRIGGER prevent_insert_landing_single_package_content_if_landing_sectio B
 
 
 --
+-- Name: landing_testimonial_content prevent_insert_landing_testimonial_content_if_landing_section_h; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_testimonial_content_if_landing_section_h BEFORE INSERT OR UPDATE ON public.landing_testimonial_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_testimonial_content_if_landing_section_h();
+
+
+--
 -- Name: packages prevent_insert_package_if_thumbnail_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4185,6 +4670,34 @@ CREATE TRIGGER prevent_insert_package_session_if_package_is_soft_deleted BEFORE 
 --
 
 CREATE TRIGGER prevent_insert_package_session_if_return_flight_route_is_soft_d BEFORE INSERT OR UPDATE ON public.package_sessions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_package_session_if_return_flight_route_is_soft_d();
+
+
+--
+-- Name: role_permissions prevent_insert_role_permission_if_permission_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_role_permission_if_permission_is_soft_deleted BEFORE INSERT OR UPDATE ON public.role_permissions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_role_permission_if_permission_is_soft_deleted();
+
+
+--
+-- Name: role_permissions prevent_insert_role_permission_if_role_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_role_permission_if_role_is_soft_deleted BEFORE INSERT OR UPDATE ON public.role_permissions FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_role_permission_if_role_is_soft_deleted();
+
+
+--
+-- Name: users prevent_insert_user_if_avatar_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_user_if_avatar_is_soft_deleted BEFORE INSERT OR UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_user_if_avatar_is_soft_deleted();
+
+
+--
+-- Name: user_verifications prevent_insert_user_verification_if_user_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_user_verification_if_user_is_soft_deleted BEFORE INSERT OR UPDATE ON public.user_verifications FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_user_verification_if_user_is_soft_deleted();
 
 
 --
@@ -4311,6 +4824,13 @@ CREATE TRIGGER set_recommendation_id_null_on_recommendation_soft_deleted BEFORE 
 --
 
 CREATE TRIGGER set_transport_id_null_on_transport_soft_deleted BEFORE UPDATE ON public.itinerary_widget_transports FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_transport_id_null_on_transport_soft_deleted();
+
+
+--
+-- Name: images set_user_avatar_id_null_on_image_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_user_avatar_id_null_on_image_soft_deleted BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_user_avatar_id_null_on_image_soft_deleted();
 
 
 --
@@ -4689,6 +5209,14 @@ ALTER TABLE ONLY public.landing_single_package_content
 
 
 --
+-- Name: landing_testimonial_content landing_testimonial_content_landing_section_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_testimonial_content
+    ADD CONSTRAINT landing_testimonial_content_landing_section_header_id_fkey FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
 -- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4777,6 +5305,38 @@ ALTER TABLE ONLY public.packages
 
 
 --
+-- Name: role_permissions role_permissions_permission_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.role_permissions
+    ADD CONSTRAINT role_permissions_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES public.permissions(id);
+
+
+--
+-- Name: role_permissions role_permissions_role_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.role_permissions
+    ADD CONSTRAINT role_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id);
+
+
+--
+-- Name: user_verifications user_verifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_verifications
+    ADD CONSTRAINT user_verifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: users users_avatar_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_avatar_id_fkey FOREIGN KEY (avatar_id) REFERENCES public.images(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -4815,4 +5375,6 @@ INSERT INTO public.migrations (version) VALUES
     ('20250325070655'),
     ('20250325071654'),
     ('20250325074422'),
-    ('20250325092604');
+    ('20250325092604'),
+    ('20250326064458'),
+    ('20250408111534');

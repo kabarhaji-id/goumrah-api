@@ -303,6 +303,7 @@ func (m LandingMapper) MapEntityToResponse(
 	landingFeaturesContentBenefitRepository repository.LandingFeaturesContentBenefitRepository,
 	landingMomentsContentImageRepository repository.LandingMomentsContentImageRepository,
 	landingAffiliatesContentAffiliateRepository repository.LandingAffiliatesContentAffiliateRepository,
+	landingTestimonialContentReviewRepository repository.LandingTestimonialContentReviewRepository,
 	LandingFaqContentFaqRepository repository.LandingFaqContentFaqRepository,
 	imageRepository repository.ImageRepository,
 	packageRepository repository.PackageRepository,
@@ -318,6 +319,7 @@ func (m LandingMapper) MapEntityToResponse(
 	landingFeaturesContentEntity entity.LandingFeaturesContent,
 	landingMomentsContentEntity entity.LandingMomentsContent,
 	landingAffiliatesContentEntity entity.LandingAffiliatesContent,
+	landingTestimonialContentEntity entity.LandingTestimonialContent,
 	landingFaqContentEntity entity.LandingFaqContent,
 	landingMenuEntities []entity.LandingMenu,
 ) (dto.LandingResponse, error) {
@@ -570,6 +572,29 @@ func (m LandingMapper) MapEntityToResponse(
 		}
 	}
 
+	landingTestimonialContentHeaderEntity, err := landingSectionHeaderRepository.FindById(ctx, landingTestimonialContentEntity.LandingSectionHeaderId)
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+
+	landingTestimonialContentReviewEntities, err := landingTestimonialContentReviewRepository.FindAll(ctx, repository.FindAllOptions{})
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+	landingTestimonialContentReviewResponses := make([]dto.LandingTestimonialContentReviewResponse, len(landingTestimonialContentReviewEntities))
+	for i, landingTestimonialContentReviewEntity := range landingTestimonialContentReviewEntities {
+		landingTestimonialContentReviewResponses[i] = dto.LandingTestimonialContentReviewResponse{
+			IsEnabled: landingTestimonialContentReviewEntity.IsEnabled,
+			IsMobile:  landingTestimonialContentReviewEntity.IsMobile,
+			IsDesktop: landingTestimonialContentReviewEntity.IsDesktop,
+			Reviewer:  landingTestimonialContentReviewEntity.Reviewer,
+			Age:       landingTestimonialContentReviewEntity.Age,
+			Address:   landingTestimonialContentReviewEntity.Address,
+			Rating:    landingTestimonialContentReviewEntity.Rating,
+			Review:    landingTestimonialContentReviewEntity.Review,
+		}
+	}
+
 	landingFaqContentHeaderEntity, err := landingSectionHeaderRepository.FindById(ctx, landingFaqContentEntity.LandingSectionHeaderId)
 	if err != nil {
 		return dto.LandingResponse{}, err
@@ -682,6 +707,20 @@ func (m LandingMapper) MapEntityToResponse(
 				TagsLine:  landingAffiliatesContentHeaderEntity.TagsLine,
 			},
 			Affiliates: landingAffiliatesContentAffiliateResponses,
+		},
+		TestimonialContent: dto.LandingTestimonialContentResponse{
+			IsEnabled: landingTestimonialContentEntity.IsEnabled,
+			IsMobile:  landingTestimonialContentEntity.IsMobile,
+			IsDesktop: landingTestimonialContentEntity.IsDesktop,
+			Header: dto.LandingSectionHeaderResponse{
+				IsEnabled: landingTestimonialContentHeaderEntity.IsEnabled,
+				IsMobile:  landingTestimonialContentHeaderEntity.IsMobile,
+				IsDesktop: landingTestimonialContentHeaderEntity.IsDesktop,
+				Title:     landingTestimonialContentHeaderEntity.Title,
+				Subtitle:  landingTestimonialContentHeaderEntity.Subtitle,
+				TagsLine:  landingTestimonialContentHeaderEntity.TagsLine,
+			},
+			Reviews: landingTestimonialContentReviewResponses,
 		},
 		FaqContent: dto.LandingFaqContentResponse{
 			IsEnabled: landingFaqContentEntity.IsEnabled,

@@ -26,6 +26,8 @@ type landingServiceImpl struct {
 	landingMomentsContentImageRepository        repository.LandingMomentsContentImageRepository
 	landingAffiliatesContentRepository          repository.LandingAffiliatesContentRepository
 	landingAffiliatesContentAffiliateRepository repository.LandingAffiliatesContentAffiliateRepository
+	landingTestimonialContentRepository         repository.LandingTestimonialContentRepository
+	landingTestimonialContentReviewRepository   repository.LandingTestimonialContentReviewRepository
 	landingFaqContentRepository                 repository.LandingFaqContentRepository
 	landingFaqContentFaqRepository              repository.LandingFaqContentFaqRepository
 	landingMenuRepository                       repository.LandingMenuRepository
@@ -59,6 +61,8 @@ func NewLandingService(
 	landingMomentsContentImageRepository repository.LandingMomentsContentImageRepository,
 	landingAffiliatesContentRepository repository.LandingAffiliatesContentRepository,
 	landingAffiliatesContentAffiliateRepository repository.LandingAffiliatesContentAffiliateRepository,
+	landingTestimonialContentRepository repository.LandingTestimonialContentRepository,
+	landingTestimonialContentReviewRepository repository.LandingTestimonialContentReviewRepository,
 	landingFaqContentRepository repository.LandingFaqContentRepository,
 	landingFaqContentFaqRepository repository.LandingFaqContentFaqRepository,
 	landingMenuRepository repository.LandingMenuRepository,
@@ -88,6 +92,8 @@ func NewLandingService(
 		landingMomentsContentImageRepository,
 		landingAffiliatesContentRepository,
 		landingAffiliatesContentAffiliateRepository,
+		landingTestimonialContentRepository,
+		landingTestimonialContentReviewRepository,
 		landingFaqContentRepository,
 		landingFaqContentFaqRepository,
 		landingMenuRepository,
@@ -130,6 +136,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 		landingMomentsContentImageRepository := factory.NewLandingMomentsContentImageRepository()
 		landingAffiliatesContentRepository := factory.NewLandingAffiliatesContentRepository()
 		landingAffiliatesContentAffiliateRepository := factory.NewLandingAffiliatesContentAffiliateRepository()
+		landingTestimonialContentRepository := factory.NewLandingTestimonialContentRepository()
+		landingTestimonialContentReviewRepository := factory.NewLandingTestimonialContentReviewRepository()
 		landingFaqContentRepository := factory.NewLandingFaqContentRepository()
 		landingFaqContentFaqRepository := factory.NewLandingFaqContentFaqRepository()
 		landingMenuRepository := factory.NewLandingMenuRepository()
@@ -602,6 +610,52 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
+		// Create landing testimonial content with repository
+		landingTestimonialContentHeader, err := landingSectionHeaderRepository.Create(
+			ctx,
+			entity.LandingSectionHeader{
+				IsEnabled: request.TestimonialContent.Header.IsEnabled,
+				IsMobile:  request.TestimonialContent.Header.IsMobile,
+				IsDesktop: request.TestimonialContent.Header.IsDesktop,
+				Title:     request.TestimonialContent.Header.Title,
+				Subtitle:  request.TestimonialContent.Header.Subtitle,
+				TagsLine:  request.TestimonialContent.Header.TagsLine,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
+		reviews := make([]entity.LandingTestimonialContentReview, len(request.TestimonialContent.Reviews))
+		for index, review := range request.TestimonialContent.Reviews {
+			reviews[index] = entity.LandingTestimonialContentReview{
+				IsEnabled: review.IsEnabled,
+				IsMobile:  review.IsMobile,
+				IsDesktop: review.IsDesktop,
+				Reviewer:  review.Reviewer,
+				Age:       review.Age,
+				Address:   review.Address,
+				Rating:    review.Rating,
+				Review:    review.Review,
+			}
+		}
+		if _, err = landingTestimonialContentReviewRepository.CreateMany(ctx, reviews); err != nil {
+			return err
+		}
+
+		landingTestimonialContent, err := landingTestimonialContentRepository.Create(
+			ctx,
+			entity.LandingTestimonialContent{
+				IsEnabled:              request.TestimonialContent.IsEnabled,
+				IsMobile:               request.TestimonialContent.IsMobile,
+				IsDesktop:              request.TestimonialContent.IsDesktop,
+				LandingSectionHeaderId: landingTestimonialContentHeader.Id,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
 		// Create landing faq content with repository
 		landingFaqContentHeader, err := landingSectionHeaderRepository.Create(
 			ctx,
@@ -671,6 +725,7 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			landingFeaturesContentBenefitRepository,
 			landingMomentsContentImageRepository,
 			landingAffiliatesContentAffiliateRepository,
+			landingTestimonialContentReviewRepository,
 			landingFaqContentFaqRepository,
 			imageRepository,
 			packageRepository,
@@ -686,6 +741,7 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			landingFeaturesContent,
 			landingMomentsContent,
 			landingAffiliatesContent,
+			landingTestimonialContent,
 			landingFaqContent,
 			landingMenus,
 		)
@@ -733,6 +789,12 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 		return dto.LandingResponse{}, err
 	}
 
+	// Find landing testimonial content with repository
+	landingTestimonialContent, err := s.landingTestimonialContentRepository.Find(ctx)
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+
 	// Find landing faq content with repository
 	landingFaqContent, err := s.landingFaqContentRepository.Find(ctx)
 	if err != nil {
@@ -755,6 +817,7 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 		s.landingFeaturesContentBenefitRepository,
 		s.landingMomentsContentImageRepository,
 		s.landingAffiliatesContentAffiliateRepository,
+		s.landingTestimonialContentReviewRepository,
 		s.landingFaqContentFaqRepository,
 		s.imageRepository,
 		s.packageRepository,
@@ -770,6 +833,7 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 		landingFeaturesContent,
 		landingMomentsContent,
 		landingAffiliatesContent,
+		landingTestimonialContent,
 		landingFaqContent,
 		landingMenus,
 	)
@@ -805,6 +869,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		landingMomentsContentImageRepository := factory.NewLandingMomentsContentImageRepository()
 		landingAffiliatesContentRepository := factory.NewLandingAffiliatesContentRepository()
 		landingAffiliatesContentAffiliateRepository := factory.NewLandingAffiliatesContentAffiliateRepository()
+		landingTestimonialContentRepository := factory.NewLandingTestimonialContentRepository()
+		landingTestimonialContentReviewRepository := factory.NewLandingTestimonialContentReviewRepository()
 		landingFaqContentRepository := factory.NewLandingFaqContentRepository()
 		landingFaqContentFaqRepository := factory.NewLandingFaqContentFaqRepository()
 		landingMenuRepository := factory.NewLandingMenuRepository()
@@ -1418,6 +1484,59 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
+		// Update landing testimonial content with repository
+		landingTestimonialContent, err := landingTestimonialContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingTestimonialContent.IsEnabled = request.TestimonialContent.IsEnabled
+		landingTestimonialContent.IsMobile = request.TestimonialContent.IsMobile
+		landingTestimonialContent.IsDesktop = request.TestimonialContent.IsDesktop
+
+		landingTestimonialContent, err = landingTestimonialContentRepository.Update(
+			ctx,
+			landingTestimonialContent,
+		)
+		if err != nil {
+			return err
+		}
+
+		if _, err = landingSectionHeaderRepository.Update(
+			ctx,
+			landingTestimonialContent.LandingSectionHeaderId,
+			entity.LandingSectionHeader{
+				IsEnabled: request.TestimonialContent.Header.IsEnabled,
+				IsMobile:  request.TestimonialContent.Header.IsMobile,
+				IsDesktop: request.TestimonialContent.Header.IsDesktop,
+				Title:     request.TestimonialContent.Header.Title,
+				Subtitle:  request.TestimonialContent.Header.Subtitle,
+				TagsLine:  request.TestimonialContent.Header.TagsLine,
+			},
+		); err != nil {
+			return err
+		}
+
+		if _, err = landingTestimonialContentReviewRepository.DeleteMany(ctx); err != nil {
+			return err
+		}
+
+		reviews := make([]entity.LandingTestimonialContentReview, len(request.TestimonialContent.Reviews))
+		for index, review := range request.TestimonialContent.Reviews {
+			reviews[index] = entity.LandingTestimonialContentReview{
+				IsEnabled: review.IsEnabled,
+				IsMobile:  review.IsMobile,
+				IsDesktop: review.IsDesktop,
+				Reviewer:  review.Reviewer,
+				Age:       review.Age,
+				Address:   review.Address,
+				Rating:    review.Rating,
+				Review:    review.Review,
+			}
+		}
+		if _, err = landingTestimonialContentReviewRepository.CreateMany(ctx, reviews); err != nil {
+			return err
+		}
+
 		// Update landing faq content with repository
 		landingFaqContent, err := landingFaqContentRepository.Find(ctx)
 		if err != nil {
@@ -1498,6 +1617,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingFeaturesContentBenefitRepository,
 			landingMomentsContentImageRepository,
 			landingAffiliatesContentAffiliateRepository,
+			landingTestimonialContentReviewRepository,
 			landingFaqContentFaqRepository,
 			imageRepository,
 			packageRepository,
@@ -1513,6 +1633,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingFeaturesContent,
 			landingMomentsContent,
 			landingAffiliatesContent,
+			landingTestimonialContent,
 			landingFaqContent,
 			landingMenus,
 		)

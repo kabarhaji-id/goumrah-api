@@ -182,6 +182,34 @@ type LandingAffiliatesContentAffiliate struct {
 	DeletedAt null.Time
 }
 
+type LandingTestimonialContent struct {
+	Id                     int64
+	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
+	LandingSectionHeaderId int64
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt null.Time
+}
+
+type LandingTestimonialContentReview struct {
+	Id        int64
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	Reviewer  string
+	Age       int
+	Address   string
+	Rating    float32
+	Review    string
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt null.Time
+}
+
 type LandingFaqContent struct {
 	Id                     int64
 	IsEnabled              bool

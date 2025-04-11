@@ -321,6 +321,53 @@ func (r LandingFaqContentRequest) ToDtoRequest() dto.LandingFaqContentRequest {
 	}
 }
 
+type LandingTestimonialContentReviewRequest struct {
+	IsEnabled bool    `json:"is_enabled"`
+	IsMobile  bool    `json:"is_mobile"`
+	IsDesktop bool    `json:"is_desktop"`
+	Reviewer  string  `json:"reviewer"`
+	Age       int     `json:"age"`
+	Address   string  `json:"address"`
+	Rating    float32 `json:"rating"`
+	Review    string  `json:"review"`
+}
+
+func (r LandingTestimonialContentReviewRequest) ToDtoRequest() dto.LandingTestimonialContentReviewRequest {
+	return dto.LandingTestimonialContentReviewRequest{
+		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
+		Reviewer:  r.Reviewer,
+		Age:       r.Age,
+		Address:   r.Address,
+		Rating:    r.Rating,
+		Review:    r.Review,
+	}
+}
+
+type LandingTestimonialContentRequest struct {
+	IsEnabled bool                                     `json:"is_enabled"`
+	IsMobile  bool                                     `json:"is_mobile"`
+	IsDesktop bool                                     `json:"is_desktop"`
+	Header    LandingSectionHeaderRequest              `json:"header"`
+	Reviews   []LandingTestimonialContentReviewRequest `json:"reviews"`
+}
+
+func (r LandingTestimonialContentRequest) ToDtoRequest() dto.LandingTestimonialContentRequest {
+	reviews := make([]dto.LandingTestimonialContentReviewRequest, len(r.Reviews))
+	for i, review := range r.Reviews {
+		reviews[i] = review.ToDtoRequest()
+	}
+
+	return dto.LandingTestimonialContentRequest{
+		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
+		Header:    r.Header.ToDtoRequest(),
+		Reviews:   reviews,
+	}
+}
+
 type LandingMenuRequest struct {
 	IsEnabled bool   `json:"is_enabled"`
 	IsMobile  bool   `json:"is_mobile"`
@@ -348,6 +395,7 @@ type LandingRequest struct {
 	FeaturesContent      LandingFeaturesContentRequest      `json:"features_content"`
 	MomentsContent       LandingMomentsContentRequest       `json:"moments_content"`
 	AffiliatesContent    LandingAffiliatesContentRequest    `json:"affiliates_content"`
+	TestimonialContent   LandingTestimonialContentRequest   `json:"testimonial_content"`
 	FaqContent           LandingFaqContentRequest           `json:"faq_content"`
 	Menus                []LandingMenuRequest               `json:"menus"`
 }
@@ -365,6 +413,7 @@ func (r LandingRequest) ToDtoRequest() dto.LandingRequest {
 		FeaturesContent:      r.FeaturesContent.ToDtoRequest(),
 		MomentsContent:       r.MomentsContent.ToDtoRequest(),
 		AffiliatesContent:    r.AffiliatesContent.ToDtoRequest(),
+		TestimonialContent:   r.TestimonialContent.ToDtoRequest(),
 		FaqContent:           r.FaqContent.ToDtoRequest(),
 		Menus:                menus,
 	}
@@ -894,6 +943,68 @@ func NewLandingAffiliatesContentResponses(dtos []dto.LandingAffiliatesContentRes
 	return responses
 }
 
+type LandingTestimonialContentReviewResponse struct {
+	IsEnabled bool    `json:"is_enabled"`
+	IsMobile  bool    `json:"is_mobile"`
+	IsDesktop bool    `json:"is_desktop"`
+	Reviewer  string  `json:"reviewer"`
+	Age       int     `json:"age"`
+	Address   string  `json:"address"`
+	Rating    float32 `json:"rating"`
+	Review    string  `json:"review"`
+}
+
+func NewLandingTestimonialContentReviewResponse(dto dto.LandingTestimonialContentReviewResponse) LandingTestimonialContentReviewResponse {
+	return LandingTestimonialContentReviewResponse{
+		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
+		Reviewer:  dto.Reviewer,
+		Age:       dto.Age,
+		Address:   dto.Address,
+		Rating:    dto.Rating,
+		Review:    dto.Review,
+	}
+}
+
+func NewLandingTestimonialContentReviewResponses(dtos []dto.LandingTestimonialContentReviewResponse) []LandingTestimonialContentReviewResponse {
+	responses := make([]LandingTestimonialContentReviewResponse, len(dtos))
+	for i, dto := range dtos {
+		responses[i] = NewLandingTestimonialContentReviewResponse(dto)
+	}
+	return responses
+}
+
+type LandingTestimonialContentResponse struct {
+	IsEnabled bool                                      `json:"is_enabled"`
+	IsMobile  bool                                      `json:"is_mobile"`
+	IsDesktop bool                                      `json:"is_desktop"`
+	Header    LandingSectionHeaderResponse              `json:"header"`
+	Reviews   []LandingTestimonialContentReviewResponse `json:"reviews"`
+}
+
+func NewLandingTestimonialContentResponse(dto dto.LandingTestimonialContentResponse) LandingTestimonialContentResponse {
+	reviews := make([]LandingTestimonialContentReviewResponse, len(dto.Reviews))
+	for i, review := range dto.Reviews {
+		reviews[i] = NewLandingTestimonialContentReviewResponse(review)
+	}
+	return LandingTestimonialContentResponse{
+		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
+		Header:    NewLandingSectionHeaderResponse(dto.Header),
+		Reviews:   reviews,
+	}
+}
+
+func NewLandingTestimonialContentResponses(dtos []dto.LandingTestimonialContentResponse) []LandingTestimonialContentResponse {
+	responses := make([]LandingTestimonialContentResponse, len(dtos))
+	for i, dto := range dtos {
+		responses[i] = NewLandingTestimonialContentResponse(dto)
+	}
+	return responses
+}
+
 type LandingFaqContentFaqResponse struct {
 	IsEnabled bool   `json:"is_enabled"`
 	IsMobile  bool   `json:"is_mobile"`
@@ -985,6 +1096,7 @@ type LandingResponse struct {
 	FeaturesContent      LandingFeaturesContentResponse      `json:"features_content"`
 	MomentsContent       LandingMomentsContentResponse       `json:"moments_content"`
 	AffiliatesContent    LandingAffiliatesContentResponse    `json:"affiliates_content"`
+	TestimonialContent   LandingTestimonialContentResponse   `json:"testimonial_content"`
 	FaqContent           LandingFaqContentResponse           `json:"faq_content"`
 	Menus                []LandingMenuResponse               `json:"menus"`
 }
@@ -997,6 +1109,7 @@ func NewLandingResponse(dto dto.LandingResponse) LandingResponse {
 		FeaturesContent:      NewLandingFeaturesContentResponse(dto.FeaturesContent),
 		MomentsContent:       NewLandingMomentsContentResponse(dto.MomentsContent),
 		AffiliatesContent:    NewLandingAffiliatesContentResponse(dto.AffiliatesContent),
+		TestimonialContent:   NewLandingTestimonialContentResponse(dto.TestimonialContent),
 		FaqContent:           NewLandingFaqContentResponse(dto.FaqContent),
 		Menus:                NewLandingMenuResponses(dto.Menus),
 	}

@@ -109,6 +109,19 @@ type LandingFaqContentFaqRepository interface {
 	DeleteMany(ctx context.Context) ([]entity.LandingFaqContentFaq, error)
 }
 
+type LandingTestimonialContentRepository interface {
+	Create(ctx context.Context, landingTestimonialContent entity.LandingTestimonialContent) (entity.LandingTestimonialContent, error)
+	Find(ctx context.Context) (entity.LandingTestimonialContent, error)
+	Update(ctx context.Context, landingTestimonialContent entity.LandingTestimonialContent) (entity.LandingTestimonialContent, error)
+	Delete(ctx context.Context) (entity.LandingTestimonialContent, error)
+}
+
+type LandingTestimonialContentReviewRepository interface {
+	CreateMany(ctx context.Context, landingTestimonialContentReviews []entity.LandingTestimonialContentReview) ([]entity.LandingTestimonialContentReview, error)
+	FindAll(ctx context.Context, opt FindAllOptions) ([]entity.LandingTestimonialContentReview, error)
+	DeleteMany(ctx context.Context) ([]entity.LandingTestimonialContentReview, error)
+}
+
 type LandingMenuRepository interface {
 	CreateMany(ctx context.Context, landingMenus []entity.LandingMenu) ([]entity.LandingMenu, error)
 	FindAll(ctx context.Context, opt FindAllOptions) ([]entity.LandingMenu, error)
