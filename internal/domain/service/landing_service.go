@@ -13,24 +13,26 @@ import (
 )
 
 type landingServiceImpl struct {
-	landingHeroContentRepository                repository.LandingHeroContentRepository
-	landingSectionHeaderRepository              repository.LandingSectionHeaderRepository
-	landingPackageItemRepository                repository.LandingPackageItemRepository
-	landingSinglePackageContentRepository       repository.LandingSinglePackageContentRepository
-	landingPackageDetailRepository              repository.LandingPackageDetailRepository
-	landingPackageDetailItemRepository          repository.LandingPackageDetailItemRepository
-	landingPackagesContentRepository            repository.LandingPackagesContentRepository
-	landingFeaturesContentRepository            repository.LandingFeaturesContentRepository
-	landingFeaturesContentBenefitRepository     repository.LandingFeaturesContentBenefitRepository
-	landingMomentsContentRepository             repository.LandingMomentsContentRepository
-	landingMomentsContentImageRepository        repository.LandingMomentsContentImageRepository
-	landingAffiliatesContentRepository          repository.LandingAffiliatesContentRepository
-	landingAffiliatesContentAffiliateRepository repository.LandingAffiliatesContentAffiliateRepository
-	landingTestimonialContentRepository         repository.LandingTestimonialContentRepository
-	landingTestimonialContentReviewRepository   repository.LandingTestimonialContentReviewRepository
-	landingFaqContentRepository                 repository.LandingFaqContentRepository
-	landingFaqContentFaqRepository              repository.LandingFaqContentFaqRepository
-	landingMenuRepository                       repository.LandingMenuRepository
+	landingHeroContentRepository                         repository.LandingHeroContentRepository
+	landingSectionHeaderRepository                       repository.LandingSectionHeaderRepository
+	landingPackageItemRepository                         repository.LandingPackageItemRepository
+	landingSinglePackageContentRepository                repository.LandingSinglePackageContentRepository
+	landingPackageDetailRepository                       repository.LandingPackageDetailRepository
+	landingPackageDetailItemRepository                   repository.LandingPackageDetailItemRepository
+	landingPackagesContentRepository                     repository.LandingPackagesContentRepository
+	landingTravelDestinationContentRepository            repository.LandingTravelDestinationContentRepository
+	landingTravelDestinationContentDestinationRepository repository.LandingTravelDestinationContentDestinationRepository
+	landingFeaturesContentRepository                     repository.LandingFeaturesContentRepository
+	landingFeaturesContentBenefitRepository              repository.LandingFeaturesContentBenefitRepository
+	landingMomentsContentRepository                      repository.LandingMomentsContentRepository
+	landingMomentsContentImageRepository                 repository.LandingMomentsContentImageRepository
+	landingAffiliatesContentRepository                   repository.LandingAffiliatesContentRepository
+	landingAffiliatesContentAffiliateRepository          repository.LandingAffiliatesContentAffiliateRepository
+	landingTestimonialContentRepository                  repository.LandingTestimonialContentRepository
+	landingTestimonialContentReviewRepository            repository.LandingTestimonialContentReviewRepository
+	landingFaqContentRepository                          repository.LandingFaqContentRepository
+	landingFaqContentFaqRepository                       repository.LandingFaqContentFaqRepository
+	landingMenuRepository                                repository.LandingMenuRepository
 
 	imageRepository          repository.ImageRepository
 	packageRepository        repository.PackageRepository
@@ -55,6 +57,8 @@ func NewLandingService(
 	landingPackageDetailRepository repository.LandingPackageDetailRepository,
 	landingPackageDetailItemRepository repository.LandingPackageDetailItemRepository,
 	landingPackagesContentRepository repository.LandingPackagesContentRepository,
+	landingTravelDestinationContentRepository repository.LandingTravelDestinationContentRepository,
+	landingTravelDestinationContentDestinationRepository repository.LandingTravelDestinationContentDestinationRepository,
 	landingFeaturesContentRepository repository.LandingFeaturesContentRepository,
 	landingFeaturesContentBenefitRepository repository.LandingFeaturesContentBenefitRepository,
 	landingMomentsContentRepository repository.LandingMomentsContentRepository,
@@ -86,6 +90,8 @@ func NewLandingService(
 		landingPackageDetailRepository,
 		landingPackageDetailItemRepository,
 		landingPackagesContentRepository,
+		landingTravelDestinationContentRepository,
+		landingTravelDestinationContentDestinationRepository,
 		landingFeaturesContentRepository,
 		landingFeaturesContentBenefitRepository,
 		landingMomentsContentRepository,
@@ -130,6 +136,8 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 		landingPackageDetailRepository := factory.NewLandingPackageDetailRepository()
 		landingPackageDetailItemRepository := factory.NewLandingPackageDetailItemRepository()
 		landingPackagesContentRepository := factory.NewLandingPackagesContentRepository()
+		landingTravelDestinationContentRepository := factory.NewLandingTravelDestinationContentRepository()
+		landingTravelDestinationContentDestinationRepository := factory.NewLandingTravelDestinationContentDestinationRepository()
 		landingFeaturesContentRepository := factory.NewLandingFeaturesContentRepository()
 		landingFeaturesContentBenefitRepository := factory.NewLandingFeaturesContentBenefitRepository()
 		landingMomentsContentRepository := factory.NewLandingMomentsContentRepository()
@@ -473,6 +481,52 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
+		// Create landing travel destination content with repository
+		landingTravelDestinationContentHeader, err := landingSectionHeaderRepository.Create(
+			ctx,
+			entity.LandingSectionHeader{
+				IsEnabled: request.TravelDestinationContent.Header.IsEnabled,
+				IsMobile:  request.TravelDestinationContent.Header.IsMobile,
+				IsDesktop: request.TravelDestinationContent.Header.IsDesktop,
+				Title:     request.TravelDestinationContent.Header.Title,
+				Subtitle:  request.TravelDestinationContent.Header.Subtitle,
+				TagsLine:  request.TravelDestinationContent.Header.TagsLine,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
+		destinations := make([]entity.LandingTravelDestinationContentDestination, len(request.TravelDestinationContent.Destinations))
+		for index, destination := range request.TravelDestinationContent.Destinations {
+			destinations[index] = entity.LandingTravelDestinationContentDestination{
+				IsEnabled: destination.IsEnabled,
+				IsMobile:  destination.IsMobile,
+				IsDesktop: destination.IsDesktop,
+				ImageId:   destination.Image,
+				Name:      destination.Name,
+			}
+		}
+		if _, err = landingTravelDestinationContentDestinationRepository.CreateMany(
+			ctx,
+			destinations,
+		); err != nil {
+			return err
+		}
+
+		landingTravelDestinationContent, err := landingTravelDestinationContentRepository.Create(
+			ctx,
+			entity.LandingTravelDestinationContent{
+				IsEnabled:              request.TravelDestinationContent.IsEnabled,
+				IsMobile:               request.TravelDestinationContent.IsMobile,
+				IsDesktop:              request.TravelDestinationContent.IsDesktop,
+				LandingSectionHeaderId: landingTravelDestinationContentHeader.Id,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
 		// Create landing features content with repository
 		landingFeaturesContentHeader, err := landingSectionHeaderRepository.Create(
 			ctx,
@@ -722,6 +776,7 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			landingPackageItemRepository,
 			landingPackageDetailRepository,
 			landingPackageDetailItemRepository,
+			landingTravelDestinationContentDestinationRepository,
 			landingFeaturesContentBenefitRepository,
 			landingMomentsContentImageRepository,
 			landingAffiliatesContentAffiliateRepository,
@@ -738,6 +793,7 @@ func (s landingServiceImpl) CreateLanding(ctx context.Context, request dto.Landi
 			landingHeroContent,
 			landingSinglePackageContent,
 			landingPackagesContent,
+			landingTravelDestinationContent,
 			landingFeaturesContent,
 			landingMomentsContent,
 			landingAffiliatesContent,
@@ -767,6 +823,12 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 
 	// Find landing packages content with repository
 	landingPackagesContent, err := s.landingPackagesContentRepository.Find(ctx)
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+
+	// Find landing travel destination content with repository
+	landingTravelDestinationContent, err := s.landingTravelDestinationContentRepository.Find(ctx)
 	if err != nil {
 		return dto.LandingResponse{}, err
 	}
@@ -814,6 +876,7 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 		s.landingPackageItemRepository,
 		s.landingPackageDetailRepository,
 		s.landingPackageDetailItemRepository,
+		s.landingTravelDestinationContentDestinationRepository,
 		s.landingFeaturesContentBenefitRepository,
 		s.landingMomentsContentImageRepository,
 		s.landingAffiliatesContentAffiliateRepository,
@@ -830,6 +893,7 @@ func (s landingServiceImpl) GetLanding(ctx context.Context) (dto.LandingResponse
 		landingHeroContent,
 		landingSinglePackageContent,
 		landingPackagesContent,
+		landingTravelDestinationContent,
 		landingFeaturesContent,
 		landingMomentsContent,
 		landingAffiliatesContent,
@@ -863,6 +927,8 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 		landingPackageDetailRepository := factory.NewLandingPackageDetailRepository()
 		landingPackageDetailItemRepository := factory.NewLandingPackageDetailItemRepository()
 		landingPackagesContentRepository := factory.NewLandingPackagesContentRepository()
+		landingTravelDestinationContentRepository := factory.NewLandingTravelDestinationContentRepository()
+		landingTravelDestinationContentDestinationRepository := factory.NewLandingTravelDestinationContentDestinationRepository()
 		landingFeaturesContentRepository := factory.NewLandingFeaturesContentRepository()
 		landingFeaturesContentBenefitRepository := factory.NewLandingFeaturesContentBenefitRepository()
 		landingMomentsContentRepository := factory.NewLandingMomentsContentRepository()
@@ -1298,6 +1364,61 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
+		// Update landing travel destination content with repository
+		landingTravelDestinationContent, err := landingTravelDestinationContentRepository.Find(ctx)
+		if err != nil {
+			return err
+		}
+		landingTravelDestinationContent.IsEnabled = request.TravelDestinationContent.IsEnabled
+		landingTravelDestinationContent.IsMobile = request.TravelDestinationContent.IsMobile
+		landingTravelDestinationContent.IsDesktop = request.TravelDestinationContent.IsDesktop
+
+		landingTravelDestinationContent, err = landingTravelDestinationContentRepository.Update(
+			ctx,
+			landingTravelDestinationContent,
+		)
+		if err != nil {
+			return err
+		}
+
+		if _, err = landingSectionHeaderRepository.Update(
+			ctx,
+			landingTravelDestinationContent.LandingSectionHeaderId,
+			entity.LandingSectionHeader{
+				IsEnabled: request.TravelDestinationContent.Header.IsEnabled,
+				IsMobile:  request.TravelDestinationContent.Header.IsMobile,
+				IsDesktop: request.TravelDestinationContent.Header.IsDesktop,
+				Title:     request.TravelDestinationContent.Header.Title,
+				Subtitle:  request.TravelDestinationContent.Header.Subtitle,
+				TagsLine:  request.TravelDestinationContent.Header.TagsLine,
+			},
+		); err != nil {
+			return err
+		}
+
+		if _, err = landingTravelDestinationContentDestinationRepository.DeleteMany(
+			ctx,
+		); err != nil {
+			return err
+		}
+
+		destinations := make([]entity.LandingTravelDestinationContentDestination, len(request.TravelDestinationContent.Destinations))
+		for index, destination := range request.TravelDestinationContent.Destinations {
+			destinations[index] = entity.LandingTravelDestinationContentDestination{
+				IsEnabled: destination.IsEnabled,
+				IsMobile:  destination.IsMobile,
+				IsDesktop: destination.IsDesktop,
+				ImageId:   destination.Image,
+				Name:      destination.Name,
+			}
+		}
+		if _, err = landingTravelDestinationContentDestinationRepository.CreateMany(
+			ctx,
+			destinations,
+		); err != nil {
+			return err
+		}
+
 		// Update landing features content
 		landingFeaturesContent, err := landingFeaturesContentRepository.Find(ctx)
 		if err != nil {
@@ -1588,6 +1709,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingPackageItemRepository,
 			landingPackageDetailRepository,
 			landingPackageDetailItemRepository,
+			landingTravelDestinationContentDestinationRepository,
 			landingFeaturesContentBenefitRepository,
 			landingMomentsContentImageRepository,
 			landingAffiliatesContentAffiliateRepository,
@@ -1604,6 +1726,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			landingHeroContent,
 			landingSinglePackageContent,
 			landingPackagesContent,
+			landingTravelDestinationContent,
 			landingFeaturesContent,
 			landingMomentsContent,
 			landingAffiliatesContent,

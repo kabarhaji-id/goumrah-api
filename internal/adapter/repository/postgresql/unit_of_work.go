@@ -130,6 +130,14 @@ func (factory factoryPostgresql) NewLandingPackagesContentRepository() repositor
 	return NewLandingPackagesContentRepository(factory.db)
 }
 
+func (factory factoryPostgresql) NewLandingTravelDestinationContentRepository() repository.LandingTravelDestinationContentRepository {
+	return NewLandingTravelDestinationContentRepository(factory.db)
+}
+
+func (factory factoryPostgresql) NewLandingTravelDestinationContentDestinationRepository() repository.LandingTravelDestinationContentDestinationRepository {
+	return NewLandingTravelDestinationContentDestinationRepository(factory.db)
+}
+
 func (factory factoryPostgresql) NewLandingFeaturesContentRepository() repository.LandingFeaturesContentRepository {
 	return NewLandingFeaturesContentRepository(factory.db)
 }

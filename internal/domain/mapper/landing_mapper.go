@@ -304,6 +304,7 @@ func (m LandingMapper) MapEntityToResponse(
 	landingPackageItemRepository repository.LandingPackageItemRepository,
 	landingPackageDetailRepository repository.LandingPackageDetailRepository,
 	landingPackageDetailItemRepository repository.LandingPackageDetailItemRepository,
+	landingTravelDestinationContentDestinationRepository repository.LandingTravelDestinationContentDestinationRepository,
 	landingFeaturesContentBenefitRepository repository.LandingFeaturesContentBenefitRepository,
 	landingMomentsContentImageRepository repository.LandingMomentsContentImageRepository,
 	landingAffiliatesContentAffiliateRepository repository.LandingAffiliatesContentAffiliateRepository,
@@ -320,6 +321,7 @@ func (m LandingMapper) MapEntityToResponse(
 	landingHeroContentEntity entity.LandingHeroContent,
 	landingSinglePackageContentEntity entity.LandingSinglePackageContent,
 	landingPackagesContentEntity entity.LandingPackagesContent,
+	landingTravelDestinationContentEntity entity.LandingTravelDestinationContent,
 	landingFeaturesContentEntity entity.LandingFeaturesContent,
 	landingMomentsContentEntity entity.LandingMomentsContent,
 	landingAffiliatesContentEntity entity.LandingAffiliatesContent,
@@ -487,6 +489,36 @@ func (m LandingMapper) MapEntityToResponse(
 	)
 	if err != nil {
 		return dto.LandingResponse{}, err
+	}
+
+	landingTravelDestinationContentHeaderEntity, err := landingSectionHeaderRepository.FindById(ctx, landingTravelDestinationContentEntity.LandingSectionHeaderId)
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+
+	landingTravelDestinationContentDestinationEntities, err := landingTravelDestinationContentDestinationRepository.FindAll(ctx, repository.FindAllOptions{})
+	if err != nil {
+		return dto.LandingResponse{}, err
+	}
+	landingTravelDestinationContentDestinationResponses := make([]dto.LandingTravelDestinationContentDestinationResponse, len(landingTravelDestinationContentDestinationEntities))
+	for i, landingTravelDestinationContentDestinationEntity := range landingTravelDestinationContentDestinationEntities {
+		imageResponse := null.NewValue(dto.ImageResponse{}, false)
+		if landingTravelDestinationContentDestinationEntity.ImageId.Valid {
+			imageEntity, err := imageRepository.FindById(ctx, landingTravelDestinationContentDestinationEntity.ImageId.Int64)
+			if err != nil {
+				return dto.LandingResponse{}, err
+			}
+
+			imageResponse = null.ValueFrom(m.imageMapper.MapEntityToResponse(ctx, imageEntity))
+		}
+
+		landingTravelDestinationContentDestinationResponses[i] = dto.LandingTravelDestinationContentDestinationResponse{
+			IsEnabled: landingTravelDestinationContentDestinationEntity.IsEnabled,
+			IsMobile:  landingTravelDestinationContentDestinationEntity.IsMobile,
+			IsDesktop: landingTravelDestinationContentDestinationEntity.IsDesktop,
+			Image:     imageResponse,
+			Name:      landingTravelDestinationContentDestinationEntity.Name,
+		}
 	}
 
 	landingFeaturesContentHeaderEntity, err := landingSectionHeaderRepository.FindById(ctx, landingFeaturesContentEntity.LandingSectionHeaderId)
@@ -666,6 +698,20 @@ func (m LandingMapper) MapEntityToResponse(
 			Silver:    landingPackagesContentSilverResponse,
 			Gold:      landingPackagesContentGoldResponse,
 			Platinum:  landingPackagesContentPlatinumResponse,
+		},
+		TravelDestinationContent: dto.LandingTravelDestinationContentResponse{
+			IsEnabled: landingTravelDestinationContentEntity.IsEnabled,
+			IsMobile:  landingTravelDestinationContentEntity.IsMobile,
+			IsDesktop: landingTravelDestinationContentEntity.IsDesktop,
+			Header: dto.LandingSectionHeaderResponse{
+				IsEnabled: landingTravelDestinationContentHeaderEntity.IsEnabled,
+				IsMobile:  landingTravelDestinationContentHeaderEntity.IsMobile,
+				IsDesktop: landingTravelDestinationContentHeaderEntity.IsDesktop,
+				Title:     landingTravelDestinationContentHeaderEntity.Title,
+				Subtitle:  landingTravelDestinationContentHeaderEntity.Subtitle,
+				TagsLine:  landingTravelDestinationContentHeaderEntity.TagsLine,
+			},
+			Destinations: landingTravelDestinationContentDestinationResponses,
 		},
 		FeaturesContent: dto.LandingFeaturesContentResponse{
 			IsEnabled: landingFeaturesContentEntity.IsEnabled,

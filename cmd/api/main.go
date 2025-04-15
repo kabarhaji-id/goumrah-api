@@ -57,6 +57,8 @@ func main() {
 	landingPackageDetailRepository := postgresqlrepository.NewLandingPackageDetailRepository(db)
 	landingPackageDetailItemRepository := postgresqlrepository.NewLandingPackageDetailItemRepository(db)
 	landingPackagesContentRepository := postgresqlrepository.NewLandingPackagesContentRepository(db)
+	landingTravelDestinationContentRepository := postgresqlrepository.NewLandingTravelDestinationContentRepository(db)
+	landingTravelDestinationContentDestinationRepository := postgresqlrepository.NewLandingTravelDestinationContentDestinationRepository(db)
 	landingFeaturesContentRepository := postgresqlrepository.NewLandingFeaturesContentRepository(db)
 	landingFeaturesContentBenefitRepository := postgresqlrepository.NewLandingFeaturesContentBenefitRepository(db)
 	landingMomentsContentRepository := postgresqlrepository.NewLandingMomentsContentRepository(db)
@@ -151,6 +153,8 @@ func main() {
 		landingPackageDetailRepository,
 		landingPackageDetailItemRepository,
 		landingPackagesContentRepository,
+		landingTravelDestinationContentRepository,
+		landingTravelDestinationContentDestinationRepository,
 		landingFeaturesContentRepository,
 		landingFeaturesContentBenefitRepository,
 		landingMomentsContentRepository,

@@ -613,6 +613,187 @@ func (r landingPackagesContentRepositoryPostgresql) Delete(ctx context.Context) 
 	return landingPackagesContent, err
 }
 
+type landingTravelDestinationContentRepositoryPostgresql struct {
+	db DB
+}
+
+func NewLandingTravelDestinationContentRepository(db DB) repository.LandingTravelDestinationContentRepository {
+	return landingTravelDestinationContentRepositoryPostgresql{db}
+}
+
+func (r landingTravelDestinationContentRepositoryPostgresql) Create(ctx context.Context, landingTravelDestinationContent entity.LandingTravelDestinationContent) (entity.LandingTravelDestinationContent, error) {
+	builder := sqlbuilder.New().
+		S(`INSERT INTO "landing_travel_destination_content" ("is_enabled", "is_mobile", "is_desktop", "landing_section_header_id", "created_at", "updated_at", "deleted_at")`).
+		S(`VALUES ($1, $2, $3, $4, NOW(), NOW(), NULL)`, landingTravelDestinationContent.IsEnabled, landingTravelDestinationContent.IsMobile, landingTravelDestinationContent.IsDesktop, landingTravelDestinationContent.LandingSectionHeaderId).
+		S(`RETURNING "id", "is_enabled", "is_mobile", "is_desktop", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
+
+	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
+		&landingTravelDestinationContent.Id, &landingTravelDestinationContent.IsEnabled, &landingTravelDestinationContent.IsMobile, &landingTravelDestinationContent.IsDesktop, &landingTravelDestinationContent.LandingSectionHeaderId,
+		&landingTravelDestinationContent.CreatedAt, &landingTravelDestinationContent.UpdatedAt, &landingTravelDestinationContent.DeletedAt,
+	)
+
+	return landingTravelDestinationContent, err
+}
+
+func (r landingTravelDestinationContentRepositoryPostgresql) Find(ctx context.Context) (entity.LandingTravelDestinationContent, error) {
+	landingTravelDestinationContent := entity.LandingTravelDestinationContent{}
+
+	builder := sqlbuilder.New().
+		S(`SELECT "id", "is_enabled", "is_mobile", "is_desktop", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`).
+		S(`FROM "landing_travel_destination_content" WHERE "deleted_at" IS NULL`)
+
+	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
+		&landingTravelDestinationContent.Id, &landingTravelDestinationContent.IsEnabled, &landingTravelDestinationContent.IsMobile, &landingTravelDestinationContent.IsDesktop, &landingTravelDestinationContent.LandingSectionHeaderId,
+		&landingTravelDestinationContent.CreatedAt, &landingTravelDestinationContent.UpdatedAt, &landingTravelDestinationContent.DeletedAt,
+	)
+
+	return landingTravelDestinationContent, err
+}
+
+func (r landingTravelDestinationContentRepositoryPostgresql) Update(ctx context.Context, landingTravelDestinationContent entity.LandingTravelDestinationContent) (entity.LandingTravelDestinationContent, error) {
+	builder := sqlbuilder.New().
+		S(`UPDATE "landing_travel_destination_content" SET "is_enabled" = $1, "is_mobile" = $2, "is_desktop" = $3, "landing_section_header_id" = $4, "updated_at" = NOW()`, landingTravelDestinationContent.IsEnabled, landingTravelDestinationContent.IsMobile, landingTravelDestinationContent.IsDesktop, landingTravelDestinationContent.LandingSectionHeaderId).
+		S(`WHERE "deleted_at" IS NULL`).
+		S(`RETURNING "id", "is_enabled", "is_mobile", "is_desktop", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
+
+	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
+		&landingTravelDestinationContent.Id, &landingTravelDestinationContent.IsEnabled, &landingTravelDestinationContent.IsMobile, &landingTravelDestinationContent.IsDesktop, &landingTravelDestinationContent.LandingSectionHeaderId,
+		&landingTravelDestinationContent.CreatedAt, &landingTravelDestinationContent.UpdatedAt, &landingTravelDestinationContent.DeletedAt,
+	)
+
+	return landingTravelDestinationContent, err
+}
+
+func (r landingTravelDestinationContentRepositoryPostgresql) Delete(ctx context.Context) (entity.LandingTravelDestinationContent, error) {
+	landingTravelDestinationContent := entity.LandingTravelDestinationContent{}
+
+	builder := sqlbuilder.New().
+		S(`DELETE FROM "landing_travel_destination_content"`).
+		S(`RETURNING "id", "is_enabled", "is_mobile", "is_desktop", "landing_section_header_id", "created_at", "updated_at", "deleted_at"`)
+
+	err := r.db.QueryRow(ctx, builder.Query(), builder.Args()...).Scan(
+		&landingTravelDestinationContent.Id, &landingTravelDestinationContent.IsEnabled, &landingTravelDestinationContent.IsMobile, &landingTravelDestinationContent.IsDesktop, &landingTravelDestinationContent.LandingSectionHeaderId,
+		&landingTravelDestinationContent.CreatedAt, &landingTravelDestinationContent.UpdatedAt, &landingTravelDestinationContent.DeletedAt,
+	)
+
+	return landingTravelDestinationContent, err
+}
+
+type landingTravelDestinationContentDestinationPostgresql struct {
+	db DB
+}
+
+func NewLandingTravelDestinationContentDestinationRepository(db DB) repository.LandingTravelDestinationContentDestinationRepository {
+	return landingTravelDestinationContentDestinationPostgresql{db}
+}
+
+func (r landingTravelDestinationContentDestinationPostgresql) CreateMany(ctx context.Context, landingTravelDestinationContentDestinations []entity.LandingTravelDestinationContentDestination) ([]entity.LandingTravelDestinationContentDestination, error) {
+	if len(landingTravelDestinationContentDestinations) == 0 {
+		return []entity.LandingTravelDestinationContentDestination{}, nil
+	}
+
+	builder := sqlbuilder.New().
+		S(`INSERT INTO "landing_travel_destination_content_destinations" ("is_enabled", "is_mobile", "is_desktop", "image_id", "name", "created_at", "updated_at") VALUES`)
+	for i, item := range landingTravelDestinationContentDestinations {
+		builder.SA(`(?, ?, ?, ?, ?, NOW(), NOW())`, item.IsEnabled, item.IsMobile, item.IsDesktop, item.ImageId, item.Name)
+
+		if i+1 < len(landingTravelDestinationContentDestinations) {
+			builder.SA(",")
+		}
+	}
+	builder.S(`RETURNING "is_enabled", "is_mobile", "is_desktop", "image_id", "name", "created_at", "updated_at", "deleted_at"`)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	landingTravelDestinationContentDestinations = []entity.LandingTravelDestinationContentDestination{}
+	for rows.Next() {
+		landingTravelDestinationContentDestination := entity.LandingTravelDestinationContentDestination{}
+
+		err := rows.Scan(
+			&landingTravelDestinationContentDestination.IsEnabled, &landingTravelDestinationContentDestination.IsMobile, &landingTravelDestinationContentDestination.IsDesktop,
+			&landingTravelDestinationContentDestination.ImageId, &landingTravelDestinationContentDestination.Name,
+			&landingTravelDestinationContentDestination.CreatedAt, &landingTravelDestinationContentDestination.UpdatedAt, &landingTravelDestinationContentDestination.DeletedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		landingTravelDestinationContentDestinations = append(landingTravelDestinationContentDestinations, landingTravelDestinationContentDestination)
+	}
+
+	return landingTravelDestinationContentDestinations, nil
+}
+
+func (r landingTravelDestinationContentDestinationPostgresql) FindAll(ctx context.Context, opt repository.FindAllOptions) ([]entity.LandingTravelDestinationContentDestination, error) {
+	builder := sqlbuilder.New().
+		S(`SELECT "is_enabled", "is_mobile", "is_desktop", "image_id", "name", "created_at", "updated_at", "deleted_at"`).
+		S(`FROM "landing_travel_destination_content_destinations" WHERE "deleted_at" IS NULL`)
+	if opt.Limit.Valid {
+		builder.SA(`LIMIT ?`, opt.Limit)
+	}
+	if opt.Offset.Valid {
+		builder.SA(`OFFSET ?`, opt.Offset)
+	}
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	landingTravelDestinationContentDestinations := []entity.LandingTravelDestinationContentDestination{}
+	for rows.Next() {
+		landingTravelDestinationContentDestination := entity.LandingTravelDestinationContentDestination{}
+
+		err := rows.Scan(
+			&landingTravelDestinationContentDestination.IsEnabled, &landingTravelDestinationContentDestination.IsMobile, &landingTravelDestinationContentDestination.IsDesktop,
+			&landingTravelDestinationContentDestination.ImageId, &landingTravelDestinationContentDestination.Name,
+			&landingTravelDestinationContentDestination.CreatedAt, &landingTravelDestinationContentDestination.UpdatedAt, &landingTravelDestinationContentDestination.DeletedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		landingTravelDestinationContentDestinations = append(landingTravelDestinationContentDestinations, landingTravelDestinationContentDestination)
+	}
+
+	return landingTravelDestinationContentDestinations, nil
+}
+
+func (r landingTravelDestinationContentDestinationPostgresql) DeleteMany(ctx context.Context) ([]entity.LandingTravelDestinationContentDestination, error) {
+	builder := sqlbuilder.New().
+		S(`DELETE FROM "landing_travel_destination_content_destinations" WHERE "deleted_at" IS NULL`).
+		S(`RETURNING "is_enabled", "is_mobile", "is_desktop", "image_id", "name", "created_at", "updated_at", "deleted_at"`)
+
+	rows, err := r.db.Query(ctx, builder.Query(), builder.Args()...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	landingTravelDestinationContentDestinations := []entity.LandingTravelDestinationContentDestination{}
+	for rows.Next() {
+		landingTravelDestinationContentDestination := entity.LandingTravelDestinationContentDestination{}
+
+		err := rows.Scan(
+			&landingTravelDestinationContentDestination.IsEnabled, &landingTravelDestinationContentDestination.IsMobile, &landingTravelDestinationContentDestination.IsDesktop,
+			&landingTravelDestinationContentDestination.ImageId, &landingTravelDestinationContentDestination.Name,
+			&landingTravelDestinationContentDestination.CreatedAt, &landingTravelDestinationContentDestination.UpdatedAt, &landingTravelDestinationContentDestination.DeletedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		landingTravelDestinationContentDestinations = append(landingTravelDestinationContentDestinations, landingTravelDestinationContentDestination)
+	}
+
+	return landingTravelDestinationContentDestinations, nil
+}
+
 type landingFeaturesContentRepositoryPostgresql struct {
 	db DB
 }

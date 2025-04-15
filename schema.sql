@@ -722,6 +722,23 @@ $$;
 
 
 --
+-- Name: prevent_delete_landing_section_header_if_landing_travel_destina(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_delete_landing_section_header_if_landing_travel_destina() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM landing_travel_destination_content WHERE landing_section_header_id = OLD.id) THEN
+        RAISE EXCEPTION 'Cannot delete landing section header with existing landing travel destination content'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_travel_destination_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN OLD;
+END;
+$$;
+
+
+--
 -- Name: prevent_delete_role_if_user_has_role(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1516,6 +1533,42 @@ $$;
 
 
 --
+-- Name: prevent_insert_landing_travel_destination_content_destinations_(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_travel_destination_content_destinations_() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.image_id IS NOT NULL THEN
+        IF (SELECT deleted_at FROM images WHERE id = NEW.image_id) IS NOT NULL THEN
+            RAISE EXCEPTION 'Cannot insert landing travel destination content destination with soft deleted image'
+                USING ERRCODE = '23503', CONSTRAINT = 'landing_travel_destination_content_destinations_image_id_fkey';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: prevent_insert_landing_travel_destination_content_if_landing_se(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.prevent_insert_landing_travel_destination_content_if_landing_se() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF (SELECT deleted_at FROM landing_section_headers WHERE id = NEW.landing_section_header_id) IS NOT NULL THEN
+        RAISE EXCEPTION 'Cannot insert landing travel destination content with soft deleted landing section header'
+            USING ERRCODE = '23503', CONSTRAINT = 'landing_travel_destination_content_landing_section_header_id_fkey';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: prevent_insert_package_if_thumbnail_is_soft_deleted(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2047,6 +2100,22 @@ CREATE FUNCTION public.set_transport_id_null_on_transport_soft_deleted() RETURNS
 BEGIN
     IF NEW.deleted_at IS NOT NULL THEN
         UPDATE itinerary_widgets SET transport_id = NULL WHERE transport_id = OLD.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: set_travel_destination_content_destinations_image_id_null_on_im(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_travel_destination_content_destinations_image_id_null_on_im() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.deleted_at IS NOT NULL THEN
+        UPDATE landing_travel_destination_content_destinations SET image_id = NULL WHERE image_id = OLD.id;
     END IF;
     RETURN NEW;
 END;
@@ -3200,6 +3269,54 @@ ALTER TABLE public.landing_testimonial_content_reviews ALTER COLUMN id ADD GENER
 
 
 --
+-- Name: landing_travel_destination_content; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_travel_destination_content (
+    id integer DEFAULT 1 NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
+    landing_section_header_id bigint NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone,
+    CONSTRAINT landing_travel_destination_content_id_check CHECK ((id = 1))
+);
+
+
+--
+-- Name: landing_travel_destination_content_destinations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.landing_travel_destination_content_destinations (
+    id bigint NOT NULL,
+    is_enabled boolean DEFAULT true NOT NULL,
+    is_mobile boolean DEFAULT true NOT NULL,
+    is_desktop boolean DEFAULT true NOT NULL,
+    image_id bigint,
+    name character varying(100) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    deleted_at timestamp without time zone
+);
+
+
+--
+-- Name: landing_travel_destination_content_destinations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.landing_travel_destination_content_destinations ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.landing_travel_destination_content_destinations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3788,6 +3905,22 @@ ALTER TABLE ONLY public.landing_testimonial_content_reviews
 
 
 --
+-- Name: landing_travel_destination_content_destinations landing_travel_destination_content_destinations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_travel_destination_content_destinations
+    ADD CONSTRAINT landing_travel_destination_content_destinations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: landing_travel_destination_content landing_travel_destination_content_id_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_travel_destination_content
+    ADD CONSTRAINT landing_travel_destination_content_id_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4295,6 +4428,13 @@ CREATE TRIGGER prevent_delete_landing_section_header_if_landing_testimonial_co B
 
 
 --
+-- Name: landing_section_headers prevent_delete_landing_section_header_if_landing_travel_destina; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_delete_landing_section_header_if_landing_travel_destina BEFORE UPDATE ON public.landing_section_headers FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.prevent_delete_landing_section_header_if_landing_travel_destina();
+
+
+--
 -- Name: roles prevent_delete_role_if_user_has_role; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4603,6 +4743,20 @@ CREATE TRIGGER prevent_insert_landing_testimonial_content_if_landing_section_h B
 
 
 --
+-- Name: landing_travel_destination_content_destinations prevent_insert_landing_travel_destination_content_destinations_; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_travel_destination_content_destinations_ BEFORE INSERT OR UPDATE ON public.landing_travel_destination_content_destinations FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_travel_destination_content_destinations_();
+
+
+--
+-- Name: landing_travel_destination_content prevent_insert_landing_travel_destination_content_if_landing_se; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER prevent_insert_landing_travel_destination_content_if_landing_se BEFORE INSERT OR UPDATE ON public.landing_travel_destination_content FOR EACH ROW EXECUTE FUNCTION public.prevent_insert_landing_travel_destination_content_if_landing_se();
+
+
+--
 -- Name: packages prevent_insert_package_if_thumbnail_is_soft_deleted; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -4824,6 +4978,13 @@ CREATE TRIGGER set_recommendation_id_null_on_recommendation_soft_deleted BEFORE 
 --
 
 CREATE TRIGGER set_transport_id_null_on_transport_soft_deleted BEFORE UPDATE ON public.itinerary_widget_transports FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_transport_id_null_on_transport_soft_deleted();
+
+
+--
+-- Name: images set_travel_destination_content_destinations_image_id_null_on_im; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER set_travel_destination_content_destinations_image_id_null_on_im BEFORE UPDATE ON public.images FOR EACH ROW WHEN (((old.deleted_at IS NULL) AND (new.deleted_at IS NOT NULL))) EXECUTE FUNCTION public.set_travel_destination_content_destinations_image_id_null_on_im();
 
 
 --
@@ -5217,6 +5378,22 @@ ALTER TABLE ONLY public.landing_testimonial_content
 
 
 --
+-- Name: landing_travel_destination_content_destinations landing_travel_destination_content_destinations_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_travel_destination_content_destinations
+    ADD CONSTRAINT landing_travel_destination_content_destinations_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id);
+
+
+--
+-- Name: landing_travel_destination_content landing_travel_destination_content_landing_section_header_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.landing_travel_destination_content
+    ADD CONSTRAINT landing_travel_destination_content_landing_section_header_id_fk FOREIGN KEY (landing_section_header_id) REFERENCES public.landing_section_headers(id);
+
+
+--
 -- Name: package_images package_images_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5377,4 +5554,5 @@ INSERT INTO public.migrations (version) VALUES
     ('20250325074422'),
     ('20250325092604'),
     ('20250326064458'),
-    ('20250408111534');
+    ('20250408111534'),
+    ('20250415043829');

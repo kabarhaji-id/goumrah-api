@@ -200,6 +200,27 @@ func (v LandingValidator) validateFaqContentFaqRequest(
 	return nil
 }
 
+func (v LandingValidator) validateTravelDestinationContentDestinationRequest(
+	prefix string,
+	travelDestinationContentDestinationRequest dto.LandingTravelDestinationContentDestinationRequest,
+) error {
+	if travelDestinationContentDestinationRequest.Image.Valid {
+		if travelDestinationContentDestinationRequest.Image.Int64 < 1 {
+			return newError(fmt.Sprintf("%s.Image", prefix), mustBeGte(1))
+		}
+	}
+
+	nameLength := len(travelDestinationContentDestinationRequest.Name)
+	if nameLength < 1 {
+		return newError(fmt.Sprintf("%s.Name", prefix), mustBeNotEmpty)
+	}
+	if nameLength > 100 {
+		return newError(fmt.Sprintf("%s.Name", prefix), maxChars(100))
+	}
+
+	return nil
+}
+
 func (v LandingValidator) validateHeroContentRequest(
 	prefix string,
 	heroContentRequest dto.LandingHeroContentRequest,
@@ -317,6 +338,29 @@ func (v LandingValidator) validatePackagesContentRequest(
 		packagesContentRequest.Platinum,
 	); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (v LandingValidator) validateTravelDestinationContentRequest(
+	prefix string,
+	travelDestinationContentRequest dto.LandingTravelDestinationContentRequest,
+) error {
+	if err := v.validateSectionHeaderRequest(
+		fmt.Sprintf("%s.Header", prefix),
+		travelDestinationContentRequest.Header,
+	); err != nil {
+		return err
+	}
+
+	for i, travelDestinationRequest := range travelDestinationContentRequest.Destinations {
+		if err := v.validateTravelDestinationContentDestinationRequest(
+			fmt.Sprintf("%s.Destinations.%d", prefix, i),
+			travelDestinationRequest,
+		); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -499,6 +543,10 @@ func (v LandingValidator) ValidateRequest(request dto.LandingRequest) error {
 	}
 
 	if err := v.validatePackagesContentRequest("PackagesContent", request.PackagesContent); err != nil {
+		return err
+	}
+
+	if err := v.validateTravelDestinationContentRequest("TravelDestinationContent", request.TravelDestinationContent); err != nil {
 		return err
 	}
 

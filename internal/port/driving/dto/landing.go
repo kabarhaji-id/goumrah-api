@@ -63,6 +63,22 @@ type LandingPackagesContentRequest struct {
 	Platinum  LandingPackageDetailRequest
 }
 
+type LandingTravelDestinationContentDestinationRequest struct {
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	Image     null.Int64
+	Name      string
+}
+
+type LandingTravelDestinationContentRequest struct {
+	IsEnabled    bool
+	IsMobile     bool
+	IsDesktop    bool
+	Header       LandingSectionHeaderRequest
+	Destinations []LandingTravelDestinationContentDestinationRequest
+}
+
 type LandingFeaturesContentBenefitRequest struct {
 	IsEnabled bool
 	IsMobile  bool
@@ -161,15 +177,16 @@ type LandingMenuRequest struct {
 }
 
 type LandingRequest struct {
-	HeroContent          LandingHeroContentRequest
-	SinglePackageContent LandingSinglePackageContentRequest
-	PackagesContent      LandingPackagesContentRequest
-	FeaturesContent      LandingFeaturesContentRequest
-	MomentsContent       LandingMomentsContentRequest
-	AffiliatesContent    LandingAffiliatesContentRequest
-	TestimonialContent   LandingTestimonialContentRequest
-	FaqContent           LandingFaqContentRequest
-	Menus                []LandingMenuRequest
+	HeroContent              LandingHeroContentRequest
+	SinglePackageContent     LandingSinglePackageContentRequest
+	PackagesContent          LandingPackagesContentRequest
+	TravelDestinationContent LandingTravelDestinationContentRequest
+	FeaturesContent          LandingFeaturesContentRequest
+	MomentsContent           LandingMomentsContentRequest
+	AffiliatesContent        LandingAffiliatesContentRequest
+	TestimonialContent       LandingTestimonialContentRequest
+	FaqContent               LandingFaqContentRequest
+	Menus                    []LandingMenuRequest
 }
 
 type LandingHeroContentResponse struct {
@@ -262,6 +279,22 @@ type LandingPackagesContentResponse struct {
 	Silver    LandingPackageDetailResponse
 	Gold      LandingPackageDetailResponse
 	Platinum  LandingPackageDetailResponse
+}
+
+type LandingTravelDestinationContentDestinationResponse struct {
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	Image     null.Value[ImageResponse]
+	Name      string
+}
+
+type LandingTravelDestinationContentResponse struct {
+	IsEnabled    bool
+	IsMobile     bool
+	IsDesktop    bool
+	Header       LandingSectionHeaderResponse
+	Destinations []LandingTravelDestinationContentDestinationResponse
 }
 
 type LandingFeaturesContentBenefitResponse struct {
@@ -362,13 +395,14 @@ type LandingMenuResponse struct {
 }
 
 type LandingResponse struct {
-	HeroContent          LandingHeroContentResponse
-	SinglePackageContent LandingSinglePackageContentResponse
-	PackagesContent      LandingPackagesContentResponse
-	FeaturesContent      LandingFeaturesContentResponse
-	MomentsContent       LandingMomentsContentResponse
-	AffiliatesContent    LandingAffiliatesContentResponse
-	TestimonialContent   LandingTestimonialContentResponse
-	FaqContent           LandingFaqContentResponse
-	Menus                []LandingMenuResponse
+	HeroContent              LandingHeroContentResponse
+	SinglePackageContent     LandingSinglePackageContentResponse
+	PackagesContent          LandingPackagesContentResponse
+	TravelDestinationContent LandingTravelDestinationContentResponse
+	FeaturesContent          LandingFeaturesContentResponse
+	MomentsContent           LandingMomentsContentResponse
+	AffiliatesContent        LandingAffiliatesContentResponse
+	TestimonialContent       LandingTestimonialContentResponse
+	FaqContent               LandingFaqContentResponse
+	Menus                    []LandingMenuResponse
 }

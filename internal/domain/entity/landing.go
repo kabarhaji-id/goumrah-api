@@ -103,6 +103,31 @@ type LandingPackagesContent struct {
 	DeletedAt null.Time
 }
 
+type LandingTravelDestinationContent struct {
+	Id                     int64
+	IsEnabled              bool
+	IsMobile               bool
+	IsDesktop              bool
+	LandingSectionHeaderId int64
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt null.Time
+}
+
+type LandingTravelDestinationContentDestination struct {
+	Id        int64
+	IsEnabled bool
+	IsMobile  bool
+	IsDesktop bool
+	ImageId   null.Int64
+	Name      string
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt null.Time
+}
+
 type LandingFeaturesContent struct {
 	Id                     int64
 	IsEnabled              bool
