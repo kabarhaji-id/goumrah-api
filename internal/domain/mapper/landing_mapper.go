@@ -248,7 +248,11 @@ func (m LandingMapper) mapPackageDetailEntityToResponse(
 		return dto.LandingPackageDetailResponse{}, err
 	}
 
-	landingPackageDetailItemEntities, err := landingPackageDetailItemRepository.FindAll(ctx, repository.FindAllOptions{})
+	landingPackageDetailItemEntities, err := landingPackageDetailItemRepository.FindAll(ctx, repository.FindAllOptions{
+		Where: map[string]any{
+			"landing_package_detail_id": landingPackageDetail.Id,
+		},
+	})
 	if err != nil {
 		return dto.LandingPackageDetailResponse{}, err
 	}

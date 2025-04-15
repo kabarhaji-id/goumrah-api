@@ -1081,6 +1081,19 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
+		landingPackageDetailItems, err := landingPackageDetailItemRepository.DeleteMany(ctx)
+		if err != nil {
+			return err
+		}
+		for _, landingPackageDetailItem := range landingPackageDetailItems {
+			if _, err := landingPackageItemRepository.Delete(
+				ctx,
+				landingPackageDetailItem.LandingPackageItemId,
+			); err != nil {
+				return err
+			}
+		}
+
 		landingPackagesContentSilverLandingPackageDetail, err := landingPackageDetailRepository.FindById(
 			ctx,
 			landingPackagesContent.SilverLandingPackageDetailId,
@@ -1116,20 +1129,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
-		landingPackagesContentSilverLandingPackageDetailItems, err := landingPackageDetailItemRepository.DeleteMany(ctx)
-		if err != nil {
-			return err
-		}
-		for _, landingPackagesContentSilverLandingPackageDetailItem := range landingPackagesContentSilverLandingPackageDetailItems {
-			if _, err := landingPackageItemRepository.Delete(
-				ctx,
-				landingPackagesContentSilverLandingPackageDetailItem.LandingPackageItemId,
-			); err != nil {
-				return err
-			}
-		}
-
-		landingPackagesContentSilverLandingPackageDetailItems = make(
+		landingPackagesContentSilverLandingPackageDetailItems := make(
 			[]entity.LandingPackageDetailItem, len(request.PackagesContent.Silver.Packages),
 		)
 		for i, packageItem := range request.PackagesContent.Silver.Packages {
@@ -1197,20 +1197,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
-		landingPackagesContentGoldLandingPackageDetailItems, err := landingPackageDetailItemRepository.DeleteMany(ctx)
-		if err != nil {
-			return err
-		}
-		for _, landingPackagesContentGoldLandingPackageDetailItem := range landingPackagesContentGoldLandingPackageDetailItems {
-			if _, err := landingPackageItemRepository.Delete(
-				ctx,
-				landingPackagesContentGoldLandingPackageDetailItem.LandingPackageItemId,
-			); err != nil {
-				return err
-			}
-		}
-
-		landingPackagesContentGoldLandingPackageDetailItems = make(
+		landingPackagesContentGoldLandingPackageDetailItems := make(
 			[]entity.LandingPackageDetailItem, len(request.PackagesContent.Gold.Packages),
 		)
 		for i, packageItem := range request.PackagesContent.Gold.Packages {
@@ -1278,20 +1265,7 @@ func (s landingServiceImpl) UpdateLanding(ctx context.Context, request dto.Landi
 			return err
 		}
 
-		landingPackagesContentPlatinumLandingPackageDetailItems, err := landingPackageDetailItemRepository.DeleteMany(ctx)
-		if err != nil {
-			return err
-		}
-		for _, landingPackagesContentPlatinumLandingPackageDetailItem := range landingPackagesContentPlatinumLandingPackageDetailItems {
-			if _, err := landingPackageItemRepository.Delete(
-				ctx,
-				landingPackagesContentPlatinumLandingPackageDetailItem.LandingPackageItemId,
-			); err != nil {
-				return err
-			}
-		}
-
-		landingPackagesContentPlatinumLandingPackageDetailItems = make(
+		landingPackagesContentPlatinumLandingPackageDetailItems := make(
 			[]entity.LandingPackageDetailItem, len(request.PackagesContent.Platinum.Packages),
 		)
 		for index, packageItem := range request.PackagesContent.Platinum.Packages {

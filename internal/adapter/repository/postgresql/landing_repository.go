@@ -489,8 +489,10 @@ func (r landingPackageDetailItemRepositoryPostgresql) CreateMany(ctx context.Con
 func (r landingPackageDetailItemRepositoryPostgresql) FindAll(ctx context.Context, opt repository.FindAllOptions) ([]entity.LandingPackageDetailItem, error) {
 	builder := sqlbuilder.New().
 		S(`SELECT "is_enabled", "is_mobile", "is_desktop", "landing_package_detail_id", "landing_package_item_id", "created_at", "updated_at", "deleted_at"`).
-		S(`FROM "landing_package_detail_items" WHERE "deleted_at" IS NULL`).
-		S(`ORDER BY "landing_package_detail_id" ASC`)
+		S(`FROM "landing_package_detail_items" WHERE "deleted_at" IS NULL`)
+	if landingPackageDetailId, ok := opt.Where["landing_package_detail_id"]; ok {
+		builder.SA(`AND "landing_package_detail_id" = ?`, landingPackageDetailId)
+	}
 	if opt.Limit.Valid {
 		builder.SA(`LIMIT ?`, opt.Limit)
 	}
