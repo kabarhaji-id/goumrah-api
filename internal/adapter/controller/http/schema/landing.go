@@ -424,15 +424,16 @@ func (r LandingMenuRequest) ToDtoRequest() dto.LandingMenuRequest {
 }
 
 type LandingRequest struct {
-	HeroContent          LandingHeroContentRequest          `json:"hero_content"`
-	SinglePackageContent LandingSinglePackageContentRequest `json:"single_package_content"`
-	PackagesContent      LandingPackagesContentRequest      `json:"packages_content"`
-	FeaturesContent      LandingFeaturesContentRequest      `json:"features_content"`
-	MomentsContent       LandingMomentsContentRequest       `json:"moments_content"`
-	AffiliatesContent    LandingAffiliatesContentRequest    `json:"affiliates_content"`
-	TestimonialContent   LandingTestimonialContentRequest   `json:"testimonial_content"`
-	FaqContent           LandingFaqContentRequest           `json:"faq_content"`
-	Menus                []LandingMenuRequest               `json:"menus"`
+	HeroContent              LandingHeroContentRequest              `json:"hero_content"`
+	SinglePackageContent     LandingSinglePackageContentRequest     `json:"single_package_content"`
+	PackagesContent          LandingPackagesContentRequest          `json:"packages_content"`
+	TravelDestinationContent LandingTravelDestinationContentRequest `json:"travel_destination_content"`
+	FeaturesContent          LandingFeaturesContentRequest          `json:"features_content"`
+	MomentsContent           LandingMomentsContentRequest           `json:"moments_content"`
+	AffiliatesContent        LandingAffiliatesContentRequest        `json:"affiliates_content"`
+	TestimonialContent       LandingTestimonialContentRequest       `json:"testimonial_content"`
+	FaqContent               LandingFaqContentRequest               `json:"faq_content"`
+	Menus                    []LandingMenuRequest                   `json:"menus"`
 }
 
 func (r LandingRequest) ToDtoRequest() dto.LandingRequest {
@@ -442,15 +443,16 @@ func (r LandingRequest) ToDtoRequest() dto.LandingRequest {
 	}
 
 	return dto.LandingRequest{
-		HeroContent:          r.HeroContent.ToDtoRequest(),
-		SinglePackageContent: r.SinglePackageContent.ToDtoRequest(),
-		PackagesContent:      r.PackagesContent.ToDtoRequest(),
-		FeaturesContent:      r.FeaturesContent.ToDtoRequest(),
-		MomentsContent:       r.MomentsContent.ToDtoRequest(),
-		AffiliatesContent:    r.AffiliatesContent.ToDtoRequest(),
-		TestimonialContent:   r.TestimonialContent.ToDtoRequest(),
-		FaqContent:           r.FaqContent.ToDtoRequest(),
-		Menus:                menus,
+		HeroContent:              r.HeroContent.ToDtoRequest(),
+		SinglePackageContent:     r.SinglePackageContent.ToDtoRequest(),
+		PackagesContent:          r.PackagesContent.ToDtoRequest(),
+		TravelDestinationContent: r.TravelDestinationContent.ToDtoRequest(),
+		FeaturesContent:          r.FeaturesContent.ToDtoRequest(),
+		MomentsContent:           r.MomentsContent.ToDtoRequest(),
+		AffiliatesContent:        r.AffiliatesContent.ToDtoRequest(),
+		TestimonialContent:       r.TestimonialContent.ToDtoRequest(),
+		FaqContent:               r.FaqContent.ToDtoRequest(),
+		Menus:                    menus,
 	}
 }
 
