@@ -57,6 +57,19 @@ type LandingPackagesContentRepository interface {
 	Delete(ctx context.Context) (entity.LandingPackagesContent, error)
 }
 
+type LandingTravelDestinationContentRepository interface {
+	Create(ctx context.Context, landingTravelDestinationContent entity.LandingTravelDestinationContent) (entity.LandingTravelDestinationContent, error)
+	Find(ctx context.Context) (entity.LandingTravelDestinationContent, error)
+	Update(ctx context.Context, landingTravelDestinationContent entity.LandingTravelDestinationContent) (entity.LandingTravelDestinationContent, error)
+	Delete(ctx context.Context) (entity.LandingTravelDestinationContent, error)
+}
+
+type LandingTravelDestinationContentDestinationRepository interface {
+	CreateMany(ctx context.Context, landingTravelDestinationContentDestinations []entity.LandingTravelDestinationContentDestination) ([]entity.LandingTravelDestinationContentDestination, error)
+	FindAll(ctx context.Context, opt FindAllOptions) ([]entity.LandingTravelDestinationContentDestination, error)
+	DeleteMany(ctx context.Context) ([]entity.LandingTravelDestinationContentDestination, error)
+}
+
 type LandingFeaturesContentRepository interface {
 	Create(ctx context.Context, landingFeaturesContent entity.LandingFeaturesContent) (entity.LandingFeaturesContent, error)
 	Find(ctx context.Context) (entity.LandingFeaturesContent, error)

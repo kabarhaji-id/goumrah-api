@@ -40,7 +40,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER prevent_delete_landing_section_header_if_landing_testimonial_content_exists
-BEFORE UPDATE ON landing_package_items
+BEFORE UPDATE ON landing_section_headers
 FOR EACH ROW
 WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
 EXECUTE FUNCTION prevent_delete_landing_section_header_if_landing_testimonial_content_exists();
@@ -96,7 +96,7 @@ INSERT INTO "landing_testimonial_content_reviews" (
 DROP TABLE IF EXISTS "landing_testimonial_content_reviews";
 
 DROP TRIGGER IF EXISTS "prevent_insert_landing_testimonial_content_if_landing_section_header_is_soft_deleted" ON "landing_testimonial_content";
-DROP TRIGGER IF EXISTS "prevent_delete_landing_section_header_if_landing_testimonial_content_exists" ON "landing_package_items";
+DROP TRIGGER IF EXISTS "prevent_delete_landing_section_header_if_landing_testimonial_content_exists" ON "landing_section_headers";
 DROP FUNCTION IF EXISTS "prevent_insert_landing_testimonial_content_if_landing_section_header_is_soft_deleted"();
 DROP FUNCTION IF EXISTS "prevent_delete_landing_section_header_if_landing_testimonial_content_exists"();
 

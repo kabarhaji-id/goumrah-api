@@ -151,6 +151,41 @@ func (r LandingPackagesContentRequest) ToDtoRequest() dto.LandingPackagesContent
 	}
 }
 
+type LandingTravelDestinationContentDestinationRequest struct {
+	IsEnabled bool       `json:"is_enabled"`
+	IsMobile  bool       `json:"is_mobile"`
+	IsDesktop bool       `json:"is_desktop"`
+	Image     null.Int64 `json:"image"`
+	Name      string     `json:"name"`
+}
+
+func (r LandingTravelDestinationContentDestinationRequest) ToDtoRequest() dto.LandingTravelDestinationContentDestinationRequest {
+	return dto.LandingTravelDestinationContentDestinationRequest{
+		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
+		Image:     r.Image,
+		Name:      r.Name,
+	}
+}
+
+type LandingTravelDestinationContentRequest struct {
+	IsEnabled    bool                                                `json:"is_enabled"`
+	IsMobile     bool                                                `json:"is_mobile"`
+	IsDesktop    bool                                                `json:"is_desktop"`
+	Header       LandingSectionHeaderRequest                         `json:"header"`
+	Destinations []LandingTravelDestinationContentDestinationRequest `json:"destinations"`
+}
+
+func (r LandingTravelDestinationContentRequest) ToDtoRequest() dto.LandingTravelDestinationContentRequest {
+	return dto.LandingTravelDestinationContentRequest{
+		IsEnabled: r.IsEnabled,
+		IsMobile:  r.IsMobile,
+		IsDesktop: r.IsDesktop,
+		Header:    r.Header.ToDtoRequest(),
+	}
+}
+
 type LandingFeaturesContentBenefitRequest struct {
 	IsEnabled bool       `json:"is_enabled"`
 	IsMobile  bool       `json:"is_mobile"`
@@ -751,6 +786,69 @@ func NewLandingPackagesContentResponses(dtos []dto.LandingPackagesContentRespons
 	return responses
 }
 
+type LandingTravelDestinationContentDestinationResponse struct {
+	IsEnabled bool                      `json:"is_enabled"`
+	IsMobile  bool                      `json:"is_mobile"`
+	IsDesktop bool                      `json:"is_desktop"`
+	Image     null.Value[ImageResponse] `json:"image"`
+	Name      string                    `json:"name"`
+}
+
+func NewLandingTravelDestinationContentDestinationResponse(dto dto.LandingTravelDestinationContentDestinationResponse) LandingTravelDestinationContentDestinationResponse {
+	image := null.NewValue(ImageResponse{}, false)
+	if dto.Image.Valid {
+		imageResponse := NewImageResponse(dto.Image.V)
+
+		image = null.ValueFrom(imageResponse)
+	}
+
+	return LandingTravelDestinationContentDestinationResponse{
+		IsEnabled: dto.IsEnabled,
+		IsMobile:  dto.IsMobile,
+		IsDesktop: dto.IsDesktop,
+		Image:     image,
+		Name:      dto.Name,
+	}
+}
+
+func NewLandingTravelDestinationContentDestinationResponses(dtos []dto.LandingTravelDestinationContentDestinationResponse) []LandingTravelDestinationContentDestinationResponse {
+	responses := make([]LandingTravelDestinationContentDestinationResponse, len(dtos))
+	for i, dto := range dtos {
+		responses[i] = NewLandingTravelDestinationContentDestinationResponse(dto)
+	}
+	return responses
+}
+
+type LandingTravelDestinationContentResponse struct {
+	IsEnabled    bool                                                 `json:"is_enabled"`
+	IsMobile     bool                                                 `json:"is_mobile"`
+	IsDesktop    bool                                                 `json:"is_desktop"`
+	Header       LandingSectionHeaderResponse                         `json:"header"`
+	Destinations []LandingTravelDestinationContentDestinationResponse `json:"destinations"`
+}
+
+func NewLandingTravelDestinationContentResponse(dto dto.LandingTravelDestinationContentResponse) LandingTravelDestinationContentResponse {
+	destinations := make([]LandingTravelDestinationContentDestinationResponse, len(dto.Destinations))
+	for i, d := range dto.Destinations {
+		destinations[i] = NewLandingTravelDestinationContentDestinationResponse(d)
+	}
+	return LandingTravelDestinationContentResponse{
+		IsEnabled:    dto.IsEnabled,
+		IsMobile:     dto.IsMobile,
+		IsDesktop:    dto.IsDesktop,
+		Header:       NewLandingSectionHeaderResponse(dto.Header),
+		Destinations: destinations,
+	}
+}
+
+func NewLandingTravelDestinationContentResponses(dtos []dto.LandingTravelDestinationContentResponse) []LandingTravelDestinationContentResponse {
+	responses := make([]LandingTravelDestinationContentResponse, len(dtos))
+	for i, dto := range dtos {
+		responses[i] = NewLandingTravelDestinationContentResponse(dto)
+	}
+	return responses
+}
+
 type LandingFeaturesContentBenefitResponse struct {
 	IsEnabled bool                      `json:"is_enabled"`
 	IsMobile  bool                      `json:"is_mobile"`
@@ -1090,28 +1188,30 @@ func NewLandingMenuResponses(dtos []dto.LandingMenuResponse) []LandingMenuRespon
 }
 
 type LandingResponse struct {
-	HeroContent          LandingHeroContentResponse          `json:"hero_content"`
-	SinglePackageContent LandingSinglePackageContentResponse `json:"single_package_content"`
-	PackagesContent      LandingPackagesContentResponse      `json:"packages_content"`
-	FeaturesContent      LandingFeaturesContentResponse      `json:"features_content"`
-	MomentsContent       LandingMomentsContentResponse       `json:"moments_content"`
-	AffiliatesContent    LandingAffiliatesContentResponse    `json:"affiliates_content"`
-	TestimonialContent   LandingTestimonialContentResponse   `json:"testimonial_content"`
-	FaqContent           LandingFaqContentResponse           `json:"faq_content"`
-	Menus                []LandingMenuResponse               `json:"menus"`
+	HeroContent              LandingHeroContentResponse              `json:"hero_content"`
+	SinglePackageContent     LandingSinglePackageContentResponse     `json:"single_package_content"`
+	PackagesContent          LandingPackagesContentResponse          `json:"packages_content"`
+	TravelDestinationContent LandingTravelDestinationContentResponse `json:"travel_destination_content"`
+	FeaturesContent          LandingFeaturesContentResponse          `json:"features_content"`
+	MomentsContent           LandingMomentsContentResponse           `json:"moments_content"`
+	AffiliatesContent        LandingAffiliatesContentResponse        `json:"affiliates_content"`
+	TestimonialContent       LandingTestimonialContentResponse       `json:"testimonial_content"`
+	FaqContent               LandingFaqContentResponse               `json:"faq_content"`
+	Menus                    []LandingMenuResponse                   `json:"menus"`
 }
 
 func NewLandingResponse(dto dto.LandingResponse) LandingResponse {
 	return LandingResponse{
-		HeroContent:          NewLandingHeroContentResponse(dto.HeroContent),
-		SinglePackageContent: NewLandingSinglePackageContentResponse(dto.SinglePackageContent),
-		PackagesContent:      NewLandingPackagesContentResponse(dto.PackagesContent),
-		FeaturesContent:      NewLandingFeaturesContentResponse(dto.FeaturesContent),
-		MomentsContent:       NewLandingMomentsContentResponse(dto.MomentsContent),
-		AffiliatesContent:    NewLandingAffiliatesContentResponse(dto.AffiliatesContent),
-		TestimonialContent:   NewLandingTestimonialContentResponse(dto.TestimonialContent),
-		FaqContent:           NewLandingFaqContentResponse(dto.FaqContent),
-		Menus:                NewLandingMenuResponses(dto.Menus),
+		HeroContent:              NewLandingHeroContentResponse(dto.HeroContent),
+		SinglePackageContent:     NewLandingSinglePackageContentResponse(dto.SinglePackageContent),
+		PackagesContent:          NewLandingPackagesContentResponse(dto.PackagesContent),
+		TravelDestinationContent: NewLandingTravelDestinationContentResponse(dto.TravelDestinationContent),
+		FeaturesContent:          NewLandingFeaturesContentResponse(dto.FeaturesContent),
+		MomentsContent:           NewLandingMomentsContentResponse(dto.MomentsContent),
+		AffiliatesContent:        NewLandingAffiliatesContentResponse(dto.AffiliatesContent),
+		TestimonialContent:       NewLandingTestimonialContentResponse(dto.TestimonialContent),
+		FaqContent:               NewLandingFaqContentResponse(dto.FaqContent),
+		Menus:                    NewLandingMenuResponses(dto.Menus),
 	}
 }
 
