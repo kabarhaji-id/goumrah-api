@@ -178,11 +178,17 @@ type LandingTravelDestinationContentRequest struct {
 }
 
 func (r LandingTravelDestinationContentRequest) ToDtoRequest() dto.LandingTravelDestinationContentRequest {
+	destinations := make([]dto.LandingTravelDestinationContentDestinationRequest, len(r.Destinations))
+	for i, d := range r.Destinations {
+		destinations[i] = d.ToDtoRequest()
+	}
+
 	return dto.LandingTravelDestinationContentRequest{
-		IsEnabled: r.IsEnabled,
-		IsMobile:  r.IsMobile,
-		IsDesktop: r.IsDesktop,
-		Header:    r.Header.ToDtoRequest(),
+		IsEnabled:    r.IsEnabled,
+		IsMobile:     r.IsMobile,
+		IsDesktop:    r.IsDesktop,
+		Header:       r.Header.ToDtoRequest(),
+		Destinations: destinations,
 	}
 }
 
